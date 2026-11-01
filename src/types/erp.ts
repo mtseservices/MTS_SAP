@@ -85,6 +85,19 @@ export interface ClientCompany {
   adminName: string;
   adminEmail: string;
   theme: ThemePalette;
+  tablePattern?: string;
+  tableLayoutPattern?: string;
+  fontFamily?: string;
+  limitApprovalRequests?: {
+    id: string;
+    requestedUserLimit?: number;
+    requestedBranchLimit?: number;
+    requestedModules?: string[];
+    reason?: string;
+    requestedBy?: string;
+    requestedAt?: string;
+    status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  }[];
 }
 
 export interface UserProfile {
