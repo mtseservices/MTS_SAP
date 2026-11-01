@@ -140,19 +140,49 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen, onCl
               </div>
             </>
           ) : (
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Select Tenant Company</label>
-              <select
-                value={selectedCompanySlug}
-                onChange={(e) => setSelectedCompanySlug(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-cyan-500"
-              >
-                {allCompanies.map((c) => (
-                  <option key={c.id} value={c.slug}>
-                    {c.name} ({c.slug}.erp.mts.pk)
-                  </option>
-                ))}
-              </select>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Select Tenant Company</label>
+                <select
+                  value={selectedCompanySlug}
+                  onChange={(e) => setSelectedCompanySlug(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-cyan-500"
+                >
+                  {allCompanies.map((c) => (
+                    <option key={c.id} value={c.slug}>
+                      {c.name} ({c.slug}.erp.mts.pk)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Client User Name</label>
+                <div className="relative">
+                  <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="e.g. admin_gourmet"
+                    className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-mono focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Password</label>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-mono focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+              </div>
             </div>
           )}
 
