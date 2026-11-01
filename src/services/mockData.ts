@@ -6,6 +6,7 @@ import {
   SalesInvoice,
   BillOfMaterials,
   WorkOrder,
+  ProductionTask,
   Employee,
   CustomForm,
   ApprovalWorkflow,
@@ -242,6 +243,74 @@ export const INITIAL_WORK_ORDERS: WorkOrder[] = [
     startDate: '2026-10-22',
     dueDate: '2026-11-02',
     status: 'IN_PROGRESS',
+    tenantId: 'tenant_albarka'
+  }
+];
+
+export const INITIAL_PRODUCTION_TASKS: ProductionTask[] = [
+  {
+    id: 'pt_01',
+    workOrderId: 'wo_01',
+    orderNo: 'WO-2026-088',
+    taskName: 'Stage 1: Raw Material Sifting & Ingredient Dosing',
+    assignedTo: 'Operator Asif (Preparation Section)',
+    dependsOnTaskId: null,
+    startDate: '2026-10-22',
+    dueDate: '2026-10-24',
+    progressPercent: 100,
+    status: 'COMPLETED',
+    tenantId: 'tenant_albarka'
+  },
+  {
+    id: 'pt_02',
+    workOrderId: 'wo_01',
+    orderNo: 'WO-2026-088',
+    taskName: 'Stage 2: High-Speed Dough Kneading & Temperature Control',
+    assignedTo: 'Mixer Team Alpha',
+    dependsOnTaskId: 'pt_01',
+    startDate: '2026-10-24',
+    dueDate: '2026-10-26',
+    progressPercent: 100,
+    status: 'COMPLETED',
+    tenantId: 'tenant_albarka'
+  },
+  {
+    id: 'pt_03',
+    workOrderId: 'wo_01',
+    orderNo: 'WO-2026-088',
+    taskName: 'Stage 3: Automated Extrusion & Roller Shaping',
+    assignedTo: 'Shaping Line Crew',
+    dependsOnTaskId: 'pt_02',
+    startDate: '2026-10-26',
+    dueDate: '2026-10-29',
+    progressPercent: 60,
+    status: 'IN_PROGRESS',
+    tenantId: 'tenant_albarka'
+  },
+  {
+    id: 'pt_04',
+    workOrderId: 'wo_01',
+    orderNo: 'WO-2026-088',
+    taskName: 'Stage 4: Industrial Tunnel Oven Baking & Cooling Conveyor',
+    assignedTo: 'Oven Operations Section B',
+    dependsOnTaskId: 'pt_03',
+    startDate: '2026-10-29',
+    dueDate: '2026-10-31',
+    progressPercent: 0,
+    status: 'BLOCKED',
+    tenantId: 'tenant_albarka'
+  },
+  {
+    id: 'pt_05',
+    workOrderId: 'wo_01',
+    orderNo: 'WO-2026-088',
+    taskName: 'Stage 5: High-Speed Flow Wrapping & Master Carton Sealing',
+    assignedTo: 'Packaging Unit 4',
+    dependsOnTaskId: 'pt_04',
+    startDate: '2026-10-31',
+    dueDate: '2026-11-02',
+    progressPercent: 0,
+    status: 'BLOCKED',
     tenantId: 'tenant_albarka'
   }
 ];

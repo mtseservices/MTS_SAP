@@ -298,3 +298,63 @@ export async function saveAccountHeadToFirebase(companyId: string, account: Acco
     handleFirestoreError(err, 'save_account', `companies/${safeCompId}/accounts/${account.id}`);
   }
 }
+
+// 7. Budget Planning Real-Time Functions
+export interface BudgetItem {
+  id: string;
+  category: string;
+  accountCode: string;
+  accountName: string;
+  projectedAmount: number;
+  fiscalYear: string;
+}
+
+export const INITIAL_BUDGETS: BudgetItem[] = [
+  { id: 'b_01', category: 'Cost of Goods Sold', accountCode: '5010', accountName: 'Cost of Goods Sold (COGS)', projectedAmount: 95000000, fiscalYear: '2026-2027' },
+  { id: 'b_02', category: 'Operating Expense', accountCode: '5020', accountName: 'Factory Salaries & Payroll', projectedAmount: 15000000, fiscalYear: '2026-2027' },
+  { id: 'b_03', category: 'Operating Expense', accountCode: '5030', accountName: 'Plant Utilities & Fuel', projectedAmount: 6500000, fiscalYear: '2026-2027' },
+  { id: 'b_04', category: 'Operating Expense', accountCode: '5040', accountName: 'Logistics & Freight', projectedAmount: 4500000, fiscalYear: '2026-2027' },
+  { id: 'b_05', category: 'Commercial Expense', accountCode: '5050', accountName: 'Marketing & Distribution', projectedAmount: 3500000, fiscalYear: '2026-2027' }
+];
+
+export function subscribeCompanyBudgets(
+  companyId: string,
+  onData: (budgets: BudgetItem[]) => void
+) {
+  const safeCompId = companyId || 'default_company';
+  const budgetsCol = collection(db, 'companies', safeCompId, 'budgets');
+
+  return onSnapshot(
+    budgetsCol,
+    (snapshot) => {
+      if (snapshot.empty) {
+        INITIAL_BUDGETS.forEach((b) => {
+          setDoc(doc(db, 'companies', safeCompId, 'budgets', b.id), b).catch((err) =>
+            handleFirestoreError(err, 'seed_budget', `companies/${safeCompId}/budgets/${b.id}`)
+          );
+        });
+        onData(INITIAL_BUDGETS);
+      } else {
+        const loaded: BudgetItem[] = [];
+        snapshot.forEach((docSnap) => {
+          loaded.push(docSnap.data() as BudgetItem);
+        });
+        onData(loaded);
+      }
+    },
+    (error) => {
+      handleFirestoreError(error, 'subscribe_budgets', `companies/${safeCompId}/budgets`);
+      onData(INITIAL_BUDGETS);
+    }
+  );
+}
+
+export async function saveBudgetToFirebase(companyId: string, budget: BudgetItem) {
+  const safeCompId = companyId || 'default_company';
+  try {
+    await setDoc(doc(db, 'companies', safeCompId, 'budgets', budget.id), budget);
+  } catch (err) {
+    handleFirestoreError(err, 'save_budget', `companies/${safeCompId}/budgets/${budget.id}`);
+  }
+}
+

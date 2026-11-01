@@ -256,6 +256,20 @@ export interface WorkOrder {
   tenantId: string;
 }
 
+export interface ProductionTask {
+  id: string;
+  workOrderId: string;
+  orderNo: string;
+  taskName: string;
+  assignedTo: string;
+  dependsOnTaskId?: string | null;
+  startDate: string;
+  dueDate: string;
+  progressPercent: number;
+  status: 'BLOCKED' | 'READY_TO_START' | 'IN_PROGRESS' | 'COMPLETED';
+  tenantId: string;
+}
+
 // HR Employee
 export interface Employee {
   id: string;

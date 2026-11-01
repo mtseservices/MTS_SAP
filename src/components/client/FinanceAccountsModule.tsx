@@ -13,7 +13,9 @@ import {
   TrendingUp,
   PieChart,
   RefreshCw,
-  Share2
+  Share2,
+  Target,
+  AlertTriangle
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { AccountHead, JournalVoucher, VoucherItem } from '../../types/erp';
@@ -23,10 +25,13 @@ import {
   subscribeCompanyAccounts,
   subscribeCompanyVouchers,
   postVoucherToFirebase,
-  saveAccountHeadToFirebase
+  saveAccountHeadToFirebase,
+  subscribeCompanyBudgets,
+  saveBudgetToFirebase,
+  BudgetItem
 } from '../../services/firebaseAccounting';
 
-type SubTab = 'vouchers' | 'coa' | 'gl' | 'subledger' | 'trialBalance' | 'pnl' | 'balanceSheet' | 'newVoucher';
+type SubTab = 'vouchers' | 'coa' | 'gl' | 'subledger' | 'trialBalance' | 'pnl' | 'balanceSheet' | 'budget' | 'newVoucher';
 
 export const FinanceAccountsModule: React.FC = () => {
   const { currentCompany } = useAuthTenant();
@@ -43,6 +48,7 @@ export const FinanceAccountsModule: React.FC = () => {
     if (['sub_ledger', 'aging', 'subledger'].includes(tabParam)) return 'subledger';
     if (['trial_balance', 'trialBalance'].includes(tabParam)) return 'trialBalance';
     if (['profit_loss', 'pnl'].includes(tabParam)) return 'pnl';
+    if (['budget', 'budgets', 'budget_planning'].includes(tabParam)) return 'budget';
     if (tabParam === 'newVoucher') return 'newVoucher';
 
     return 'vouchers';
@@ -51,7 +57,15 @@ export const FinanceAccountsModule: React.FC = () => {
   const [activeSubTab, setActiveSubTab] = useState<SubTab>(getInitialTab);
   const [accounts, setAccounts] = useState<AccountHead[]>([]);
   const [vouchers, setVouchers] = useState<JournalVoucher[]>([]);
+  const [budgets, setBudgets] = useState<BudgetItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // New Budget Modal State
+  const [showAddBudgetModal, setShowAddBudgetModal] = useState(false);
+  const [budCategory, setBudCategory] = useState('Operating Expense');
+  const [budAccountCode, setBudAccountCode] = useState('5020');
+  const [budAccountName, setBudAccountName] = useState('Factory Salaries & Payroll');
+  const [budProjectedAmount, setBudProjectedAmount] = useState(15000000);
 
   // New Voucher Form state
   const [voucherType, setVoucherType] = useState<'JOURNAL' | 'PAYMENT' | 'RECEIPT' | 'CONTRA'>('JOURNAL');
@@ -85,11 +99,31 @@ export const FinanceAccountsModule: React.FC = () => {
       setIsLoading(false);
     });
 
+    const unsubBudgets = subscribeCompanyBudgets(currentCompany.id, (bList) => {
+      setBudgets(bList);
+    });
+
     return () => {
       unsubAccounts();
       unsubVouchers();
+      unsubBudgets();
     };
   }, [currentCompany.id]);
+
+  const handleCreateBudget = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const newBudget: BudgetItem = {
+      id: `b_${Date.now()}`,
+      category: budCategory,
+      accountCode: budAccountCode,
+      accountName: budAccountName,
+      projectedAmount: Number(budProjectedAmount) || 0,
+      fiscalYear: '2026-2027'
+    };
+
+    await saveBudgetToFirebase(currentCompany.id, newBudget);
+    setShowAddBudgetModal(false);
+  };
 
   const totalDebit = items.reduce((acc, i) => acc + (Number(i.debit) || 0), 0);
   const totalCredit = items.reduce((acc, i) => acc + (Number(i.credit) || 0), 0);
@@ -232,7 +266,8 @@ export const FinanceAccountsModule: React.FC = () => {
           { id: 'subledger', label: 'Sub-Ledger (AR/AP)', icon: FileSpreadsheet },
           { id: 'trialBalance', label: 'Trial Balance', icon: Scale },
           { id: 'pnl', label: 'Profit & Loss (P&L)', icon: TrendingUp },
-          { id: 'balanceSheet', label: 'Balance Sheet', icon: PieChart }
+          { id: 'balanceSheet', label: 'Balance Sheet', icon: PieChart },
+          { id: 'budget', label: 'Budget Planning', icon: Target }
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeSubTab === tab.id;
@@ -632,26 +667,6 @@ export const FinanceAccountsModule: React.FC = () => {
             </div>
 
             {/* Totals & Balance indicator */}
-            <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700 flex items-center justify-between text-xs font-mono">
-              <div>
-                Total Debit: <span className="font-bold text-emerald-400">Rs. {totalDebit.toLocaleString()}</span>
-              </div>
-              <div>
-                Total Credit: <span className="font-bold text-cyan-400">Rs. {totalCredit.toLocaleString()}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                {isBalanced ? (
-                  <span className="flex items-center gap-1 text-emerald-400 font-bold">
-                    <CheckCircle2 className="w-4 h-4" /> Balanced
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-1 text-rose-400 font-bold animate-pulse">
-                    <AlertCircle className="w-4 h-4" /> Unbalanced (Diff: Rs. {Math.abs(totalDebit - totalCredit).toLocaleString()})
-                  </span>
-                )}
-              </div>
-            </div>
-
             <div className="flex justify-end gap-3 pt-3">
               <button
                 type="button"
@@ -675,7 +690,250 @@ export const FinanceAccountsModule: React.FC = () => {
           </form>
         </div>
       )}
+
+      {/* Tab 8: Budget Planning & Variance Dashboard */}
+      {activeSubTab === 'budget' && (
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+            <div>
+              <h2 className="text-sm font-bold text-slate-100 uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+                <Target className="w-5 h-5" />
+                Budget Planning vs Actual General Ledger Expenditures
+              </h2>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Real-time tracking of projected budget allocations against live General Ledger debit transactions for fiscal year 2026-2027.
+              </p>
+            </div>
+
+            <button
+              onClick={() => setShowAddBudgetModal(true)}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/30 transition-all shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              Allocate New Budget Target
+            </button>
+          </div>
+
+          {/* Budget Overview KPI Summary Cards */}
+          {(() => {
+            const totalProjected = budgets.reduce((sum, b) => sum + b.projectedAmount, 0);
+            const totalActual = budgets.reduce((sum, b) => {
+              const actualSpent = generalLedgerList
+                .filter((g) => g.accountCode === b.accountCode)
+                .reduce((s, g) => s + g.debit, 0);
+              return sum + (actualSpent || 0);
+            }, 0);
+            const netRemaining = totalProjected - totalActual;
+            const overallUtilization = totalProjected > 0 ? (totalActual / totalProjected) * 100 : 0;
+
+            return (
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 font-mono text-xs">
+                <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 shadow-xl space-y-1">
+                  <span className="text-slate-400 text-[11px] block uppercase">Total Projected Budget</span>
+                  <span className="text-2xl font-black text-slate-100">Rs. {totalProjected.toLocaleString()}</span>
+                  <span className="text-[10px] text-slate-500 block">Fiscal Year 2026-2027</span>
+                </div>
+
+                <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 shadow-xl space-y-1">
+                  <span className="text-slate-400 text-[11px] block uppercase">Live GL Actual Expenditures</span>
+                  <span className="text-2xl font-black text-amber-400">Rs. {totalActual.toLocaleString()}</span>
+                  <span className="text-[10px] text-slate-500 block">Synced with Firebase GL</span>
+                </div>
+
+                <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 shadow-xl space-y-1">
+                  <span className="text-slate-400 text-[11px] block uppercase">Net Remaining Funds</span>
+                  <span className={`text-2xl font-black ${netRemaining >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    Rs. {netRemaining.toLocaleString()}
+                  </span>
+                  <span className="text-[10px] text-slate-500 block">Available Capital</span>
+                </div>
+
+                <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 shadow-xl space-y-1">
+                  <span className="text-slate-400 text-[11px] block uppercase">Budget Utilization</span>
+                  <span className={`text-2xl font-black ${overallUtilization > 100 ? 'text-rose-400' : 'text-cyan-400'}`}>
+                    {overallUtilization.toFixed(1)}%
+                  </span>
+                  <span className="text-[10px] text-slate-500 block">Overall Target Rate</span>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Budget vs Actual Variance Table */}
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-cyan-400">
+              Departmental Budget vs Actual GL Variance Breakdown
+            </h3>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs font-mono text-left border-collapse border border-slate-800">
+                <thead>
+                  <tr className="bg-slate-800 text-slate-300 border-b border-slate-700 uppercase font-bold">
+                    <th className="p-3 border border-slate-800">Account / Category</th>
+                    <th className="p-3 border border-slate-800 text-right">Projected Budget</th>
+                    <th className="p-3 border border-slate-800 text-right">Actual GL Spent</th>
+                    <th className="p-3 border border-slate-800 text-right">Variance (Diff)</th>
+                    <th className="p-3 border border-slate-800 text-center">Utilization Bar</th>
+                    <th className="p-3 border border-slate-800 text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60">
+                  {budgets.map((b) => {
+                    const actualSpent = generalLedgerList
+                      .filter((g) => g.accountCode === b.accountCode)
+                      .reduce((s, g) => s + g.debit, 0);
+
+                    const variance = b.projectedAmount - actualSpent;
+                    const percent = b.projectedAmount > 0 ? (actualSpent / b.projectedAmount) * 100 : 0;
+
+                    let statusBadge = (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                        Under Budget
+                      </span>
+                    );
+                    let barColor = 'bg-emerald-500';
+
+                    if (percent >= 80 && percent <= 100) {
+                      statusBadge = (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                          Near Limit
+                        </span>
+                      );
+                      barColor = 'bg-amber-500';
+                    } else if (percent > 100) {
+                      statusBadge = (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 flex items-center gap-1 justify-center">
+                          <AlertTriangle className="w-3 h-3" /> Over Budget
+                        </span>
+                      );
+                      barColor = 'bg-rose-500';
+                    }
+
+                    return (
+                      <tr key={b.id} className="hover:bg-slate-800/40">
+                        <td className="p-3 border border-slate-800/60">
+                          <div className="font-bold text-slate-100">{b.accountName}</div>
+                          <div className="text-[10px] text-slate-400">Code: {b.accountCode} • Category: {b.category}</div>
+                        </td>
+                        <td className="p-3 border border-slate-800/60 text-right font-bold text-slate-200">
+                          Rs. {b.projectedAmount.toLocaleString()}
+                        </td>
+                        <td className="p-3 border border-slate-800/60 text-right font-bold text-amber-400">
+                          Rs. {actualSpent.toLocaleString()}
+                        </td>
+                        <td className={`p-3 border border-slate-800/60 text-right font-bold ${variance >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                          Rs. {variance.toLocaleString()}
+                        </td>
+                        <td className="p-3 border border-slate-800/60 text-center w-48">
+                          <div className="space-y-1">
+                            <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden border border-slate-700">
+                              <div
+                                className={`h-full ${barColor} transition-all duration-500`}
+                                style={{ width: `${Math.min(100, percent)}%` }}
+                              />
+                            </div>
+                            <div className="text-[10px] text-slate-400 font-mono">{percent.toFixed(1)}% Used</div>
+                          </div>
+                        </td>
+                        <td className="p-3 border border-slate-800/60 text-center">
+                          {statusBadge}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Allocate New Budget Modal */}
+      {showAddBudgetModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-sm font-bold text-slate-100 uppercase tracking-wider text-emerald-400">
+                Allocate New Budget Target
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowAddBudgetModal(false)}
+                className="text-slate-400 hover:text-slate-200 text-xs font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateBudget} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Expense Account Head</label>
+                <select
+                  value={budAccountCode}
+                  onChange={(e) => {
+                    const code = e.target.value;
+                    setBudAccountCode(code);
+                    const matchedAcc = accounts.find((a) => a.code === code);
+                    if (matchedAcc) {
+                      setBudAccountName(matchedAcc.name);
+                      setBudCategory(matchedAcc.category);
+                    }
+                  }}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100"
+                >
+                  {accounts
+                    .filter((a) => a.type === 'Expense' || a.type === 'Cost of Goods Sold' || a.code.startsWith('5'))
+                    .map((a) => (
+                      <option key={a.id} value={a.code}>
+                        {a.code} - {a.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Category Title</label>
+                <input
+                  type="text"
+                  value={budCategory}
+                  onChange={(e) => setBudCategory(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Projected Budget Allocation (PKR)</label>
+                <input
+                  type="number"
+                  value={budProjectedAmount}
+                  onChange={(e) => setBudProjectedAmount(Number(e.target.value))}
+                  required
+                  className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-mono"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setShowAddBudgetModal(false)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/30"
+                >
+                  Save Budget Target
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
 
