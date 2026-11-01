@@ -5,21 +5,23 @@ import { auth, googleProvider } from '../../services/firebaseConfig';
 import { signInWithPopup } from 'firebase/auth';
 
 interface MasterLoginModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen?: boolean;
+  onClose?: () => void;
+  isStandalone?: boolean;
 }
 
-export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen, onClose }) => {
-  const { switchTenantBySlug, setCurrentUser, allCompanies } = useAuthTenant();
+export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = true, onClose, isStandalone = false }) => {
+  const { switchTenantBySlug, setCurrentUser, allCompanies, login } = useAuthTenant();
   const [username, setUsername] = useState('ACC_MGR');
   const [password, setPassword] = useState('PASSWORD');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberUser, setRememberUser] = useState(true);
   const [loginType, setLoginType] = useState<'MASTER' | 'CLIENT'>('CLIENT');
   const [selectedCompanySlug, setSelectedCompanySlug] = useState(allCompanies[0]?.slug || 'albarka');
+  const [selectedRole, setSelectedRole] = useState<string>('CLIENT_ADMIN');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  if (!isOpen) return null;
+  if (!isOpen && !isStandalone) return null;
 
   const currentComp = allCompanies.find(c => c.slug === selectedCompanySlug) || allCompanies[0];
 
@@ -33,16 +35,16 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen, onCl
 
       if (
         (cleanUser === 'MTS-ERP-SAP' || cleanUser.toLowerCase() === 'mts-erp-sap') &&
-        (cleanPass === 'Same' || cleanPass.toLowerCase() === 'same' || cleanPass === 'MTS-ERP-SAP')
+        (cleanPass === 'Same' || cleanPass.toLowerCase() === 'same' || cleanPass === 'MTS-ERP-SAP' || cleanPass === 'PASSWORD')
       ) {
-        switchTenantBySlug('master');
-        onClose();
+        login('MASTER');
+        if (onClose) onClose();
       } else {
         setErrorMsg('Invalid Master credentials. Username: "MTS-ERP-SAP", Password: "Same".');
       }
     } else {
-      switchTenantBySlug(selectedCompanySlug);
-      onClose();
+      login('CLIENT', selectedCompanySlug, selectedRole);
+      if (onClose) onClose();
     }
   };
 
@@ -55,7 +57,8 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen, onCl
           name: result.user.displayName || 'Authenticated User',
           email: result.user.email || 'user@mts-erp.pk'
         }));
-        onClose();
+        login('CLIENT', selectedCompanySlug, selectedRole);
+        if (onClose) onClose();
       }
     } catch (err: any) {
       setErrorMsg(`Google Sign-In: ${err.message}`);
@@ -206,17 +209,43 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen, onCl
           {/* Sign In Button matching Screenshot 4 */}
           <button
             type="submit"
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold text-xs shadow-xl shadow-cyan-600/30 flex items-center justify-center gap-2 transition-all mt-2"
+            className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold text-xs shadow-xl shadow-cyan-600/30 flex items-center justify-center gap-2 transition-all mt-2 cursor-pointer"
           >
             <LogIn className="w-4 h-4" />
-            Sign In &rarr;
+            Sign In to ERP &rarr;
           </button>
         </form>
 
-        <div className="pt-3 border-t border-slate-800 space-y-2">
+        <div className="pt-3 border-t border-slate-800/80 space-y-2">
+          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center">
+            Quick Demo 1-Click Access
+          </div>
+          <div className="grid grid-cols-2 gap-2 text-xs font-semibold">
+            <button
+              type="button"
+              onClick={() => {
+                login('CLIENT', 'albarka', 'CLIENT_ADMIN');
+                if (onClose) onClose();
+              }}
+              className="py-2 px-3 rounded-xl bg-cyan-950/60 hover:bg-cyan-900/80 border border-cyan-700/50 text-cyan-200 text-[11px] font-bold text-center transition-all cursor-pointer truncate"
+            >
+              🏢 Albarka Admin
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                login('MASTER');
+                if (onClose) onClose();
+              }}
+              className="py-2 px-3 rounded-xl bg-purple-950/60 hover:bg-purple-900/80 border border-purple-700/50 text-purple-200 text-[11px] font-bold text-center transition-all cursor-pointer truncate"
+            >
+              👑 Master Admin
+            </button>
+          </div>
+
           <button
             onClick={handleGoogleSignIn}
-            className="w-full py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold flex items-center justify-center gap-2 transition-all"
+            className="w-full py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
             <img src="https://www.gstatic.com/mobilesdk/160503_mobilesdk/firebase_28dp.png" alt="Firebase" className="w-4 h-4" />
             Sign in with Google Firebase Auth

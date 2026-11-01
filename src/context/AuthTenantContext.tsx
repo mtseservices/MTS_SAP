@@ -4,6 +4,8 @@ import { INITIAL_CLIENT_COMPANIES, resolveCurrentTenant } from '../services/tena
 import { INITIAL_BRANCHES } from '../services/mockData';
 
 interface AuthTenantContextType {
+  isAuthenticated: boolean;
+  setIsAuthenticated: (val: boolean) => void;
   isMasterPortal: boolean;
   setIsMasterPortal: (val: boolean) => void;
   currentCompany: ClientCompany;
@@ -19,6 +21,8 @@ interface AuthTenantContextType {
   setTheme: (t: ThemePalette) => void;
   switchTenantBySlug: (slug: string) => void;
   registerNewCompany: (newCompData: Partial<ClientCompany>) => ClientCompany;
+  login: (type?: 'MASTER' | 'CLIENT', companySlug?: string, role?: string) => void;
+  logout: () => void;
 }
 
 const MASTER_USER: UserProfile = {
@@ -53,6 +57,9 @@ const AuthTenantContext = createContext<AuthTenantContextType | undefined>(undef
 
 export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [allCompanies, setAllCompanies] = useState<ClientCompany[]>(INITIAL_CLIENT_COMPANIES);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return sessionStorage.getItem('mts_auth') === 'true';
+  });
   const [isMasterPortal, setIsMasterPortal] = useState<boolean>(false);
   const [currentCompany, setCurrentCompany] = useState<ClientCompany>(INITIAL_CLIENT_COMPANIES[0]);
   const [currentUser, setCurrentUser] = useState<UserProfile>(DEFAULT_CLIENT_USER);
@@ -70,6 +77,38 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       setTheme(resolved.company.theme || 'corporate-blue');
     }
   }, []);
+
+  const login = (type: 'MASTER' | 'CLIENT' = 'CLIENT', companySlug?: string, role?: string) => {
+    setIsAuthenticated(true);
+    sessionStorage.setItem('mts_auth', 'true');
+
+    if (type === 'MASTER') {
+      setIsMasterPortal(true);
+      setCurrentUser(MASTER_USER);
+    } else {
+      setIsMasterPortal(false);
+      const targetSlug = companySlug || currentCompany.slug;
+      const matched = allCompanies.find(c => c.slug.toLowerCase() === targetSlug.toLowerCase()) || allCompanies[0];
+      setCurrentCompany(matched);
+      setTheme(matched.theme || 'corporate-blue');
+
+      let updatedRole = role || 'CLIENT_ADMIN';
+      setCurrentUser({
+        ...DEFAULT_CLIENT_USER,
+        tenantId: matched.tenantId,
+        companyId: matched.id,
+        companyName: matched.name,
+        email: matched.adminEmail,
+        name: matched.adminName,
+        role: updatedRole as any
+      });
+    }
+  };
+
+  const logout = () => {
+    setIsAuthenticated(false);
+    sessionStorage.removeItem('mts_auth');
+  };
 
   const switchTenantBySlug = (slug: string) => {
     if (slug === 'master') {
@@ -140,6 +179,8 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   return (
     <AuthTenantContext.Provider
       value={{
+        isAuthenticated,
+        setIsAuthenticated,
         isMasterPortal,
         setIsMasterPortal,
         currentCompany,
@@ -154,7 +195,9 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         theme,
         setTheme,
         switchTenantBySlug,
-        registerNewCompany
+        registerNewCompany,
+        login,
+        logout
       }}
     >
       <div className={`theme-${theme} min-h-screen text-slate-100`}>

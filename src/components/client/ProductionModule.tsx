@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Factory,
   Plus,
@@ -13,13 +13,16 @@ import {
   Play,
   CheckSquare,
   Sparkles,
-  Calendar
+  Calendar,
+  Bell,
+  Volume2
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { INITIAL_BOMS, INITIAL_WORK_ORDERS, INITIAL_PRODUCTION_TASKS } from '../../services/mockData';
 import { BillOfMaterials, WorkOrder, ProductionTask } from '../../types/erp';
 import { DataTable } from '../common/DataTable';
 import { TTSButton } from '../common/TTSButton';
+import { notificationStore } from '../../services/notificationStore';
 
 export const ProductionModule: React.FC = () => {
   const { currentCompany } = useAuthTenant();
@@ -37,6 +40,27 @@ export const ProductionModule: React.FC = () => {
   const [newDueDate, setNewDueDate] = useState('2026-11-04');
 
   const [blockedAlert, setBlockedAlert] = useState<string | null>(null);
+  const [recentNotificationFeed, setRecentNotificationFeed] = useState<string[]>([]);
+  const [browserPermission, setBrowserPermission] = useState<NotificationPermission>(
+    typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'default'
+  );
+
+  const requestBrowserPermission = async () => {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      const perm = await Notification.requestPermission();
+      setBrowserPermission(perm);
+    }
+  };
+
+  const triggerBrowserAlert = (title: string, body: string) => {
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+      try {
+        new Notification(title, { body, icon: '/public/pwa-192x192.png' });
+      } catch (err) {
+        console.warn('Browser Notification error:', err);
+      }
+    }
+  };
 
   // Helper to check if a task's prerequisite is satisfied
   const isPrerequisiteMet = (task: ProductionTask): boolean => {
@@ -46,7 +70,7 @@ export const ProductionModule: React.FC = () => {
   };
 
   // Handle advancing or completing a task stage
-  const handleUpdateTaskProgress = (taskId: string, newProgress: number) => {
+  const handleUpdateTaskProgress = async (taskId: string, newProgress: number) => {
     const targetTask = tasks.find((t) => t.id === taskId);
     if (!targetTask) return;
 
@@ -62,24 +86,28 @@ export const ProductionModule: React.FC = () => {
       }
     }
 
+    const isNowCompleted = newProgress >= 100;
+
     // Update task
     const updatedTasks = tasks.map((t) => {
       if (t.id === taskId) {
-        const isCompleted = newProgress >= 100;
         return {
           ...t,
           progressPercent: Math.min(100, newProgress),
-          status: isCompleted ? ('COMPLETED' as const) : ('IN_PROGRESS' as const)
+          status: isNowCompleted ? ('COMPLETED' as const) : ('IN_PROGRESS' as const)
         };
       }
       return t;
     });
 
-    // Re-evaluate dependent task lock statuses
+    // Re-evaluate dependent task lock statuses and trigger real-time notifications for unlocked tasks
+    const unlockedTaskNames: string[] = [];
+
     const finalTasks = updatedTasks.map((t) => {
       if (t.dependsOnTaskId) {
         const p = updatedTasks.find((parent) => parent.id === t.dependsOnTaskId);
         if (p && (p.status === 'COMPLETED' || p.progressPercent === 100) && t.status === 'BLOCKED') {
+          unlockedTaskNames.push(t.taskName);
           return { ...t, status: 'READY_TO_START' as const };
         }
       }
@@ -87,9 +115,42 @@ export const ProductionModule: React.FC = () => {
     });
 
     setTasks(finalTasks);
+
+    // Trigger Notification for Dependency Resolution!
+    if (isNowCompleted) {
+      const feedMsg = `Stage Completed: "${targetTask.taskName}" finished 100%.`;
+      setRecentNotificationFeed((prev) => [feedMsg, ...prev]);
+
+      await notificationStore.addNotification({
+        tenantId: currentCompany.tenantId,
+        title: 'Stage Completed in Production',
+        message: `Stage "${targetTask.taskName}" marked 100% COMPLETED for Work Order #${targetTask.orderNo}.`,
+        type: 'SYSTEM',
+        severity: 'INFO',
+        targetTab: 'production'
+      });
+    }
+
+    if (unlockedTaskNames.length > 0) {
+      for (const unName of unlockedTaskNames) {
+        const unMsg = `⚡ Task Dependency Unlocked! Stage "${unName}" is now UNLOCKED & READY TO START.`;
+        setRecentNotificationFeed((prev) => [unMsg, ...prev]);
+
+        triggerBrowserAlert('⚡ Production Task Unlocked!', `Stage "${unName}" is now unlocked and ready to start.`);
+
+        await notificationStore.addNotification({
+          tenantId: currentCompany.tenantId,
+          title: 'Task Dependency Unlocked!',
+          message: `Stage "${unName}" is now UNLOCKED & READY TO START for Work Order #${targetTask.orderNo}.`,
+          type: 'SYSTEM',
+          severity: 'HIGH',
+          targetTab: 'production'
+        });
+      }
+    }
   };
 
-  const handleCreateTask = (e: React.FormEvent) => {
+  const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
     const prereqMet = newDependsOn
       ? tasks.find((t) => t.id === newDependsOn)?.status === 'COMPLETED'
@@ -111,6 +172,21 @@ export const ProductionModule: React.FC = () => {
 
     setTasks([...tasks, newTask]);
     setShowTaskModal(false);
+
+    // Trigger Assignment Notifications
+    const assignMsg = `📋 New Task Assigned: "${newTaskName}" assigned to ${newAssignedTo}.`;
+    setRecentNotificationFeed((prev) => [assignMsg, ...prev]);
+
+    triggerBrowserAlert('📋 New Task Assigned', `"${newTaskName}" assigned to ${newAssignedTo}.`);
+
+    await notificationStore.addNotification({
+      tenantId: currentCompany.tenantId,
+      title: 'New Production Task Assigned',
+      message: `Task "${newTaskName}" assigned to ${newAssignedTo} for Work Order #${newTask.orderNo}.`,
+      type: 'SYSTEM',
+      severity: 'MEDIUM',
+      targetTab: 'production'
+    });
   };
 
   const productionSpeech = `Production and Manufacturing for ${currentCompany.name}. Active Gantt workflow stages: ${tasks.length}. Sequential task dependency locks enforced in real time.`;

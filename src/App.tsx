@@ -25,6 +25,8 @@ import { ApprovalWorkflowModule } from './components/client/ApprovalWorkflowModu
 import { AiAssistantModule } from './components/client/AiAssistantModule';
 import { CompanySettingsModule } from './components/client/CompanySettingsModule';
 
+import { MasterLoginModal } from './components/common/MasterLoginModal';
+
 function MainLayout() {
   const { isMasterPortal, switchTenantBySlug } = useAuthTenant();
 
@@ -141,10 +143,20 @@ function MainLayout() {
   );
 }
 
+function RootApp() {
+  const { isAuthenticated } = useAuthTenant();
+
+  if (!isAuthenticated) {
+    return <MasterLoginModal isStandalone={true} />;
+  }
+
+  return <MainLayout />;
+}
+
 export default function App() {
   return (
     <AuthTenantProvider>
-      <MainLayout />
+      <RootApp />
     </AuthTenantProvider>
   );
 }

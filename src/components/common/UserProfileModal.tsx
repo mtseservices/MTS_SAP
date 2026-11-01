@@ -9,13 +9,13 @@ interface UserProfileModalProps {
 }
 
 export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onClose, onOpenLogin }) => {
-  const { currentUser, isMasterPortal, currentCompany, switchTenantBySlug } = useAuthTenant();
+  const { currentUser, isMasterPortal, currentCompany, logout } = useAuthTenant();
 
   if (!isOpen) return null;
 
   const handleLogout = () => {
+    logout();
     onClose();
-    onOpenLogin();
   };
 
   return (

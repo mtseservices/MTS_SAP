@@ -213,7 +213,27 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
   const isModuleActive = (moduleId: string): boolean => {
     if (isMasterPortal) return true;
     if (!currentCompany.activeModules || currentCompany.activeModules.length === 0) return true;
-    return currentCompany.activeModules.includes(moduleId);
+
+    const activeLower = currentCompany.activeModules.map((m) => m.toLowerCase());
+    const targetLower = moduleId.toLowerCase();
+
+    if (activeLower.includes(targetLower)) return true;
+
+    if (targetLower === 'finance' && (activeLower.includes('finance') || activeLower.includes('accounts'))) return true;
+    if (targetLower === 'procurement' && (activeLower.includes('procurement') || activeLower.includes('purchasing'))) return true;
+    if (targetLower === 'inventory' && (activeLower.includes('inventory') || activeLower.includes('warehouse'))) return true;
+    if (targetLower === 'sales' && (activeLower.includes('sales') || activeLower.includes('pos'))) return true;
+    if (targetLower === 'production' && (activeLower.includes('production') || activeLower.includes('manufacturing'))) return true;
+    if (targetLower === 'hr' && (activeLower.includes('hr') || activeLower.includes('payroll'))) return true;
+
+    if (targetLower === 'formbuilder' && (activeLower.includes('forms') || activeLower.includes('form builder'))) return true;
+    if (targetLower === 'reports' && (activeLower.includes('reports') || activeLower.includes('reporting'))) return true;
+    if (targetLower === 'approvals' && (activeLower.includes('approvals') || activeLower.includes('approval'))) return true;
+    if (targetLower === 'aiassistant' && (activeLower.includes('ai assistant') || activeLower.includes('ai'))) return true;
+
+    if (targetLower === 'companysettings' || targetLower === 'auditlogs' || targetLower === 'dashboard') return true;
+
+    return false;
   };
 
   const handleSubItemClick = (deptId: ActiveTab, subcategory: string, subtabId: string) => {
