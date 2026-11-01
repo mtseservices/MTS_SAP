@@ -1,0 +1,1102 @@
+# MASTER PROMPT – UNIVERSAL HYBRID ERP-SAP
+## Firebase + Vercel + Multi-Tenant + Master Admin + Company-Specific URLs + Offline PWA
+
+### 1. YOUR ROLE
+
+Act as a Senior Enterprise ERP Architect, SAP Functional Consultant, Firebase Architect, Full-Stack Developer, Database Engineer, Cybersecurity Specialist, UI/UX Designer and AI Automation Engineer.
+
+Build a complete, professional, dynamic, enterprise-level Universal Hybrid ERP-SAP web application.
+
+This is a real software development project, not a static UI, demonstration, prototype or dashboard mockup.
+
+The application must support all types of businesses in Pakistan, from small businesses to large enterprise groups.
+
+### 2. REQUIRED TECHNOLOGY STACK
+
+Use the following architecture:
+
+| Component | Technology |
+|---|---|
+| Development | Google AI Studio Build |
+| Frontend | React + TypeScript |
+| Styling | Tailwind CSS |
+| UI Components | Ant Design or Material UI |
+| Database | Firebase Cloud Firestore |
+| Authentication | Firebase Authentication |
+| File Storage | Firebase Storage |
+| Backend | Secure server-side API functions |
+| Server | Vercel |
+| Hosting | Vercel |
+| Offline Storage | IndexedDB |
+| Offline Support | PWA + Service Worker |
+| Synchronization | Custom Sync Engine |
+| AI | Secure backend-based AI integration |
+| Reporting | PDF, Excel, CSV |
+| Icons | Lucide Icons |
+
+Use Firebase Admin SDK only on the secure server side.
+
+Never expose Firebase service account credentials, private keys, admin tokens or AI API keys in frontend code.
+
+Use environment variables for all confidential configuration.
+
+### 3. ONE APPLICATION – TWO LOGIN SYSTEMS
+
+Build one unified ERP application with two separate authentication experiences.
+
+A. MASTER USER LOGIN
+
+Master User has one central login URL:
+
+https://erp.yourdomain.com
+
+Master User can:
+
+- Login to the central administrator portal.
+- Create unlimited client companies.
+- Register new client organizations.
+- Create client-specific ERP URLs.
+- Activate or deactivate client accounts.
+- Configure client modules.
+- Manage client administrators.
+- Manage global users and permissions.
+- Manage company subscriptions and access.
+- Control all global configurations.
+- View system-wide dashboards.
+- Monitor all client activity.
+- Configure global themes and settings.
+- Manage database and system configurations.
+- Manage global notifications.
+- Access system-wide audit logs.
+
+There must be NO public Master User registration.
+
+Create the first Master User through a secure Firebase Admin provisioning process.
+
+Master User credentials must be protected by strong authentication and MFA.
+
+B. CLIENT USER LOGIN
+
+Each company must have its own unique URL.
+
+Examples:
+
+https://abc.erp.yourdomain.com
+
+https://xyz.erp.yourdomain.com
+
+https://solar.erp.yourdomain.com
+
+https://textile.erp.yourdomain.com
+
+https://foods.erp.yourdomain.com
+
+Every client URL must open the same deployed ERP application but automatically load the relevant company login and configuration.
+
+Client login must include:
+
+- Company logo.
+- Company name.
+- Company-specific background.
+- Company-specific theme.
+- Username/email.
+- Password.
+- Forgot password.
+- Remember session.
+- MFA where enabled.
+- Account status.
+- Login security.
+- Support contact.
+
+Users must only access their authorized company data.
+
+The same user may have access to multiple companies if explicitly authorized, with a secure company switcher.
+
+### 4. AUTOMATIC COMPANY URL GENERATOR
+
+Develop a Company Registration and URL Generation Engine.
+
+When Master User creates a new client company, automatically generate:
+
+1. Unique company ID.
+2. Unique tenant ID.
+3. Company code.
+4. Company name.
+5. URL slug.
+6. Company subdomain.
+7. Client login URL.
+8. Initial Client Administrator account.
+9. Default company settings.
+10. Default department structure.
+11. Selected ERP modules.
+12. Company-specific database configuration.
+13. Company logo configuration.
+14. Default permissions.
+15. Initial onboarding configuration.
+
+Example:
+
+Master creates:
+
+Company Name: Albarka Food Industries
+
+Company Code: AFI001
+
+URL Slug: albarka
+
+Automatically generate:
+
+https://albarka.erp.yourdomain.com
+
+The URL must be unique.
+
+If the URL already exists, suggest alternative available slugs.
+
+Allow Master User to edit a company slug with proper validation and redirect management.
+
+Company registration form fields:
+
+- Company Name
+- Registered Business Name
+- Company Code
+- Business Category
+- Industry
+- NTN
+- STRN
+- Company Email
+- Phone
+- Address
+- City
+- Province
+- Country
+- Website
+- Company Logo
+- Primary Contact
+- Subscription Plan
+- Number of Users
+- Number of Branches
+- Selected Modules
+- Company Admin Name
+- Company Admin Email
+- Initial Account Status
+- Custom Subdomain
+
+IMPORTANT URL ARCHITECTURE:
+
+Use one Vercel deployment for the entire ERP.
+
+Configure:
+- Root domain for Master User.
+- Wildcard subdomain for client companies.
+- Dynamic hostname detection.
+- Tenant resolution from hostname.
+- Company-specific login interface.
+- Company-specific dashboard.
+
+Use wildcard DNS and Vercel wildcard domain configuration.
+
+Example DNS:
+*.erp.yourdomain.com
+
+Configure Vercel wildcard domain and SSL.
+
+Do not create separate deployments for each company.
+
+Do not create a separate frontend application for each client.
+
+All company URLs must point to the same deployed application.
+
+For development, support local tenant testing through localhost paths or approved development subdomains.
+
+### 5. TENANT ISOLATION AND FIREBASE SECURITY
+
+Use a multi-tenant architecture.
+
+Every business record must be associated with:
+
+- tenantId
+- companyId
+- branchId
+- departmentId where applicable
+- createdBy
+- createdAt
+- updatedBy
+- updatedAt
+- status
+
+Suggested Firestore architecture:
+
+/system/globalSettings
+
+/system/masterUsers
+
+/system/auditLogs
+
+/tenants/{tenantId}
+
+/tenants/{tenantId}/companySettings
+
+/tenants/{tenantId}/users
+
+/tenants/{tenantId}/roles
+
+/tenants/{tenantId}/permissions
+
+/tenants/{tenantId}/branches
+
+/tenants/{tenantId}/departments
+
+/tenants/{tenantId}/modules
+
+/tenants/{tenantId}/forms
+
+/tenants/{tenantId}/reports
+
+/tenants/{tenantId}/customers
+
+/tenants/{tenantId}/vendors
+
+/tenants/{tenantId}/items
+
+/tenants/{tenantId}/inventory
+
+/tenants/{tenantId}/purchases
+
+/tenants/{tenantId}/sales
+
+/tenants/{tenantId}/accounts
+
+/tenants/{tenantId}/production
+
+/tenants/{tenantId}/employees
+
+/tenants/{tenantId}/documents
+
+/tenants/{tenantId}/notifications
+
+/tenants/{tenantId}/auditLogs
+
+/tenants/{tenantId}/syncMetadata
+
+You may optimize the collection structure where necessary.
+
+Security requirements:
+
+- Firestore security rules must enforce tenant isolation.
+- Validate authenticated user membership.
+- Validate company and branch permissions.
+- Use custom claims where appropriate.
+- Verify tenant access on every sensitive backend operation.
+- Never trust tenantId supplied by the browser without authorization checks.
+- Master User access must be separately authorized.
+- Do not permit one company to read another company's records.
+- Protect company documents and attachments.
+- Prevent unauthorized cross-tenant queries.
+- Keep an immutable audit history for critical transactions.
+
+Provide complete Firestore security rules and deployment instructions.
+
+### 6. MASTER ADMIN CONTROL PANEL
+
+Create a powerful central Master Admin dashboard.
+
+Sidebar:
+
+1. Dashboard
+2. Client Companies
+3. Company Registration
+4. Company URLs
+5. Client Administrators
+6. Global Users
+7. Subscription Management
+8. Department Management
+9. Module Management
+10. Form Builder
+11. Report Builder
+12. Table Designer
+13. Workflow Builder
+14. Theme Designer
+15. Logo Management
+16. Navigation Designer
+17. AI Configuration
+18. Notification Center
+19. Security Management
+20. Database Management
+21. Backup Management
+22. Synchronization Monitoring
+23. System Audit
+24. System Settings
+25. Deployment & Integrations
+
+Master User must be able to:
+
+- Create, edit, suspend and deactivate clients.
+- Create unlimited company configurations.
+- Manage company URLs.
+- Manage users and permissions.
+- Activate or deactivate modules.
+- Customize company-specific dashboards.
+- Customize company-specific forms.
+- Customize reports.
+- Customize table columns.
+- Upload and change company logos.
+- Change login backgrounds.
+- Change themes and color palettes.
+- Configure notification rules.
+- Manage AI functionality.
+- Manage approval workflows.
+- Monitor system performance.
+- Review error logs.
+- Monitor online and offline clients.
+- Review synchronization status.
+
+Every configuration change must be stored persistently in Firebase and have an audit record.
+
+### 7. CLIENT ADMINISTRATION
+
+Every company must receive its own Client Admin dashboard.
+
+Client Admin can:
+
+- Manage own company profile.
+- Create multiple branches.
+- Create departments and sub-departments.
+- Create multiple users.
+- Create designations.
+- Assign roles.
+- Configure department permissions.
+- Activate permitted modules.
+- Configure company forms.
+- Create custom reports.
+- Upload company logo.
+- Customize company theme.
+- Configure workflows.
+- Manage documents.
+- View company reports.
+- Manage company notifications.
+
+Client Admin must never have access to global Master User settings or other clients' confidential records.
+
+### 8. COMPLETE ERP DEPARTMENTS
+
+Implement the following departments with multiple subcategories:
+
+1. Executive Management.
+2. Finance & Accounts.
+3. Inventory Management.
+4. Procurement & Purchasing.
+5. Supply Chain Management.
+6. Warehouse Management.
+7. Sales Management.
+8. Marketing.
+9. Customer Relationship Management.
+10. Production & Manufacturing.
+11. Engineering.
+12. Quality Management.
+13. Costing & Budgeting.
+14. Human Resource Management.
+15. Administration.
+16. Information Technology.
+17. Logistics & Transportation.
+18. Project Management.
+19. Import & Export.
+20. Taxation & Compliance.
+21. Legal & Contracts.
+22. Internal Audit.
+23. Risk Management.
+24. Research & Development.
+25. Maintenance.
+26. E-commerce.
+27. Retail & POS.
+28. Business Intelligence.
+29. Document Management.
+30. Franchise Management.
+31. Service Management.
+32. Health, Safety & Environment.
+
+Each department must have separate:
+
+- Sub-departments.
+- Sections.
+- Work categories.
+- Work types.
+- Master forms.
+- Transaction forms.
+- Approval forms.
+- Reports.
+- Dashboards.
+- KPIs.
+- Permissions.
+- Workflow configurations.
+
+Allow Master User and authorized Client Admins to create custom departments and subcategories.
+
+### 9. INDUSTRY-SPECIFIC PACKAGES
+
+Support:
+
+- Manufacturing.
+- Food & Beverage.
+- Solar & Electrical.
+- Textile.
+- Construction.
+- Wholesale.
+- Retail.
+- Supermarket.
+- Import & Export.
+- Agriculture.
+- Pharmaceutical.
+- Automotive.
+- Transport.
+- Logistics.
+- Education.
+- Healthcare.
+- Hospital.
+- Hotel.
+- Restaurant.
+- Real Estate.
+- E-commerce.
+- Service Companies.
+- Franchise Business.
+
+Each industry must have recommended modules, forms, reports and workflows.
+
+Master User must decide which packages each client can access.
+
+### 10. COMPLETE FORM MANAGEMENT SYSTEM
+
+Create a universal dynamic Form Builder.
+
+Supported field types:
+
+Text, Number, Decimal, Currency, Percentage, Date, Time, DateTime, Dropdown, Multi-select, Checkbox, Radio, Yes/No, File Upload, Image, Signature, Barcode, QR Code, Formula, Database Lookup, Repeating Table, Read-only and Auto Number.
+
+Every form must support:
+
+- Unique Form ID.
+- Form Name.
+- Department.
+- Sub-department.
+- Category.
+- Work Type.
+- Database Mapping.
+- Field Configuration.
+- Validation.
+- Default Values.
+- Required Fields.
+- Auto Numbering.
+- Calculated Fields.
+- Line-item tables.
+- Attachments.
+- Approval Sections.
+- Audit History.
+- Print Templates.
+
+Transaction actions:
+
+Save Draft, Save, Submit, Approve, Reject, Return, Cancel, Duplicate, Print, Export and View History.
+
+Create separate forms for every business operation.
+
+Examples:
+
+PROCUREMENT:
+Purchase Requisition, RFQ, Vendor Registration, Vendor Evaluation, Quotation Comparison, Purchase Order, PO Amendment, GRN, Inspection, Purchase Invoice, Purchase Return, Debit Note and Supplier Payment.
+
+INVENTORY:
+Item Master, Category, UOM, Warehouse, Opening Stock, Receipt, Issue, Transfer, Adjustment, Physical Stock, Batch, Serial Number, Expiry and Reorder.
+
+ACCOUNTS:
+Chart of Accounts, Opening Balance, Journal Voucher, Cash Receipt, Cash Payment, Bank Receipt, Bank Payment, Bank Transfer, Contra, Customer Invoice, Supplier Invoice, Credit Note, Debit Note and Reconciliation.
+
+SALES:
+Customer Master, Sales Quotation, Sales Order, Delivery Challan, Sales Invoice, Sales Return, Credit Note, Customer Receipt and Sales Commission.
+
+PRODUCTION:
+Product Master, BOM, Routing, Work Center, Production Plan, Work Order, Material Requirement, Material Issue, Consumption, WIP, Production Completion, Finished Goods, Scrap and Rework.
+
+HR:
+Employee Master, Recruitment, Interview, Appointment, Attendance, Leave, Overtime, Payroll, Loan, Advance, Salary Revision, Appraisal and Final Settlement.
+
+Create similarly detailed forms for every other department.
+
+### 11. UNIVERSAL REPORTING ENGINE
+
+Create separate report libraries for every department.
+
+Report categories:
+
+- Master Reports.
+- Transaction Reports.
+- Register Reports.
+- Detail Reports.
+- Summary Reports.
+- Pending Reports.
+- Approval Reports.
+- Exception Reports.
+- Analytical Reports.
+- Aging Reports.
+- Comparison Reports.
+- Audit Reports.
+- Management Reports.
+- KPI Reports.
+
+Important reports:
+
+FINANCE:
+General Ledger, Trial Balance, P&L, Balance Sheet, Cash Flow, Cash Book, Bank Book, Customer Ledger, Supplier Ledger, Receivable Aging, Payable Aging, Budget vs Actual, Cost Center Analysis.
+
+INVENTORY:
+Stock Ledger, Stock Valuation, Warehouse Stock, Batch Stock, Expiry, Near Expiry, Reorder, Negative Stock, Slow Moving, Non Moving, Stock Aging, Stock Variance, Stock Transfer.
+
+PROCUREMENT:
+Purchase Register, PR Register, Pending PR, RFQ Register, Vendor Comparison, Purchase Order Status, Pending PO, GRN Register, Vendor Performance, Price Variance, Supplier Outstanding.
+
+SALES:
+Sales Register, Customer Wise Sales, Product Wise Sales, Salesperson Performance, Sales vs Target, Sales Return, Customer Aging, Discount Analysis, Gross Profit, Branch Performance.
+
+PRODUCTION:
+Production Plan, Work Order Register, Material Consumption, WIP, Production Variance, Finished Goods, Machine Utilization, Yield, Scrap and Rework.
+
+HR:
+Employee Register, Department Wise Employees, Attendance, Leave, Payroll, Overtime, Salary Sheet, Employee Loan, Employee Turnover, Performance.
+
+Every department must receive a detailed report library.
+
+Report functions:
+
+- Date range.
+- Company and branch.
+- Department.
+- User.
+- Document status.
+- Dynamic filters.
+- Sorting.
+- Grouping.
+- Subtotals.
+- Grand totals.
+- Calculated columns.
+- Drill-down.
+- Print preview.
+- PDF export.
+- Excel export.
+- CSV export.
+- Saved report layouts.
+- Report permissions.
+
+Reports must be generated from real Firebase records, not static sample data.
+
+### 12. DYNAMIC TABLE DESIGNER
+
+Master User and authorized Client Admins can:
+
+- Add columns.
+- Remove columns.
+- Rename columns.
+- Resize columns.
+- Change sequence.
+- Freeze columns.
+- Hide/show columns.
+- Configure filters.
+- Configure sorting.
+- Configure grouping.
+- Configure totals.
+- Configure conditional formatting.
+- Save custom layouts.
+- Export data.
+
+All layouts must be saved in Firebase.
+
+### 13. HYBRID OFFLINE WEB APPLICATION
+
+This is a critical requirement.
+
+Build the ERP as an installable Progressive Web Application.
+
+It must operate through one unified web application.
+
+ONLINE:
+- Firebase connection.
+- Authentication.
+- Live database operations.
+- Multi-user access.
+- Cloud file storage.
+- Central reports.
+- Automatic synchronization.
+
+OFFLINE:
+- Previously loaded application shell.
+- Previously authenticated authorized user sessions under a controlled offline policy.
+- Local database using IndexedDB.
+- Locally stored permitted reference data.
+- Offline transaction creation.
+- Offline transaction editing where authorized.
+- Offline invoice generation and printing.
+- Offline reports based on available local records.
+- Local transaction queue.
+- Sync status.
+- Reconnection detection.
+
+SYNCHRONIZATION:
+
+When internet becomes available:
+
+1. Detect connection.
+2. Verify authentication.
+3. Verify tenant membership.
+4. Synchronize queued transactions.
+5. Validate records.
+6. Prevent duplicate transactions.
+7. Detect conflicts.
+8. Resolve conflicts through defined rules.
+9. Update local synchronization status.
+10. Display synchronization results.
+
+Use unique IDs and idempotent synchronization.
+
+Do not overwrite financial transactions without validation.
+
+Offline authentication must be limited to previously authorized users, with configurable session expiration and secure local storage.
+
+Do not cache sensitive records indiscriminately.
+
+Provide a clear Offline / Online indicator.
+
+IMPORTANT:
+The application must load from cache after its first successful online visit. An online Vercel URL cannot be accessed for the first time without internet.
+
+Do not claim that every Firebase feature works offline automatically. Implement and test the actual local storage and synchronization layer.
+
+### 14. USER MANAGEMENT AND SECURITY
+
+Roles:
+
+- Master User.
+- Client Administrator.
+- Company Director.
+- CEO.
+- Department Manager.
+- Supervisor.
+- Accountant.
+- Procurement Officer.
+- Storekeeper.
+- HR Officer.
+- Sales Officer.
+- Production Officer.
+- Warehouse Operator.
+- Auditor.
+- Data Entry Operator.
+- Custom Roles.
+
+Permission levels:
+
+View, Create, Edit, Delete, Approve, Reject, Cancel, Print, Export, Configure and Manage.
+
+Support:
+
+- Module-level access.
+- Form-level access.
+- Field-level access.
+- Branch-level access.
+- Department-level access.
+- Record-level access.
+- User-specific access.
+- Login sessions.
+- MFA.
+- Password policies.
+- Failed login protection.
+- Audit history.
+- Device management.
+
+Never store plain-text passwords.
+
+### 15. WORKFLOW ENGINE
+
+Create configurable approval workflows.
+
+Example:
+
+Purchase Requisition
+→ Department Supervisor
+→ Department Manager
+→ Procurement Manager
+→ Finance
+→ Authorized Approver
+→ Purchase Order.
+
+Payment:
+Payment Request
+→ Department Head
+→ Accounts Verification
+→ Finance Manager
+→ Authorized Signatory.
+
+HR:
+Leave Application
+→ Supervisor
+→ HR
+→ Department Manager
+→ Approval.
+
+Allow sequential, parallel, amount-based and condition-based approvals.
+
+Every approval must be logged.
+
+### 16. CONNECTED BUSINESS TRANSACTION ENGINE
+
+Connect departments logically.
+
+Example purchase cycle:
+
+Purchase Requisition
+→ Approval
+→ RFQ
+→ Vendor Comparison
+→ Purchase Order
+→ Goods Receipt
+→ Quality Inspection
+→ Inventory Update
+→ Purchase Invoice
+→ Accounts Payable
+→ Payment
+→ General Ledger.
+
+Example sales cycle:
+
+Customer
+→ Quotation
+→ Sales Order
+→ Stock Reservation
+→ Delivery
+→ Sales Invoice
+→ Customer Receivable
+→ Payment
+→ General Ledger.
+
+Example production cycle:
+
+Production Plan
+→ BOM
+→ Material Requirement
+→ Material Issue
+→ WIP
+→ Production Completion
+→ Quality Inspection
+→ Finished Goods Receipt
+→ Product Costing.
+
+All linked documents must maintain references and traceability.
+
+Each document must remain independently identifiable and auditable.
+
+### 17. PROFESSIONAL USER INTERFACE
+
+Create a premium enterprise ERP design.
+
+Top navigation:
+- Logo.
+- Company name.
+- Company selector.
+- Branch selector.
+- Global search.
+- Quick actions.
+- Notifications.
+- User profile.
+
+Sidebar:
+- Dashboard.
+- Departments.
+- Master Data.
+- Transactions.
+- Approvals.
+- Reports.
+- Analytics.
+- AI Tools.
+- Documents.
+- Administration.
+- Settings.
+
+Dashboard:
+- Sales.
+- Purchases.
+- Profit.
+- Inventory.
+- Cash.
+- Bank.
+- Receivables.
+- Payables.
+- Pending Approvals.
+- Notifications.
+- Business Charts.
+
+Theme options:
+
+- Corporate Blue.
+- Enterprise Dark.
+- Professional Green.
+- Royal Black & Gold.
+- Modern Light.
+- Custom Theme.
+
+Allow logo uploads, login backgrounds, configurable navigation icons, custom color palette, font sizes, table layouts and user-specific dashboards.
+
+### 18. AI ASSISTANT AND AUTOMATION
+
+Integrate AI capabilities:
+
+- Error Detection.
+- Accounting Suggestions.
+- Inventory Forecasting.
+- Procurement Analysis.
+- Vendor Comparison.
+- Costing Assistance.
+- Sales Forecasting.
+- Production Planning.
+- Financial Analysis.
+- Natural Language Reporting.
+- Invoice OCR.
+- Excel Data Analysis.
+- Duplicate Detection.
+- Unusual Transaction Alerts.
+- System Health Monitoring.
+
+AI must respect tenant and user permissions.
+
+All financial postings and sensitive changes require authorized approval.
+
+### 19. PAKISTAN CONFIGURATION
+
+Default:
+
+Currency: PKR.
+
+Currency Symbol: Rs.
+
+Date Format: DD-MM-YYYY.
+
+Language: English and Urdu.
+
+Support:
+
+- NTN.
+- STRN.
+- Sales Tax.
+- Income Tax.
+- Withholding Tax.
+- Pakistani Bank Reconciliation.
+- Payroll.
+- Financial Year.
+- Pakistani Invoice Templates.
+- A4 and Thermal Printing.
+
+Keep tax rates and legal settings configurable.
+
+Support FBR integration only through authorized official interfaces.
+
+### 20. VERCEL DEPLOYMENT
+
+Prepare the project for Vercel deployment.
+
+Requirements:
+
+- One application.
+- One Vercel project.
+- One production deployment.
+- One root Master URL.
+- Wildcard company subdomains.
+- HTTPS.
+- Dynamic tenant routing.
+- Server-side API functions.
+- Secure environment variables.
+- Production build configuration.
+
+Create all required deployment files.
+
+Include:
+
+- vercel.json where needed.
+- package.json.
+- Firebase configuration.
+- Firestore security rules.
+- Firestore indexes.
+- Environment variable template.
+- PWA manifest.
+- Service worker.
+- API routes.
+- Database initialization scripts.
+- Deployment instructions.
+
+Never put private Firebase credentials in public environment variables.
+
+Explain wildcard domain setup and DNS configuration.
+
+### 21. FIREBASE CONSOLE SETUP
+
+Prepare the application for a Firebase project.
+
+Use:
+
+1. Firebase Authentication.
+2. Cloud Firestore.
+3. Firebase Storage.
+4. Firebase Admin SDK on server side.
+5. Firebase Security Rules.
+6. Firestore Indexes.
+
+Create a setup guide covering:
+
+- Create Firebase project.
+- Register web application.
+- Enable authentication providers.
+- Create Firestore database.
+- Configure Storage.
+- Configure security rules.
+- Configure service credentials securely.
+- Configure Vercel environment variables.
+- Initialize first Master User.
+- Create initial company.
+- Verify tenant isolation.
+
+If credentials are missing, show a proper configuration screen instead of inventing successful Firebase connectivity.
+
+### 22. APPLICATION CONFIGURATION
+
+The system must have configurable:
+
+- Company name.
+- ERP name.
+- Logo.
+- Login background.
+- Theme.
+- Color palette.
+- Departments.
+- Sub-departments.
+- Modules.
+- Forms.
+- Fields.
+- Tables.
+- Reports.
+- Workflows.
+- Permissions.
+- Notifications.
+- User settings.
+- Currency.
+- Date format.
+- Number format.
+- Printing format.
+- Language.
+
+All settings must persist in Firebase.
+
+### 23. DEVELOPMENT RULES
+
+Build a genuinely functional application.
+
+Do not produce:
+- Static HTML-only mockups.
+- Fake login success.
+- Fake Firebase connections.
+- Fake company URLs.
+- Fake database records.
+- Non-functional buttons.
+- Sample-only reports presented as real reports.
+- Unprotected cross-company database access.
+
+Develop in a maintainable modular architecture.
+
+Preserve previous working functionality when adding new features.
+
+Validate every form and calculation.
+
+Connect all implemented forms to Firebase or the appropriate offline queue.
+
+Create automated tests for authentication, tenant isolation, forms, reports, workflows and synchronization.
+
+Clearly identify any feature requiring external credentials or additional infrastructure.
+
+### 24. EXECUTION ORDER
+
+Build in the following order:
+
+PHASE 1:
+Application structure, Firebase setup, Master User login and security.
+
+PHASE 2:
+Company registration, automatic subdomain routing, tenant isolation and Client Admin login.
+
+PHASE 3:
+Master Admin dashboard, Client Admin dashboard, user management and permissions.
+
+PHASE 4:
+Department management, dynamic modules, form builder and table designer.
+
+PHASE 5:
+Accounts, inventory, procurement, sales, warehouse, HR and costing.
+
+PHASE 6:
+Production, supply chain, logistics, quality, projects, maintenance and industry packages.
+
+PHASE 7:
+Report engine, workflows, notifications and document management.
+
+PHASE 8:
+Offline PWA, IndexedDB and synchronization engine.
+
+PHASE 9:
+AI assistant and automation.
+
+PHASE 10:
+Testing, security audit and Vercel deployment.
+
+Do not stop after producing the first dashboard.
+
+Implement each phase with working functionality and preserve the existing source code.
+
+If output limits prevent completing all phases, continue with the next phase using the existing project files.
+
+### 25. FINAL PROJECT DELIVERABLE
+
+Provide:
+
+1. Complete source code.
+2. Organized project folders.
+3. Firebase integration.
+4. Firestore database architecture.
+5. Firebase security rules.
+6. Master User login.
+7. Client User login.
+8. Company registration.
+9. Automatic tenant URL resolution.
+10. Master Admin control panel.
+11. Client Admin control panel.
+12. Dynamic department management.
+13. Dynamic forms.
+14. Dynamic tables.
+15. Dynamic reports.
+16. All core ERP modules.
+17. Approval engine.
+18. Offline PWA.
+19. Synchronization engine.
+20. AI integration framework.
+21. Vercel deployment files.
+22. Firebase setup guide.
+23. Vercel DNS and wildcard domain guide.
+24. Testing documentation.
+
+FINAL COMMAND:
+
+Start building the actual Universal Hybrid ERP-SAP application now.
+
+First implement a fully working foundation with Master User login, Firebase authentication, company registration, automatic company slug generation, client-specific tenant routing, Client Admin login, Firestore tenant isolation and professional dashboards.
+
+Use one Vercel application and one Firebase project.
+
+Master User must have one central URL.
+
+Every company must have its own automatically generated URL.
+
+All clients must use the same ERP application while their data, users, settings, forms, reports and permissions remain isolated.
+
+The entire system must be expandable into a complete enterprise ERP with offline and online functionality.
+
+Do not merely describe the architecture. Create the actual project files and working application.

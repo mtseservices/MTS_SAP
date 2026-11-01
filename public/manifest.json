@@ -1,0 +1,25 @@
+{
+  "short_name": "MTS-ERP-SAP",
+  "name": "MTS-ERP-SAP Universal Enterprise ERP",
+  "description": "Enterprise Multi-Tenant ERP & Inventory System with Offline PWA and Gemini TTS Voice Integration",
+  "icons": [
+    {
+      "src": "pwa-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "pwa-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0f172a",
+  "theme_color": "#1e293b",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "scope": "/"
+}

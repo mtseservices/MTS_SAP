@@ -1,0 +1,64 @@
+{
+  "entities": {
+    "ClientCompany": {
+      "title": "Client Company Tenant",
+      "description": "Enterprise tenant company definition",
+      "type": "object",
+      "properties": {
+        "tenantId": { "type": "string" },
+        "name": { "type": "string" },
+        "code": { "type": "string" },
+        "slug": { "type": "string" },
+        "industry": { "type": "string" },
+        "ntn": { "type": "string" },
+        "strn": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["tenantId", "name", "slug"]
+    },
+    "JournalVoucher": {
+      "title": "Journal Voucher",
+      "description": "Double-entry financial voucher",
+      "type": "object",
+      "properties": {
+        "voucherNo": { "type": "string" },
+        "totalAmount": { "type": "number" },
+        "narration": { "type": "string" },
+        "status": { "type": "string" },
+        "tenantId": { "type": "string" }
+      },
+      "required": ["voucherNo", "totalAmount", "tenantId"]
+    },
+    "SalesInvoice": {
+      "title": "Sales Invoice",
+      "description": "Tax invoice document",
+      "type": "object",
+      "properties": {
+        "invoiceNo": { "type": "string" },
+        "customerName": { "type": "string" },
+        "grandTotal": { "type": "number" },
+        "paymentStatus": { "type": "string" },
+        "tenantId": { "type": "string" }
+      },
+      "required": ["invoiceNo", "customerName", "grandTotal", "tenantId"]
+    }
+  },
+  "firestore": {
+    "/system/globalSettings": {
+      "schema": "ClientCompany",
+      "description": "Global Master ERP configurations"
+    },
+    "/tenants/{tenantId}/companies/{companyId}": {
+      "schema": "ClientCompany",
+      "description": "Tenant company settings"
+    },
+    "/tenants/{tenantId}/vouchers/{voucherId}": {
+      "schema": "JournalVoucher",
+      "description": "Financial vouchers for a tenant"
+    },
+    "/tenants/{tenantId}/invoices/{invoiceId}": {
+      "schema": "SalesInvoice",
+      "description": "Sales invoices for a tenant"
+    }
+  }
+}
