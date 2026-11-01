@@ -22,6 +22,8 @@ export const InventoryModule: React.FC = () => {
   const [unitPrice, setUnitPrice] = useState(850);
   const [purchasePrice, setPurchasePrice] = useState(650);
   const [currentStock, setCurrentStock] = useState(1500);
+  const [batchNumber, setBatchNumber] = useState('BATCH-2026-11X');
+  const [expiryDate, setExpiryDate] = useState('2027-11-01');
 
   const handleItemScanned = (scanned: ScannedItemPayload) => {
     setCode(scanned.code);
@@ -54,6 +56,8 @@ export const InventoryModule: React.FC = () => {
       purchasePrice,
       currentStock,
       reorderLevel: 200,
+      batchNumber,
+      expiryDate,
       tenantId: currentCompany.tenantId
     };
 
@@ -131,6 +135,24 @@ export const InventoryModule: React.FC = () => {
           { key: 'code', header: 'Item Code', accessor: (i) => <span className="font-mono font-bold text-purple-400">{i.code}</span>, sortable: true },
           { key: 'name', header: 'Item Description', accessor: (i) => <span className="font-bold text-slate-100">{i.name}</span>, sortable: true },
           { key: 'category', header: 'Category', accessor: (i) => <span className="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-cyan-300 font-semibold">{i.category}</span>, sortable: true },
+          { key: 'batchNumber', header: 'Batch / Lot No', accessor: (i) => <span className="font-mono text-cyan-300 text-xs">{i.batchNumber || 'N/A'}</span> },
+          { key: 'expiryDate', header: 'Expiry Date', accessor: (i) => {
+            if (!i.expiryDate) return <span className="text-slate-500 text-xs">N/A</span>;
+            const exp = new Date(i.expiryDate).getTime();
+            const now = new Date().getTime();
+            const diffDays = (exp - now) / (1000 * 60 * 60 * 24);
+            const isSoon = diffDays >= 0 && diffDays <= 30;
+            const isExp = diffDays < 0;
+            return (
+              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                isExp ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40' :
+                isSoon ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse' :
+                'bg-slate-800 text-slate-300'
+              }`}>
+                {i.expiryDate} {isSoon ? '(Expiring 30d)' : isExp ? '(Expired)' : ''}
+              </span>
+            );
+          }},
           { key: 'uom', header: 'UOM', accessor: (i) => i.uom },
           { key: 'currentStock', header: 'Available Stock', accessor: (i) => (
             <span className={`font-mono font-bold ${i.currentStock <= i.reorderLevel ? 'text-rose-400 animate-pulse' : 'text-emerald-400'}`}>
@@ -147,7 +169,7 @@ export const InventoryModule: React.FC = () => {
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-lg w-full space-y-4 shadow-2xl animate-in fade-in zoom-in-95">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h2 className="text-sm font-bold text-slate-100 uppercase tracking-wider text-purple-400">
-                Register New Master Item
+                Register New Master Item (Batch & Expiry Tracking)
               </h2>
               <button
                 type="button"
@@ -202,6 +224,30 @@ export const InventoryModule: React.FC = () => {
                     onChange={(e) => setUom(e.target.value)}
                     required
                     className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Batch / Lot Number</label>
+                  <input
+                    type="text"
+                    value={batchNumber}
+                    onChange={(e) => setBatchNumber(e.target.value)}
+                    required
+                    className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-cyan-300 font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Expiration Date</label>
+                  <input
+                    type="date"
+                    value={expiryDate}
+                    onChange={(e) => setExpiryDate(e.target.value)}
+                    required
+                    className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-amber-300 font-mono"
                   />
                 </div>
               </div>

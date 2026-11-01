@@ -164,6 +164,23 @@ export const INITIAL_INVENTORY: InventoryItem[] = [
     serialNumber: 'SN-SOL-550-9921',
     barcode: '896400030018',
     tenantId: 'tenant_solartech'
+  },
+  {
+    id: 'item_05',
+    code: 'RM-SPICE-BATCHX',
+    name: 'Organic Spice Blend Batch X (Expiring Soon)',
+    category: 'Raw Materials',
+    uom: 'Kg',
+    warehouseId: 'wh_lhr_main',
+    warehouseName: 'Lahore Central Warehouse',
+    unitPrice: 1200,
+    purchasePrice: 950,
+    currentStock: 320,
+    reorderLevel: 50,
+    batchNumber: 'BATCH-EXP-Nov14',
+    expiryDate: '2026-11-14',
+    barcode: '896400040019',
+    tenantId: 'tenant_albarka'
   }
 ];
 

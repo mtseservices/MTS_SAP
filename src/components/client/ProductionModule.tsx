@@ -29,7 +29,16 @@ export const ProductionModule: React.FC = () => {
   const [boms, setBoms] = useState<BillOfMaterials[]>(INITIAL_BOMS);
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>(INITIAL_WORK_ORDERS);
   const [tasks, setTasks] = useState<ProductionTask[]>(INITIAL_PRODUCTION_TASKS);
-  const [activeTab, setActiveTab] = useState<'workOrders' | 'gantt' | 'bom'>('gantt');
+  const [activeTab, setActiveTab] = useState<'workOrders' | 'gantt' | 'bom' | 'recurring'>('gantt');
+  const [recurringRules, setRecurringRules] = useState([
+    { id: 'rec_1', taskName: 'Daily Plant Equipment Maintenance & Lubrication', interval: 'DAILY', assignedTo: 'Maintenance Chief Aslam', nextRun: '2026-11-02 08:00 AM', status: 'ACTIVE' },
+    { id: 'rec_2', taskName: 'Weekly Quality Assurance & FBR Compliance Reporting', interval: 'WEEKLY', assignedTo: 'QA Officer Tariq', nextRun: '2026-11-08 09:00 AM', status: 'ACTIVE' },
+    { id: 'rec_3', taskName: 'Monthly Warehouse Stock Audit & Reconciliation', interval: 'MONTHLY', assignedTo: 'Inventory Manager Bilal', nextRun: '2026-12-01 10:00 AM', status: 'ACTIVE' }
+  ]);
+  const [showRecurringModal, setShowRecurringModal] = useState(false);
+  const [newRecName, setNewRecName] = useState('Daily Boiler Safety Inspection');
+  const [newRecInterval, setNewRecInterval] = useState<'DAILY' | 'WEEKLY' | 'MONTHLY'>('DAILY');
+  const [newRecAssignee, setNewRecAssignee] = useState('Chief Engineer Aslam');
 
   // Task Modal state
   const [showTaskModal, setShowTaskModal] = useState(false);
@@ -189,6 +198,35 @@ export const ProductionModule: React.FC = () => {
     });
   };
 
+  const handleCreateRecurringRule = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newRule = {
+      id: `rec_${Date.now()}`,
+      taskName: newRecName,
+      interval: newRecInterval,
+      assignedTo: newRecAssignee,
+      nextRun: new Date(Date.now() + 86400000).toISOString().replace('T', ' ').slice(0, 16),
+      status: 'ACTIVE'
+    };
+    setRecurringRules([...recurringRules, newRule]);
+
+    const autoTask: ProductionTask = {
+      id: `pt_${Date.now()}`,
+      workOrderId: 'wo_01',
+      orderNo: `REC-${newRecInterval}-${Date.now().toString().slice(-4)}`,
+      taskName: `${newRecName} (${newRecInterval} Recurring)`,
+      assignedTo: newRecAssignee,
+      dependsOnTaskId: null,
+      startDate: new Date().toISOString().split('T')[0],
+      dueDate: new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0],
+      progressPercent: 0,
+      status: 'READY_TO_START',
+      tenantId: currentCompany.tenantId
+    };
+    setTasks([autoTask, ...tasks]);
+    setShowRecurringModal(false);
+  };
+
   const productionSpeech = `Production and Manufacturing for ${currentCompany.name}. Active Gantt workflow stages: ${tasks.length}. Sequential task dependency locks enforced in real time.`;
 
   return (
@@ -230,6 +268,14 @@ export const ProductionModule: React.FC = () => {
               }`}
             >
               Master BOMs
+            </button>
+            <button
+              onClick={() => setActiveTab('recurring')}
+              className={`px-3 py-1 rounded-lg transition-all ${
+                activeTab === 'recurring' ? 'bg-rose-600 text-white' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              Recurring Schedules
             </button>
           </div>
         </div>
@@ -578,6 +624,142 @@ export const ProductionModule: React.FC = () => {
                   className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-lg shadow-rose-600/30"
                 >
                   Save Task Stage
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* RECURRING SCHEDULES TAB */}
+      {activeTab === 'recurring' && (
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+            <div>
+              <h2 className="text-sm font-bold text-slate-100 uppercase tracking-wider text-rose-400 flex items-center gap-2">
+                <Calendar className="w-5 h-5" />
+                Automated Recurring Production Task Schedules
+              </h2>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Define recurring maintenance or reporting intervals (Daily, Weekly, Monthly) that auto-generate entries in the production timeline.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowRecurringModal(true)}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-lg shadow-rose-600/30 transition-all shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              Add Recurring Rule
+            </button>
+          </div>
+
+          <DataTable
+            title="Active Recurring Task Schedules"
+            data={recurringRules}
+            columns={[
+              {
+                key: 'taskName',
+                header: 'Recurring Task Name',
+                accessor: (r) => <span className="font-bold text-slate-100">{r.taskName}</span>,
+                sortable: true
+              },
+              {
+                key: 'interval',
+                header: 'Scheduling Interval',
+                accessor: (r) => (
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                    {r.interval}
+                  </span>
+                )
+              },
+              {
+                key: 'assignedTo',
+                header: 'Assigned Operator',
+                accessor: (r) => <span className="text-slate-300">{r.assignedTo}</span>
+              },
+              {
+                key: 'nextRun',
+                header: 'Next Auto-Scheduled Run',
+                accessor: (r) => <span className="font-mono text-cyan-400">{r.nextRun}</span>
+              },
+              {
+                key: 'status',
+                header: 'Status',
+                accessor: (r) => (
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    {r.status}
+                  </span>
+                )
+              }
+            ]}
+          />
+        </div>
+      )}
+
+      {/* Create Recurring Schedule Modal */}
+      {showRecurringModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-sm font-bold text-slate-100 uppercase tracking-wider text-rose-400">
+                Create Recurring Task Schedule
+              </h3>
+              <button
+                onClick={() => setShowRecurringModal(false)}
+                className="text-slate-400 hover:text-slate-200 text-xs font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateRecurringRule} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Task Title</label>
+                <input
+                  type="text"
+                  value={newRecName}
+                  onChange={(e) => setNewRecName(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Scheduling Interval</label>
+                <select
+                  value={newRecInterval}
+                  onChange={(e) => setNewRecInterval(e.target.value as any)}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-semibold"
+                >
+                  <option value="DAILY">Daily Maintenance</option>
+                  <option value="WEEKLY">Weekly Reporting & Audit</option>
+                  <option value="MONTHLY">Monthly Reconciliation</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Assigned Operator / Department</label>
+                <input
+                  type="text"
+                  value={newRecAssignee}
+                  onChange={(e) => setNewRecAssignee(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setShowRecurringModal(false)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-lg shadow-rose-600/30"
+                >
+                  Save & Auto-Schedule
                 </button>
               </div>
             </form>

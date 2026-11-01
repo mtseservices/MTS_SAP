@@ -22,6 +22,7 @@ import { OfflineBanner } from './OfflineBanner';
 import { TTSButton } from './TTSButton';
 import { GlobalSearch } from './GlobalSearch';
 import { NotificationCenter } from './NotificationCenter';
+import { VoiceNavigationWidget } from './VoiceNavigationWidget';
 import { MasterLoginModal } from './MasterLoginModal';
 import { UserProfileModal } from './UserProfileModal';
 import { CompanyProfileDrawer } from './CompanyProfileDrawer';
@@ -92,37 +93,39 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewCompanyModal, onSelectT
             </div>
           </div>
 
-          {/* Master vs Client Portal Toggle Pill */}
-          <div className="hidden lg:flex items-center bg-slate-800/90 rounded-lg p-1 border border-slate-700">
-            <button
-              onClick={() => {
-                switchTenantBySlug('master');
-                onSelectTab('masterDashboard');
-              }}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition-all ${
-                isMasterPortal
-                  ? 'bg-purple-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <ShieldAlert className="w-3.5 h-3.5" />
-              Master Portal
-            </button>
-            <button
-              onClick={() => {
-                switchTenantBySlug(allCompanies[0].slug);
-                onSelectTab('dashboard');
-              }}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition-all ${
-                !isMasterPortal
-                  ? 'bg-cyan-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <Building2 className="w-3.5 h-3.5" />
-              Client Tenant
-            </button>
-          </div>
+          {/* Master vs Client Portal Toggle Pill (Master Admin Only) */}
+          {currentUser.isMaster && (
+            <div className="hidden lg:flex items-center bg-slate-800/90 rounded-lg p-1 border border-slate-700">
+              <button
+                onClick={() => {
+                  switchTenantBySlug('master');
+                  onSelectTab('masterDashboard');
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition-all ${
+                  isMasterPortal
+                    ? 'bg-purple-600 text-white shadow-md'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <ShieldAlert className="w-3.5 h-3.5" />
+                Master Portal
+              </button>
+              <button
+                onClick={() => {
+                  switchTenantBySlug(allCompanies[0].slug);
+                  onSelectTab('dashboard');
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition-all ${
+                  !isMasterPortal
+                    ? 'bg-cyan-600 text-white shadow-md'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Building2 className="w-3.5 h-3.5" />
+                Client Tenant
+              </button>
+            </div>
+          )}
 
           {/* Active Company Selector Dropdown */}
           {!isMasterPortal && (
@@ -226,6 +229,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewCompanyModal, onSelectT
 
           {/* Voice Assistant TTS Button */}
           <TTSButton text={headerSpeechSummary} label="Header Voice" />
+
+          {/* Voice Navigation Widget */}
+          <VoiceNavigationWidget onNavigateTab={onSelectTab} />
 
           {/* Theme Picker */}
           <div className="relative">

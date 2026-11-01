@@ -102,10 +102,24 @@ export const ReportingEngineModule: React.FC = () => {
       const colRef = collection(db, 'companies', currentCompany.id, 'scheduled_reports');
       const unsubscribe = onSnapshot(colRef, (snapshot) => {
         if (!snapshot.empty) {
-          const list: ScheduledReportConfig[] = snapshot.docs.map((d) => ({
-            id: d.id,
-            ...d.data()
-          } as ScheduledReportConfig));
+          const list: ScheduledReportConfig[] = snapshot.docs.map((d) => {
+            const data = d.data();
+            return {
+              id: d.id,
+              companyId: data.companyId || currentCompany.id,
+              reportType: data.reportType || 'pnl',
+              reportTitle: data.reportTitle || 'Report',
+              frequency: data.frequency || 'DAILY',
+              timeOfDay: data.timeOfDay || '08:00 AM',
+              deliveryDay: data.deliveryDay || 'Every Day',
+              recipients: data.recipients || [],
+              format: data.format || 'PDF',
+              status: (data.status === 'PAUSED' ? 'PAUSED' : 'ACTIVE') as 'ACTIVE' | 'PAUSED',
+              lastSentAt: data.lastSentAt,
+              nextScheduledAt: data.nextScheduledAt || '',
+              createdAt: data.createdAt || ''
+            } as ScheduledReportConfig;
+          });
           setSchedules(list);
         }
       }, (err) => {
@@ -152,7 +166,7 @@ export const ReportingEngineModule: React.FC = () => {
   // Toggle Pause/Active state
   const handleToggleStatus = (sched: ScheduledReportConfig) => {
     const newStatus = sched.status === 'ACTIVE' ? 'PAUSED' : 'ACTIVE';
-    const updated = schedules.map((s) => (s.id === sched.id ? { ...s, status: newStatus } : s));
+    const updated: ScheduledReportConfig[] = schedules.map((s) => (s.id === sched.id ? { ...s, status: newStatus as ('ACTIVE' | 'PAUSED') } : s));
     setSchedules(updated);
 
     try {

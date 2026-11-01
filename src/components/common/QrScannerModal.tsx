@@ -185,11 +185,11 @@ export const QrScannerModal: React.FC<QrScannerModalProps> = ({
     if (html5QrcodeRef.current && isScanning) {
       try {
         // @ts-ignore
-        const capabilities = html5QrcodeRef.current.getRunningTrackCapabilities();
+        const capabilities: any = html5QrcodeRef.current.getRunningTrackCapabilities();
         if (capabilities && capabilities.torch) {
           // @ts-ignore
           await html5QrcodeRef.current.applyVideoConstraints({
-            advanced: [{ torch: !torchOn }]
+            advanced: [{ torch: !torchOn } as any]
           });
           setTorchOn(!torchOn);
         } else {

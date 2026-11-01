@@ -235,7 +235,7 @@ export async function postVoucherToFirebase(
         debit: debitVal,
         credit: creditVal,
         narration: newVoucher.narration,
-        referenceNo: newVoucher.referenceNo,
+        referenceNo: newVoucher.referenceNo || '',
         createdAt: new Date().toISOString()
       };
       await setDoc(doc(db, 'companies', safeCompId, 'general_ledger', glEntryId), glDoc);
@@ -270,7 +270,7 @@ export async function postVoucherToFirebase(
     for (const [accId, netChange] of updatedAccountsMap.entries()) {
       const targetAcc = currentAccounts.find((a) => a.id === accId);
       if (targetAcc) {
-        const isDebitNormal = targetAcc.type === 'Asset' || targetAcc.type === 'Expense';
+        const isDebitNormal = targetAcc.type === 'ASSET' || targetAcc.type === 'EXPENSE';
         const adjustment = isDebitNormal ? netChange : -netChange;
         const newBalance = targetAcc.balance + adjustment;
 

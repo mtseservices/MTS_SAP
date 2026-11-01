@@ -87,9 +87,7 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = tru
             <h2 className="text-xl font-black text-slate-100 tracking-wide">
               {loginType === 'CLIENT' ? currentComp.name : 'MTS-ERP Central Master'}
             </h2>
-            <p className="text-xs font-mono text-cyan-400 font-semibold mt-0.5">
-              https://{currentComp.slug}.erp.mts.pk
-            </p>
+
           </div>
         </div>
 

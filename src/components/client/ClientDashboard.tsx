@@ -42,6 +42,7 @@ import { ActiveTab } from '../common/Sidebar';
 import { JournalVoucher } from '../../types/erp';
 import { subscribeCompanyVouchers } from '../../services/firebaseAccounting';
 import { QrScannerModal, ScannedItemPayload } from '../common/QrScannerModal';
+import { INITIAL_INVENTORY } from '../../services/mockData';
 
 interface ClientDashboardProps {
   onNavigateTab: (tab: ActiveTab) => void;
@@ -57,6 +58,27 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ onNavigateTab 
   const [showQrScannerModal, setShowQrScannerModal] = useState(false);
   const [scannedItem, setScannedItem] = useState<ScannedItemPayload | null>(null);
 
+  // Live Trial & Subscription Countdown Timer state (e.g. 14 Days 18 Hrs 22 Mins 45 Secs)
+  const [timeLeft, setTimeLeft] = useState({ days: 14, hours: 18, minutes: 22, seconds: 45 });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev.seconds > 0) {
+          return { ...prev, seconds: prev.seconds - 1 };
+        } else if (prev.minutes > 0) {
+          return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
+        } else if (prev.hours > 0) {
+          return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
+        } else if (prev.days > 0) {
+          return { ...prev, days: prev.days - 1, hours: 23, minutes: 59, seconds: 59 };
+        }
+        return prev;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   // Real-time Firebase Subscription for General Ledger & Voucher Transactions
   useEffect(() => {
     setIsLoading(true);
@@ -67,6 +89,15 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ onNavigateTab 
 
     return () => unsubscribe();
   }, [currentCompany.id]);
+
+  // Compute batches expiring within 30 days
+  const expiringBatches = INITIAL_INVENTORY.filter(i => {
+    if (!i.expiryDate) return false;
+    const expiry = new Date(i.expiryDate).getTime();
+    const now = new Date().getTime();
+    const diffDays = (expiry - now) / (1000 * 60 * 60 * 24);
+    return diffDays >= 0 && diffDays <= 30;
+  });
 
   // Aggregate General Ledger Debits and Credits by Voucher Type
   const chartDataMap: Record<string, { name: string; debits: number; credits: number }> = {
@@ -131,6 +162,76 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ onNavigateTab 
           </button>
         </div>
       </div>
+
+      {/* Live Trial & Subscription Countdown Banner */}
+      <div className="bg-gradient-to-r from-purple-900/60 via-slate-900 to-indigo-950/60 border border-purple-500/40 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
+        <div className="flex items-center gap-3">
+          <div className="p-3 rounded-2xl bg-purple-500/20 text-purple-300 border border-purple-500/30">
+            <Clock className="w-6 h-6 animate-spin" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500 text-slate-950 uppercase">
+                {currentCompany.subscriptionPlan || 'Trial Plan'}
+              </span>
+              <h3 className="text-xs font-bold text-slate-100 uppercase tracking-wider">
+                Enterprise Subscription & Trial Countdown Timer
+              </h3>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-0.5">
+              Automated renewal active • Contact Master Admin for custom trial extensions (7/15 days).
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 font-mono text-xs font-bold">
+          <div className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-center">
+            <div className="text-base text-purple-400">{timeLeft.days}</div>
+            <div className="text-[9px] text-slate-400 uppercase">Days</div>
+          </div>
+          <span className="text-purple-400">:</span>
+          <div className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-center">
+            <div className="text-base text-cyan-400">{timeLeft.hours}</div>
+            <div className="text-[9px] text-slate-400 uppercase">Hours</div>
+          </div>
+          <span className="text-cyan-400">:</span>
+          <div className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-center">
+            <div className="text-base text-emerald-400">{timeLeft.minutes}</div>
+            <div className="text-[9px] text-slate-400 uppercase">Mins</div>
+          </div>
+          <span className="text-emerald-400">:</span>
+          <div className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-center">
+            <div className="text-base text-amber-400">{timeLeft.seconds}</div>
+            <div className="text-[9px] text-slate-400 uppercase">Secs</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Batch Expiration Alert Banner (30 days window) */}
+      {expiringBatches.length > 0 && (
+        <div className="bg-amber-500/10 border border-amber-500/40 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-in fade-in shadow-xl">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+              <AlertCircle className="w-5 h-5 animate-pulse" />
+            </div>
+            <div>
+              <h3 className="text-xs font-bold text-amber-300 uppercase tracking-wider">
+                Batch Expiration Alert ({expiringBatches.length} Batches Expiring Within 30 Days)
+              </h3>
+              <p className="text-[11px] text-slate-300 mt-0.5">
+                Items such as <strong className="text-amber-200">{expiringBatches[0].name}</strong> (Batch: {expiringBatches[0].batchNumber}) expire on {expiringBatches[0].expiryDate}. Please take prompt action.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => onNavigateTab('inventory')}
+            className="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shadow-lg shadow-amber-600/30 transition-all flex items-center gap-1.5 whitespace-nowrap"
+          >
+            <span>Review Inventory Batches</span>
+            <ArrowUpRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

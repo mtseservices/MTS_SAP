@@ -207,6 +207,7 @@ export const FinanceAccountsModule: React.FC = () => {
     const netBalance = acc.balance;
 
     return {
+      id: acc.id,
       code: acc.code,
       name: acc.name,
       type: acc.type,
@@ -220,12 +221,12 @@ export const FinanceAccountsModule: React.FC = () => {
     ? trialBalanceList.filter((t) => Math.abs(t.netBalance) > 0 || t.totalDebit > 0 || t.totalCredit > 0)
     : trialBalanceList;
 
-  const totalTBDebit = displayTrialBalance.reduce((s, t) => s + (t.type === 'Asset' || t.type === 'Expense' ? Math.max(0, t.netBalance) : 0), 0);
-  const totalTBCredit = displayTrialBalance.reduce((s, t) => s + (t.type === 'Liability' || t.type === 'Equity' || t.type === 'Income' ? Math.abs(t.netBalance) : 0), 0);
+  const totalTBDebit = displayTrialBalance.reduce((s, t) => s + (t.type === 'ASSET' || t.type === 'EXPENSE' ? Math.max(0, t.netBalance) : 0), 0);
+  const totalTBCredit = displayTrialBalance.reduce((s, t) => s + (t.type === 'LIABILITY' || t.type === 'EQUITY' || t.type === 'REVENUE' ? Math.abs(t.netBalance) : 0), 0);
 
   // 4. Profit & Loss Statement (Revenues vs Operating Expenses)
-  const incomeAccounts = accounts.filter((a) => a.type === 'Income');
-  const expenseAccounts = accounts.filter((a) => a.type === 'Expense');
+  const incomeAccounts = accounts.filter((a) => a.type === 'REVENUE');
+  const expenseAccounts = accounts.filter((a) => a.type === 'EXPENSE');
 
   const displayIncomeAccounts = hideZeroBalance ? incomeAccounts.filter((a) => Math.abs(a.balance) > 0) : incomeAccounts;
   const displayExpenseAccounts = hideZeroBalance ? expenseAccounts.filter((a) => Math.abs(a.balance) > 0) : expenseAccounts;
@@ -235,9 +236,9 @@ export const FinanceAccountsModule: React.FC = () => {
   const netProfitLoss = totalRevenue - totalExpenses;
 
   // 5. Balance Sheet (Assets vs Liabilities & Equity)
-  const assetAccounts = accounts.filter((a) => a.type === 'Asset');
-  const liabilityAccounts = accounts.filter((a) => a.type === 'Liability');
-  const equityAccounts = accounts.filter((a) => a.type === 'Equity');
+  const assetAccounts = accounts.filter((a) => a.type === 'ASSET');
+  const liabilityAccounts = accounts.filter((a) => a.type === 'LIABILITY');
+  const equityAccounts = accounts.filter((a) => a.type === 'EQUITY');
 
   const displayAssetAccounts = hideZeroBalance ? assetAccounts.filter((a) => Math.abs(a.balance) > 0) : assetAccounts;
   const displayLiabilityAccounts = hideZeroBalance ? liabilityAccounts.filter((a) => Math.abs(a.balance) > 0) : liabilityAccounts;
@@ -537,8 +538,8 @@ export const FinanceAccountsModule: React.FC = () => {
                 { key: 'code', header: 'Code', accessor: (t) => <span className="font-mono text-cyan-400 font-bold">{t.code}</span> },
                 { key: 'name', header: 'Account Head', accessor: (t) => <span className="font-bold text-slate-100">{t.name}</span> },
                 { key: 'type', header: 'Type', accessor: (t) => t.type },
-                { key: 'totalDebit', header: 'Debit Balance (PKR)', accessor: (t) => <span className="font-mono text-emerald-400">Rs. {t.type === 'Asset' || t.type === 'Expense' ? Math.max(0, t.netBalance).toLocaleString() : '0'}</span>, isNumeric: true },
-                { key: 'totalCredit', header: 'Credit Balance (PKR)', accessor: (t) => <span className="font-mono text-cyan-400">Rs. {t.type === 'Liability' || t.type === 'Equity' || t.type === 'Income' ? Math.abs(t.netBalance).toLocaleString() : '0'}</span>, isNumeric: true }
+                { key: 'totalDebit', header: 'Debit Balance (PKR)', accessor: (t) => <span className="font-mono text-emerald-400">Rs. {t.type === 'ASSET' || t.type === 'EXPENSE' ? Math.max(0, t.netBalance).toLocaleString() : '0'}</span>, isNumeric: true },
+                { key: 'totalCredit', header: 'Credit Balance (PKR)', accessor: (t) => <span className="font-mono text-cyan-400">Rs. {t.type === 'LIABILITY' || t.type === 'EQUITY' || t.type === 'REVENUE' ? Math.abs(t.netBalance).toLocaleString() : '0'}</span>, isNumeric: true }
               ]}
             />
           </div>
@@ -1049,7 +1050,7 @@ export const FinanceAccountsModule: React.FC = () => {
                   className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100"
                 >
                   {accounts
-                    .filter((a) => a.type === 'Expense' || a.type === 'Cost of Goods Sold' || a.code.startsWith('5'))
+                    .filter((a) => a.type === 'EXPENSE' || a.code.startsWith('5'))
                     .map((a) => (
                       <option key={a.id} value={a.code}>
                         {a.code} - {a.name}
