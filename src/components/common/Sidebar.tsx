@@ -16,6 +16,7 @@ import {
   Globe2,
   SlidersHorizontal,
   ChevronRight,
+  ChevronLeft,
   ChevronDown,
   CreditCard,
   History,
@@ -24,6 +25,7 @@ import {
   PieChart
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 export type ActiveTab =
   | 'dashboard'
@@ -63,6 +65,7 @@ interface DepartmentMenuStructure {
 
 export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
   const { isMasterPortal, currentCompany } = useAuthTenant();
+  const { t, dir } = useLanguage();
 
   // Expanded parent departments state
   const [expandedDept, setExpandedDept] = useState<ActiveTab | null>(activeTab);
@@ -82,7 +85,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
   const departments: DepartmentMenuStructure[] = [
     {
       id: 'finance',
-      label: 'Finance & Accounts',
+      label: t('finance'),
       icon: DollarSign,
       definitions: [
         { id: 'coa', label: 'Chart of Accounts' },
@@ -104,7 +107,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
     },
     {
       id: 'procurement',
-      label: 'Procurement & Purchasing',
+      label: t('procurement'),
       icon: ShoppingCart,
       definitions: [
         { id: 'vendors', label: 'Vendor Directory' },
@@ -122,7 +125,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
     },
     {
       id: 'inventory',
-      label: 'Inventory & Warehouse',
+      label: t('inventory'),
       icon: Boxes,
       definitions: [
         { id: 'item_master', label: 'Master Item Catalog' },
@@ -142,7 +145,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
     },
     {
       id: 'sales',
-      label: 'Sales & POS Counter',
+      label: t('sales'),
       icon: Receipt,
       definitions: [
         { id: 'customers', label: 'Customer Directory' },
@@ -162,7 +165,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
     },
     {
       id: 'production',
-      label: 'Production & Manufacturing',
+      label: t('production'),
       icon: Factory,
       definitions: [
         { id: 'work_centers', label: 'Work Centers' },
@@ -180,7 +183,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
     },
     {
       id: 'hr',
-      label: 'HR Management & Payroll',
+      label: t('hr'),
       icon: Users,
       definitions: [
         { id: 'emp_dir', label: 'Employee Directory' },
@@ -201,12 +204,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
 
   // Helper utility items
   const utilityItems = [
-    { id: 'formBuilder' as ActiveTab, label: 'Dynamic Form Builder', icon: FileCheck2 },
-    { id: 'reports' as ActiveTab, label: 'Universal Reporting Engine', icon: BarChart3 },
-    { id: 'approvals' as ActiveTab, label: 'Approval Workflows', icon: ShieldCheck },
-    { id: 'aiAssistant' as ActiveTab, label: 'Gemini AI & Voice Center', icon: Sparkles },
-    { id: 'auditLogs' as ActiveTab, label: 'Security Audit Logs', icon: History },
-    { id: 'companySettings' as ActiveTab, label: 'Company Profile & Branding', icon: Settings },
+    { id: 'formBuilder' as ActiveTab, label: t('formBuilder'), icon: FileCheck2 },
+    { id: 'reports' as ActiveTab, label: t('reports'), icon: BarChart3 },
+    { id: 'approvals' as ActiveTab, label: t('approvals'), icon: ShieldCheck },
+    { id: 'aiAssistant' as ActiveTab, label: t('aiAssistant'), icon: Sparkles },
+    { id: 'auditLogs' as ActiveTab, label: t('auditLogs'), icon: History },
+    { id: 'companySettings' as ActiveTab, label: t('companySettings'), icon: Settings },
   ];
 
   // Active Modules Filtering for Client Companies
@@ -319,7 +322,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
           >
             <div className="flex items-center gap-2.5">
               <LayoutDashboard className="w-4 h-4 text-cyan-400" />
-              <span>Executive Dashboard</span>
+              <span>{t('dashboard')}</span>
             </div>
           </button>
         )}
@@ -353,6 +356,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
                   </div>
                   {isDeptExpanded ? (
                     <ChevronDown className="w-3.5 h-3.5 text-cyan-300" />
+                  ) : dir === 'rtl' ? (
+                    <ChevronLeft className="w-3.5 h-3.5 text-slate-500" />
                   ) : (
                     <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
                   )}
@@ -360,7 +365,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
 
                 {/* Subtabs Accordion: Definitions, Forms, Reports */}
                 {isDeptExpanded && (
-                  <div className="ml-4 pl-2 border-l border-slate-800 space-y-1 my-1 animate-in fade-in">
+                  <div className={`${dir === 'rtl' ? 'mr-4 pr-2 border-r' : 'ml-4 pl-2 border-l'} border-slate-800 space-y-1 my-1 animate-in fade-in`}>
                     {/* 1. Definitions Category */}
                     <div>
                       <button
@@ -371,7 +376,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
                       >
                         <div className="flex items-center gap-1.5">
                           <FolderTree className="w-3 h-3 text-amber-400" />
-                          <span>Definitions</span>
+                          <span>{t('definitions')}</span>
                         </div>
                         <span className="text-[9px] px-1 rounded bg-slate-800 text-slate-400 font-mono">
                           {dept.definitions.length}
@@ -379,7 +384,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
                       </button>
 
                       {expandedSubCat === `${dept.id}_defs` && (
-                        <div className="ml-3 border-l border-slate-800 pl-2 space-y-0.5 my-1">
+                        <div className={`${dir === 'rtl' ? 'mr-3 border-r pr-2' : 'ml-3 border-l pl-2'} border-slate-800 space-y-0.5 my-1`}>
                           {dept.definitions.map((sub) => (
                             <button
                               key={sub.id}
@@ -403,7 +408,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
                       >
                         <div className="flex items-center gap-1.5">
                           <FileText className="w-3 h-3 text-cyan-400" />
-                          <span>Forms</span>
+                          <span>{t('forms')}</span>
                         </div>
                         <span className="text-[9px] px-1 rounded bg-slate-800 text-slate-400 font-mono">
                           {dept.forms.length}
@@ -411,7 +416,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
                       </button>
 
                       {(expandedSubCat === `${dept.id}_forms` || expandedSubCat === 'forms') && (
-                        <div className="ml-3 border-l border-slate-800 pl-2 space-y-0.5 my-1">
+                        <div className={`${dir === 'rtl' ? 'mr-3 border-r pr-2' : 'ml-3 border-l pl-2'} border-slate-800 space-y-0.5 my-1`}>
                           {dept.forms.map((sub) => (
                             <button
                               key={sub.id}
@@ -435,7 +440,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
                       >
                         <div className="flex items-center gap-1.5">
                           <PieChart className="w-3 h-3 text-emerald-400" />
-                          <span>Reports</span>
+                          <span>{t('reportsTab')}</span>
                         </div>
                         <span className="text-[9px] px-1 rounded bg-slate-800 text-slate-400 font-mono">
                           {dept.reports.length}
@@ -443,7 +448,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
                       </button>
 
                       {expandedSubCat === `${dept.id}_reports` && (
-                        <div className="ml-3 border-l border-slate-800 pl-2 space-y-0.5 my-1">
+                        <div className={`${dir === 'rtl' ? 'mr-3 border-r pr-2' : 'ml-3 border-l pl-2'} border-slate-800 space-y-0.5 my-1`}>
                           {dept.reports.map((sub) => (
                             <button
                               key={sub.id}

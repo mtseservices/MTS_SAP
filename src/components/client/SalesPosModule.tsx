@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { Receipt, Plus, Printer, ShoppingBag, CreditCard, QrCode, ScanLine, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { INITIAL_SALES_INVOICES } from '../../services/mockData';
-import { SalesInvoice } from '../../types/erp';
+import { SalesInvoice, InventoryItem } from '../../types/erp';
 import { DataTable } from '../common/DataTable';
 import { TTSButton } from '../common/TTSButton';
 import { offlineStore } from '../../services/offlineStore';
 import { QrScannerModal, ScannedItemPayload } from '../common/QrScannerModal';
+import { ItemSearchSelector } from '../common/ItemSearchSelector';
 
 export const SalesPosModule: React.FC = () => {
   const { currentCompany } = useAuthTenant();
@@ -198,20 +199,17 @@ export const SalesPosModule: React.FC = () => {
             </div>
 
             <div>
-              <div className="flex justify-between items-center mb-1">
-                <label className="block text-xs font-semibold text-slate-300">Product / Inventory Item Description</label>
-                {posItemCode && (
-                  <span className="text-[10px] font-mono text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded border border-cyan-500/20">
-                    SKU: {posItemCode}
-                  </span>
-                )}
-              </div>
-              <input
-                type="text"
-                value={posItemName}
-                onChange={(e) => setPosItemName(e.target.value)}
-                required
-                className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100"
+              <ItemSearchSelector
+                selectedItemCode={posItemCode}
+                selectedItemName={posItemName}
+                onSelectItem={(item: InventoryItem) => {
+                  setPosItemCode(item.code);
+                  setPosItemName(item.name);
+                  if (item.unitPrice > 0) {
+                    setPosPrice(item.unitPrice);
+                  }
+                }}
+                placeholder="Search Item Code or Description (Zero stock hidden by default)..."
               />
             </div>
 

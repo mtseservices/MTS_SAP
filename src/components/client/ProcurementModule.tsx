@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { ShoppingCart, Plus, QrCode, ScanLine, Sparkles } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { INITIAL_PURCHASE_ORDERS } from '../../services/mockData';
-import { PurchaseOrder } from '../../types/erp';
+import { PurchaseOrder, InventoryItem } from '../../types/erp';
 import { DataTable } from '../common/DataTable';
 import { TTSButton } from '../common/TTSButton';
 import { QrScannerModal, ScannedItemPayload } from '../common/QrScannerModal';
+import { ItemSearchSelector } from '../common/ItemSearchSelector';
 
 export const ProcurementModule: React.FC = () => {
   const { currentCompany } = useAuthTenant();
@@ -149,20 +150,17 @@ export const ProcurementModule: React.FC = () => {
               </div>
 
               <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="block text-xs font-semibold text-slate-300">Raw Material Item Description</label>
-                  {itemCode && (
-                    <span className="text-[10px] font-mono text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
-                      Code: {itemCode}
-                    </span>
-                  )}
-                </div>
-                <input
-                  type="text"
-                  value={itemName}
-                  onChange={(e) => setItemName(e.target.value)}
-                  required
-                  className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100"
+                <ItemSearchSelector
+                  selectedItemCode={itemCode}
+                  selectedItemName={itemName}
+                  onSelectItem={(item: InventoryItem) => {
+                    setItemCode(item.code);
+                    setItemName(item.name);
+                    if (item.purchasePrice > 0) {
+                      setUnitPrice(item.purchasePrice);
+                    }
+                  }}
+                  placeholder="Search Item Code or Description (Zero stock hidden by default)..."
                 />
               </div>
 

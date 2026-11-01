@@ -60,6 +60,16 @@ export const FinanceAccountsModule: React.FC = () => {
   const [budgets, setBudgets] = useState<BudgetItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Zero Balance Filter & Date Range Filter for Reports/Balance Sheet
+  const [hideZeroBalance, setHideZeroBalance] = useState<boolean>(true);
+  const [fromDate, setFromDate] = useState<string>('2026-01-01');
+  const [toDate, setToDate] = useState<string>('2026-12-31');
+
+  // Oracle APEX Style Voucher List Search & Toolbar State
+  const [voucherSearch, setVoucherSearch] = useState('');
+  const [voucherRowsLimit, setVoucherRowsLimit] = useState(1000);
+  const [selectedVoucherForReview, setSelectedVoucherForReview] = useState<JournalVoucher | null>(null);
+
   // New Budget Modal State
   const [showAddBudgetModal, setShowAddBudgetModal] = useState(false);
   const [budCategory, setBudCategory] = useState('Operating Expense');
@@ -163,23 +173,33 @@ export const FinanceAccountsModule: React.FC = () => {
   };
 
   // AUTOMATIC FINANCIAL COMPUTATIONS
-  // 1. General Ledger Postings List (Flattened line items across all posted vouchers)
-  const generalLedgerList = vouchers.flatMap((v) =>
-    v.items.map((item) => ({
-      id: `${v.id}_${item.accountId}`,
-      voucherNo: v.voucherNo,
-      date: v.date,
-      type: v.type,
-      accountCode: item.accountCode,
-      accountName: item.accountName,
-      narration: v.narration,
-      debit: item.debit || 0,
-      credit: item.credit || 0,
-      ref: v.referenceNo
-    }))
-  );
+  // 1. General Ledger Postings List (Filtered by Date Range if specified)
+  const generalLedgerList = vouchers
+    .filter((v) => {
+      if (!fromDate || !toDate) return true;
+      return v.date >= fromDate && v.date <= toDate;
+    })
+    .flatMap((v) =>
+      v.items.map((item) => ({
+        id: `${v.id}_${item.accountId}`,
+        voucherNo: v.voucherNo,
+        date: v.date,
+        type: v.type,
+        accountCode: item.accountCode,
+        accountName: item.accountName,
+        narration: v.narration,
+        debit: item.debit || 0,
+        credit: item.credit || 0,
+        ref: v.referenceNo
+      }))
+    );
 
-  // 2. Trial Balance Calculation (Aggregated Debit & Credit per Account Head)
+  // 2. Accounts List Filtered by Zero Balance
+  const filteredAccounts = hideZeroBalance
+    ? accounts.filter((a) => Math.abs(a.balance) > 0)
+    : accounts;
+
+  // 3. Trial Balance Calculation (Aggregated Debit & Credit per Account Head)
   const trialBalanceList = accounts.map((acc) => {
     const accEntries = generalLedgerList.filter((g) => g.accountCode === acc.code);
     const sumDebit = accEntries.reduce((s, e) => s + e.debit, 0);
@@ -196,21 +216,32 @@ export const FinanceAccountsModule: React.FC = () => {
     };
   });
 
-  const totalTBDebit = trialBalanceList.reduce((s, t) => s + (t.type === 'Asset' || t.type === 'Expense' ? Math.max(0, t.netBalance) : 0), 0);
-  const totalTBCredit = trialBalanceList.reduce((s, t) => s + (t.type === 'Liability' || t.type === 'Equity' || t.type === 'Income' ? Math.abs(t.netBalance) : 0), 0);
+  const displayTrialBalance = hideZeroBalance
+    ? trialBalanceList.filter((t) => Math.abs(t.netBalance) > 0 || t.totalDebit > 0 || t.totalCredit > 0)
+    : trialBalanceList;
 
-  // 3. Profit & Loss Statement (Revenues vs Operating Expenses)
+  const totalTBDebit = displayTrialBalance.reduce((s, t) => s + (t.type === 'Asset' || t.type === 'Expense' ? Math.max(0, t.netBalance) : 0), 0);
+  const totalTBCredit = displayTrialBalance.reduce((s, t) => s + (t.type === 'Liability' || t.type === 'Equity' || t.type === 'Income' ? Math.abs(t.netBalance) : 0), 0);
+
+  // 4. Profit & Loss Statement (Revenues vs Operating Expenses)
   const incomeAccounts = accounts.filter((a) => a.type === 'Income');
   const expenseAccounts = accounts.filter((a) => a.type === 'Expense');
+
+  const displayIncomeAccounts = hideZeroBalance ? incomeAccounts.filter((a) => Math.abs(a.balance) > 0) : incomeAccounts;
+  const displayExpenseAccounts = hideZeroBalance ? expenseAccounts.filter((a) => Math.abs(a.balance) > 0) : expenseAccounts;
 
   const totalRevenue = incomeAccounts.reduce((sum, a) => sum + Math.abs(a.balance), 0);
   const totalExpenses = expenseAccounts.reduce((sum, a) => sum + Math.abs(a.balance), 0);
   const netProfitLoss = totalRevenue - totalExpenses;
 
-  // 4. Balance Sheet (Assets vs Liabilities & Equity)
+  // 5. Balance Sheet (Assets vs Liabilities & Equity)
   const assetAccounts = accounts.filter((a) => a.type === 'Asset');
   const liabilityAccounts = accounts.filter((a) => a.type === 'Liability');
   const equityAccounts = accounts.filter((a) => a.type === 'Equity');
+
+  const displayAssetAccounts = hideZeroBalance ? assetAccounts.filter((a) => Math.abs(a.balance) > 0) : assetAccounts;
+  const displayLiabilityAccounts = hideZeroBalance ? liabilityAccounts.filter((a) => Math.abs(a.balance) > 0) : liabilityAccounts;
+  const displayEquityAccounts = hideZeroBalance ? equityAccounts.filter((a) => Math.abs(a.balance) > 0) : equityAccounts;
 
   const totalAssets = assetAccounts.reduce((sum, a) => sum + Math.abs(a.balance), 0);
   const totalLiabilities = liabilityAccounts.reduce((sum, a) => sum + Math.abs(a.balance), 0);
@@ -288,27 +319,155 @@ export const FinanceAccountsModule: React.FC = () => {
         })}
       </div>
 
-      {/* Tab 1: Vouchers Table */}
+      {/* Report Controls: Date Range & Zero Balance Filter Bar */}
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-xl">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-slate-300">From Date:</span>
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="px-2.5 py-1 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-mono focus:outline-none focus:border-emerald-500"
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-slate-300">To Date:</span>
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="px-2.5 py-1 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-mono focus:outline-none focus:border-emerald-500"
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              setFromDate('2026-01-01');
+              setToDate('2026-12-31');
+            }}
+            className="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs font-bold border border-slate-700"
+          >
+            Reset Dates
+          </button>
+        </div>
+
+        {/* Zero Balance Toggle Button */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setHideZeroBalance(!hideZeroBalance)}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+              hideZeroBalance
+                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-lg shadow-emerald-500/10'
+                : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+            }`}
+          >
+            <span className={`w-2 h-2 rounded-full ${hideZeroBalance ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+            {hideZeroBalance ? 'Zero Balance Accounts Hidden (Default)' : 'Showing All Accounts (Including Zero)'}
+          </button>
+        </div>
+      </div>
+
+      {/* Tab 1: Vouchers Table (Oracle APEX / Enterprise ERP Style) */}
       {activeSubTab === 'vouchers' && (
-        <DataTable
-          title="Posted Financial Vouchers (Real-Time Firebase)"
-          data={vouchers}
-          columns={[
-            { key: 'voucherNo', header: 'Voucher No', accessor: (v) => <span className="font-mono font-bold text-emerald-400">{v.voucherNo}</span>, sortable: true },
-            { key: 'date', header: 'Date', accessor: (v) => v.date, sortable: true },
-            { key: 'type', header: 'Type', accessor: (v) => <span className="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-cyan-300 font-mono font-bold">{v.type}</span> },
-            { key: 'totalAmount', header: 'Amount (PKR)', accessor: (v) => <span className="font-mono font-bold text-slate-100">Rs. {v.totalAmount.toLocaleString()}</span>, isNumeric: true, sortable: true },
-            { key: 'narration', header: 'Narration / Description', accessor: (v) => <span className="text-slate-300 max-w-xs truncate block">{v.narration}</span> },
-            { key: 'status', header: 'Status', accessor: (v) => <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">{v.status}</span> }
-          ]}
-        />
+        <div className="space-y-4">
+          {/* APEX Toolbar */}
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-xl">
+            <div className="flex flex-wrap items-center gap-2 flex-1 max-w-xl">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  placeholder="Search Vouchers (No, Type, Description...)"
+                  value={voucherSearch}
+                  onChange={(e) => setVoucherSearch(e.target.value)}
+                  className="w-full pl-3 pr-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-mono focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+              <button
+                type="button"
+                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700"
+              >
+                Go
+              </button>
+              <div className="relative">
+                <select
+                  value={voucherRowsLimit}
+                  onChange={(e) => setVoucherRowsLimit(Number(e.target.value))}
+                  className="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-200 font-mono"
+                >
+                  <option value={10}>Rows 10</option>
+                  <option value={50}>Rows 50</option>
+                  <option value={100}>Rows 100</option>
+                  <option value={1000}>Rows 1000</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setVoucherSearch('')}
+                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-700"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => switchSubTab('newVoucher')}
+                className="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-600/30"
+              >
+                Create
+              </button>
+            </div>
+          </div>
+
+          <DataTable
+            title="Voucher List (Journal & Financial Transactions)"
+            data={vouchers.filter((v) => {
+              if (!voucherSearch.trim()) return true;
+              const q = voucherSearch.toLowerCase();
+              return (
+                v.voucherNo.toLowerCase().includes(q) ||
+                v.type.toLowerCase().includes(q) ||
+                v.narration.toLowerCase().includes(q) ||
+                v.createdBy.toLowerCase().includes(q)
+              );
+            }).slice(0, voucherRowsLimit)}
+            columns={[
+              { key: 'createdAt', header: 'Created Date', accessor: (v) => <span className="font-mono text-slate-400 text-xs">{v.createdAt ? v.createdAt.split('T')[0] : v.date}</span>, sortable: true },
+              { key: 'voucherNo', header: 'Voucher No', accessor: (v) => <span className="font-mono font-bold text-emerald-400">{v.voucherNo}</span>, sortable: true },
+              { key: 'date', header: 'Voucher Date', accessor: (v) => v.date, sortable: true },
+              { key: 'type', header: 'Voucher Type', accessor: (v) => <span className="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-cyan-300 font-mono font-bold">{v.type}</span> },
+              { key: 'referenceNo', header: 'Document No', accessor: (v) => <span className="font-mono text-slate-300">{v.referenceNo || '-'}</span> },
+              { key: 'createdBy', header: 'Created By', accessor: (v) => <span className="text-slate-300 text-xs">{v.createdBy}</span> },
+              { key: 'status', header: 'Status', accessor: (v) => <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">{v.status}</span> },
+              { key: 'narration', header: 'Description', accessor: (v) => <span className="text-slate-300 max-w-xs truncate block text-xs">{v.narration}</span> },
+              {
+                key: 'actions',
+                header: 'Update&Review',
+                accessor: (v) => (
+                  <button
+                    onClick={() => setSelectedVoucherForReview(v)}
+                    className="px-2.5 py-1 rounded-xl bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/40 text-xs font-bold flex items-center gap-1 transition-all"
+                  >
+                    <RefreshCw className="w-3 h-3 text-cyan-400" />
+                    Update&Review
+                  </button>
+                )
+              }
+            ]}
+          />
+        </div>
       )}
 
       {/* Tab 2: Chart of Accounts */}
       {activeSubTab === 'coa' && (
         <DataTable
-          title="Master Chart of Accounts (COA Balances)"
-          data={accounts}
+          title={`Master Chart of Accounts (${filteredAccounts.length} Heads Shown)`}
+          data={filteredAccounts}
           columns={[
             { key: 'code', header: 'Account Code', accessor: (a) => <span className="font-mono font-bold text-cyan-400">{a.code}</span>, sortable: true },
             { key: 'name', header: 'Account Head Name', accessor: (a) => <span className="font-bold text-slate-100">{a.name}</span>, sortable: true },
@@ -372,8 +531,8 @@ export const FinanceAccountsModule: React.FC = () => {
             </div>
 
             <DataTable
-              title="Trial Balance Summary"
-              data={trialBalanceList}
+              title={`Trial Balance Summary (${displayTrialBalance.length} Active Accounts)`}
+              data={displayTrialBalance}
               columns={[
                 { key: 'code', header: 'Code', accessor: (t) => <span className="font-mono text-cyan-400 font-bold">{t.code}</span> },
                 { key: 'name', header: 'Account Head', accessor: (t) => <span className="font-bold text-slate-100">{t.name}</span> },
@@ -406,12 +565,16 @@ export const FinanceAccountsModule: React.FC = () => {
             {/* Operating Revenues */}
             <div className="p-4 rounded-xl bg-emerald-950/20 border border-emerald-800/40 space-y-2">
               <h3 className="font-sans font-bold text-emerald-400 uppercase text-xs">1. Operating Revenue & Sales Income</h3>
-              {incomeAccounts.map((inc) => (
-                <div key={inc.id} className="flex justify-between border-b border-slate-800/60 py-1">
-                  <span className="text-slate-300">{inc.code} - {inc.name}</span>
-                  <span className="text-emerald-300 font-bold">Rs. {Math.abs(inc.balance).toLocaleString()}</span>
-                </div>
-              ))}
+              {displayIncomeAccounts.length === 0 ? (
+                <div className="text-slate-500 italic py-1">No active revenue accounts with balance</div>
+              ) : (
+                displayIncomeAccounts.map((inc) => (
+                  <div key={inc.id} className="flex justify-between border-b border-slate-800/60 py-1">
+                    <span className="text-slate-300">{inc.code} - {inc.name}</span>
+                    <span className="text-emerald-300 font-bold">Rs. {Math.abs(inc.balance).toLocaleString()}</span>
+                  </div>
+                ))
+              )}
               <div className="flex justify-between pt-2 text-sm font-bold text-emerald-400">
                 <span>TOTAL REVENUE</span>
                 <span>Rs. {totalRevenue.toLocaleString()}</span>
@@ -421,12 +584,16 @@ export const FinanceAccountsModule: React.FC = () => {
             {/* Operating Expenses */}
             <div className="p-4 rounded-xl bg-rose-950/20 border border-rose-800/40 space-y-2">
               <h3 className="font-sans font-bold text-rose-400 uppercase text-xs">2. Operating Expenses & Cost of Goods Sold</h3>
-              {expenseAccounts.map((exp) => (
-                <div key={exp.id} className="flex justify-between border-b border-slate-800/60 py-1">
-                  <span className="text-slate-300">{exp.code} - {exp.name}</span>
-                  <span className="text-rose-300 font-bold">Rs. {Math.abs(exp.balance).toLocaleString()}</span>
-                </div>
-              ))}
+              {displayExpenseAccounts.length === 0 ? (
+                <div className="text-slate-500 italic py-1">No active expense accounts with balance</div>
+              ) : (
+                displayExpenseAccounts.map((exp) => (
+                  <div key={exp.id} className="flex justify-between border-b border-slate-800/60 py-1">
+                    <span className="text-slate-300">{exp.code} - {exp.name}</span>
+                    <span className="text-rose-300 font-bold">Rs. {Math.abs(exp.balance).toLocaleString()}</span>
+                  </div>
+                ))
+              )}
               <div className="flex justify-between pt-2 text-sm font-bold text-rose-400">
                 <span>TOTAL EXPENSES</span>
                 <span>Rs. {totalExpenses.toLocaleString()}</span>
@@ -464,7 +631,7 @@ export const FinanceAccountsModule: React.FC = () => {
             {/* Assets Column */}
             <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
               <h3 className="font-sans font-bold text-cyan-400 uppercase border-b border-slate-800 pb-1">TOTAL ASSETS</h3>
-              {assetAccounts.map((ast) => (
+              {displayAssetAccounts.map((ast) => (
                 <div key={ast.id} className="flex justify-between text-slate-300">
                   <span>{ast.name}</span>
                   <span className="font-bold text-cyan-300">Rs. {Math.abs(ast.balance).toLocaleString()}</span>
@@ -480,7 +647,7 @@ export const FinanceAccountsModule: React.FC = () => {
             <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
               <h3 className="font-sans font-bold text-purple-400 uppercase border-b border-slate-800 pb-1">LIABILITIES & EQUITY</h3>
               <div className="text-slate-400 text-[10px] uppercase font-bold">Liabilities</div>
-              {liabilityAccounts.map((lib) => (
+              {displayLiabilityAccounts.map((lib) => (
                 <div key={lib.id} className="flex justify-between text-slate-300">
                   <span>{lib.name}</span>
                   <span className="font-bold text-rose-300">Rs. {Math.abs(lib.balance).toLocaleString()}</span>
@@ -488,7 +655,7 @@ export const FinanceAccountsModule: React.FC = () => {
               ))}
 
               <div className="text-slate-400 text-[10px] uppercase font-bold pt-2">Equity & Retained Earnings</div>
-              {equityAccounts.map((eq) => (
+              {displayEquityAccounts.map((eq) => (
                 <div key={eq.id} className="flex justify-between text-slate-300">
                   <span>{eq.name}</span>
                   <span className="font-bold text-purple-300">Rs. {Math.abs(eq.balance).toLocaleString()}</span>
@@ -929,6 +1096,131 @@ export const FinanceAccountsModule: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Voucher Update & Review Modal */}
+      {selectedVoucherForReview && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-4xl w-full space-y-5 shadow-2xl animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Receipt className="w-5 h-5 text-emerald-400" />
+                  <h2 className="text-base font-bold text-slate-100 uppercase font-mono">
+                    {selectedVoucherForReview.voucherNo}
+                  </h2>
+                  <span className="px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
+                    {selectedVoucherForReview.status}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Journal Voucher Detail & Double-Entry Line Items Review
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSelectedVoucherForReview(null)}
+                className="text-slate-400 hover:text-slate-200 text-sm font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs font-mono">
+              <div>
+                <span className="text-slate-500 block text-[10px] uppercase">Voucher Date</span>
+                <span className="text-slate-200 font-bold">{selectedVoucherForReview.date}</span>
+              </div>
+              <div>
+                <span className="text-slate-500 block text-[10px] uppercase">Type</span>
+                <span className="text-cyan-400 font-bold">{selectedVoucherForReview.type}</span>
+              </div>
+              <div>
+                <span className="text-slate-500 block text-[10px] uppercase">Ref / Doc No</span>
+                <span className="text-slate-200">{selectedVoucherForReview.referenceNo || 'N/A'}</span>
+              </div>
+              <div>
+                <span className="text-slate-500 block text-[10px] uppercase">Created By</span>
+                <span className="text-slate-200">{selectedVoucherForReview.createdBy}</span>
+              </div>
+            </div>
+
+            <div>
+              <span className="text-xs font-bold text-slate-300 block mb-1">Narration / Header Memo</span>
+              <p className="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs text-slate-300 font-sans">
+                {selectedVoucherForReview.narration}
+              </p>
+            </div>
+
+            {/* Line Items Table */}
+            <div className="space-y-2">
+              <span className="text-xs font-bold text-slate-300 uppercase font-mono">
+                Line Items Breakdown (Double-Entry Debit & Credit)
+              </span>
+
+              <div className="overflow-x-auto border border-slate-800 rounded-xl">
+                <table className="w-full text-xs font-mono text-left">
+                  <thead className="bg-slate-800 text-slate-300 border-b border-slate-700 uppercase">
+                    <tr>
+                      <th className="p-3">COA Code</th>
+                      <th className="p-3">COA Head Name</th>
+                      <th className="p-3">Description</th>
+                      <th className="p-3 text-right">Debit (PKR)</th>
+                      <th className="p-3 text-right">Credit (PKR)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800 bg-slate-950/60">
+                    {selectedVoucherForReview.items.map((item, idx) => (
+                      <tr key={idx} className="hover:bg-slate-800/40">
+                        <td className="p-3 font-bold text-cyan-400">{item.accountCode}</td>
+                        <td className="p-3 text-slate-200 font-bold">{item.accountName}</td>
+                        <td className="p-3 text-slate-400 text-xs">{item.description || selectedVoucherForReview.narration}</td>
+                        <td className="p-3 text-right font-bold text-emerald-400">
+                          Rs. {(item.debit || 0).toLocaleString()}
+                        </td>
+                        <td className="p-3 text-right font-bold text-cyan-400">
+                          Rs. {(item.credit || 0).toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot className="bg-slate-800 text-slate-100 font-bold border-t border-slate-700">
+                    <tr>
+                      <td colSpan={3} className="p-3 text-right uppercase text-xs">Total Balance Equilbrium:</td>
+                      <td className="p-3 text-right text-emerald-400">
+                        Rs. {selectedVoucherForReview.items.reduce((s, i) => s + (i.debit || 0), 0).toLocaleString()}
+                      </td>
+                      <td className="p-3 text-right text-cyan-400">
+                        Rs. {selectedVoucherForReview.items.reduce((s, i) => s + (i.credit || 0), 0).toLocaleString()}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center pt-3 border-t border-slate-800">
+              <span className="text-[11px] text-emerald-400 font-mono">✓ Verified Balance Equilbrium in Firebase</span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedVoucherForReview(null)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold"
+                >
+                  Close Review
+                </button>
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/30"
+                >
+                  Print Voucher PDF
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

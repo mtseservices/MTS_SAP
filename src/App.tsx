@@ -25,6 +25,7 @@ import { ApprovalWorkflowModule } from './components/client/ApprovalWorkflowModu
 import { AiAssistantModule } from './components/client/AiAssistantModule';
 import { CompanySettingsModule } from './components/client/CompanySettingsModule';
 
+import { LanguageProvider } from './context/LanguageContext';
 import { MasterLoginModal } from './components/common/MasterLoginModal';
 
 function MainLayout() {
@@ -155,8 +156,10 @@ function RootApp() {
 
 export default function App() {
   return (
-    <AuthTenantProvider>
-      <RootApp />
-    </AuthTenantProvider>
+    <LanguageProvider>
+      <AuthTenantProvider>
+        <RootApp />
+      </AuthTenantProvider>
+    </LanguageProvider>
   );
 }

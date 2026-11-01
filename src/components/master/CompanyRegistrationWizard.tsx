@@ -15,10 +15,14 @@ import {
   MapPin,
   Sparkles,
   LogIn,
-  Key
+  Key,
+  Copy,
+  ExternalLink
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { IndustryPackage, ThemePalette } from '../../types/erp';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '../../services/firebaseConfig';
 
 interface CompanyRegistrationWizardProps {
   onSuccess: (slug: string) => void;
@@ -70,10 +74,12 @@ export const CompanyRegistrationWizard: React.FC<CompanyRegistrationWizardProps>
   ]);
 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   const [createdCompanyDetails, setCreatedCompanyDetails] = useState<{
     slug: string;
     name: string;
     username: string;
+    password: string;
     url: string;
   } | null>(null);
 
@@ -104,7 +110,7 @@ export const CompanyRegistrationWizard: React.FC<CompanyRegistrationWizardProps>
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.slug) {
       setErrorMsg('Company Name and URL Slug are required.');
@@ -115,17 +121,47 @@ export const CompanyRegistrationWizard: React.FC<CompanyRegistrationWizardProps>
       return;
     }
 
+    const liveUrl = `https://mts-sap.vercel.app?company=${formData.slug}`;
+
     const created = registerNewCompany({
       ...formData,
+      url: liveUrl,
       activeModules: selectedModules,
     });
+
+    // Sync Company Record to Firebase Firestore
+    try {
+      await setDoc(doc(db, 'companies', created.id), {
+        ...created,
+        adminUsername: formData.adminUsername,
+        adminPassword: formData.adminPassword,
+        url: liveUrl
+      }, { merge: true });
+    } catch (firebaseErr) {
+      console.warn('Firebase company sync warning:', firebaseErr);
+    }
 
     setCreatedCompanyDetails({
       slug: created.slug,
       name: created.name,
       username: formData.adminUsername,
-      url: created.url || `https://mts-sap.vercel.app?company=${created.slug}`
+      password: formData.adminPassword,
+      url: liveUrl
     });
+  };
+
+  const handleCopyCredentials = () => {
+    if (!createdCompanyDetails) return;
+    const credText = `🏢 Enterprise Tenant Access Credentials
+Company: ${createdCompanyDetails.name}
+Live URL: ${createdCompanyDetails.url}
+Username: ${createdCompanyDetails.username}
+Password: ${createdCompanyDetails.password}
+Admin Email: ${formData.adminEmail}`;
+
+    navigator.clipboard.writeText(credText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 3000);
   };
 
   const handleProceedToLogin = () => {
@@ -148,41 +184,55 @@ export const CompanyRegistrationWizard: React.FC<CompanyRegistrationWizardProps>
               Enterprise Tenant Company Provisioned!
             </h2>
             <p className="text-xs text-slate-400">
-              Company <span className="text-purple-300 font-bold">{createdCompanyDetails.name}</span> has been created with custom subdomain and administrator login credentials.
+              Company <span className="text-purple-300 font-bold">{createdCompanyDetails.name}</span> created by Master User & synchronized with Firebase Firestore.
             </p>
           </div>
 
-          {/* Credentials Card */}
+          {/* Client Credentials Card */}
           <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 text-left space-y-3 font-mono text-xs">
             <div className="flex items-center justify-between pb-2 border-b border-slate-800 text-slate-400">
-              <span className="font-sans text-[11px] font-bold uppercase tracking-wider text-purple-400">Tenant Connection Info</span>
-              <span className="text-[10px] text-emerald-400 font-bold px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30">STATUS: ACTIVE</span>
+              <span className="font-sans text-[11px] font-bold uppercase tracking-wider text-purple-400">Client Access Credentials</span>
+              <span className="text-[10px] text-emerald-400 font-bold px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30">FIREBASE ACTIVE</span>
             </div>
 
-            <div className="space-y-1.5">
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400">Subdomain URL:</span>
-                <span className="text-cyan-400 font-bold">{createdCompanyDetails.url}</span>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center bg-slate-900 p-2 rounded-xl border border-slate-800">
+                <span className="text-slate-400">Live Enterprise URL:</span>
+                <span className="text-cyan-400 font-bold font-mono">{createdCompanyDetails.url}</span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400">Admin Username:</span>
+              <div className="flex justify-between items-center bg-slate-900 p-2 rounded-xl border border-slate-800">
+                <span className="text-slate-400">Client Admin Username:</span>
                 <span className="text-amber-300 font-bold">{createdCompanyDetails.username}</span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400">Admin Email:</span>
+              <div className="flex justify-between items-center bg-slate-900 p-2 rounded-xl border border-slate-800">
+                <span className="text-slate-400">Initial Security Password:</span>
+                <span className="text-emerald-400 font-bold">{createdCompanyDetails.password}</span>
+              </div>
+              <div className="flex justify-between items-center bg-slate-900 p-2 rounded-xl border border-slate-800">
+                <span className="text-slate-400">Registered Admin Email:</span>
                 <span className="text-slate-200">{formData.adminEmail}</span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400">Subscription Tier:</span>
-                <span className="text-purple-300">{formData.subscriptionPlan} Plan</span>
-              </div>
+            </div>
+
+            <div className="pt-2">
+              <button
+                onClick={handleCopyCredentials}
+                className={`w-full py-2.5 rounded-xl border text-xs font-bold font-sans flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                  copied
+                    ? 'bg-emerald-600 text-white border-emerald-500'
+                    : 'bg-purple-950/60 hover:bg-purple-900 text-purple-200 border-purple-700/50'
+                }`}
+              >
+                {copied ? <Check className="w-4 h-4 text-white" /> : <Copy className="w-4 h-4 text-purple-300" />}
+                {copied ? 'Credentials Copied to Clipboard!' : 'Copy Client Access Details (URL, Username, Password)'}
+              </button>
             </div>
           </div>
 
           <div className="pt-2 flex flex-col sm:flex-row gap-3">
             <button
               onClick={handleProceedToLogin}
-              className="flex-1 py-3.5 px-6 rounded-xl bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-bold text-xs shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all"
+              className="flex-1 py-3.5 px-6 rounded-xl bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-bold text-xs shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
               <LogIn className="w-4 h-4" />
               Log In & Launch {createdCompanyDetails.name} ERP

@@ -12,9 +12,12 @@ import {
   PlusCircle,
   LogIn,
   LogOut,
-  User
+  User,
+  Globe
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
+import { useLanguage } from '../../context/LanguageContext';
+import { LANGUAGES } from '../../services/translations';
 import { OfflineBanner } from './OfflineBanner';
 import { TTSButton } from './TTSButton';
 import { GlobalSearch } from './GlobalSearch';
@@ -44,8 +47,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewCompanyModal, onSelectT
     switchTenantBySlug
   } = useAuthTenant();
 
+  const { language, setLanguage, t } = useLanguage();
+
   const [showCompanyMenu, setShowCompanyMenu] = useState(false);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
+  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
   const [showCompanyDrawer, setShowCompanyDrawer] = useState(false);
@@ -226,7 +232,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewCompanyModal, onSelectT
             <button
               onClick={() => setShowThemeMenu(!showThemeMenu)}
               title="Theme Customizer"
-              className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 transition-all"
+              className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 transition-all cursor-pointer"
             >
               <Palette className="w-4 h-4 text-cyan-400" />
             </button>
@@ -243,7 +249,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewCompanyModal, onSelectT
                       setTheme(t.id);
                       setShowThemeMenu(false);
                     }}
-                    className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all ${
+                    className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer ${
                       theme === t.id
                         ? 'bg-slate-800 text-cyan-300 border border-slate-700'
                         : 'hover:bg-slate-800/60 text-slate-300'
@@ -251,6 +257,48 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewCompanyModal, onSelectT
                   >
                     <span className={`w-3 h-3 rounded-full ${t.color}`} />
                     {t.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Multilingual Language Selector Toggle (English / Urdu / Arabic) */}
+          <div className="relative">
+            <button
+              onClick={() => setShowLanguageMenu(!showLanguageMenu)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold transition-all cursor-pointer"
+              title="Select ERP Interface Language (English / اردو / العربية)"
+            >
+              <Globe className="w-4 h-4 text-purple-400" />
+              <span className="text-sm">{LANGUAGES.find(l => l.code === language)?.flag}</span>
+              <span className="hidden md:inline uppercase">{language}</span>
+              <ChevronDown className="w-3 h-3 text-slate-400" />
+            </button>
+
+            {showLanguageMenu && (
+              <div className="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in">
+                <div className="px-2 py-1 text-[10px] font-bold text-slate-400 border-b border-slate-800 uppercase tracking-wider mb-1">
+                  Interface Language (زبان / اللغة)
+                </div>
+                {LANGUAGES.map((langOption) => (
+                  <button
+                    key={langOption.code}
+                    onClick={() => {
+                      setLanguage(langOption.code);
+                      setShowLanguageMenu(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                      language === langOption.code
+                        ? 'bg-purple-600 text-white shadow-md'
+                        : 'hover:bg-slate-800 text-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-base">{langOption.flag}</span>
+                      <span>{langOption.nativeName}</span>
+                    </div>
+                    <span className="text-[10px] opacity-75 font-mono uppercase">{langOption.dir}</span>
                   </button>
                 ))}
               </div>

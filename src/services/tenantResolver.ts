@@ -111,8 +111,8 @@ export function resolveCurrentTenant(): ResolvedTenant {
   const searchParams = new URLSearchParams(window.location.search);
   const hash = window.location.hash;
 
-  // Check URL query param ?tenant=albarka or ?master=true
-  const queryTenant = searchParams.get('tenant');
+  // Check URL query param ?company=albarka or ?tenant=albarka or ?master=true
+  const queryTenant = searchParams.get('company') || searchParams.get('tenant');
   const isMasterParam = searchParams.get('master') === 'true' || hash.includes('/master');
 
   if (isMasterParam) {
