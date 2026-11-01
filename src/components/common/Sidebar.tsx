@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   LayoutDashboard,
   Building2,
@@ -16,9 +16,12 @@ import {
   Globe2,
   SlidersHorizontal,
   ChevronRight,
-  ShieldAlert,
+  ChevronDown,
   CreditCard,
-  History
+  History,
+  FolderTree,
+  FileText,
+  PieChart
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 
@@ -46,11 +49,25 @@ export type ActiveTab =
 
 interface SidebarProps {
   activeTab: ActiveTab;
-  setActiveTab: (tab: ActiveTab) => void;
+  setActiveTab: (tab: ActiveTab, subcategory?: string, subtab?: string) => void;
+}
+
+interface DepartmentMenuStructure {
+  id: ActiveTab;
+  label: string;
+  icon: any;
+  definitions: { id: string; label: string }[];
+  forms: { id: string; label: string }[];
+  reports: { id: string; label: string }[];
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
   const { isMasterPortal, currentCompany } = useAuthTenant();
+
+  // Expanded parent departments state
+  const [expandedDept, setExpandedDept] = useState<ActiveTab | null>(activeTab);
+  // Expanded subcategory state ('definitions' | 'forms' | 'reports')
+  const [expandedSubCat, setExpandedSubCat] = useState<string | null>('forms');
 
   const masterNav = [
     { id: 'masterDashboard' as ActiveTab, label: 'Master Overview', icon: LayoutDashboard },
@@ -61,14 +78,129 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
     { id: 'masterAudit' as ActiveTab, label: 'Global Audit Logs', icon: History },
   ];
 
-  const clientNav = [
-    { id: 'dashboard' as ActiveTab, label: 'Executive Dashboard', icon: LayoutDashboard },
-    { id: 'finance' as ActiveTab, label: 'Finance & Accounts', icon: DollarSign },
-    { id: 'procurement' as ActiveTab, label: 'Procurement & Purchasing', icon: ShoppingCart },
-    { id: 'inventory' as ActiveTab, label: 'Inventory & Warehouse', icon: Boxes },
-    { id: 'sales' as ActiveTab, label: 'Sales & POS Counter', icon: Receipt },
-    { id: 'production' as ActiveTab, label: 'Production & Manufacturing', icon: Factory },
-    { id: 'hr' as ActiveTab, label: 'HR Management & Payroll', icon: Users },
+  // Detailed Department Menu Hierarchy
+  const departments: DepartmentMenuStructure[] = [
+    {
+      id: 'finance',
+      label: 'Finance & Accounts',
+      icon: DollarSign,
+      definitions: [
+        { id: 'coa', label: 'Chart of Accounts' },
+        { id: 'suppliers', label: 'Suppliers & Creditors' },
+        { id: 'cost_center', label: 'Cost Center Setup' }
+      ],
+      forms: [
+        { id: 'voucher', label: 'Journal Voucher (JV)' },
+        { id: 'payment', label: 'Payment Voucher (BPV/CPV)' },
+        { id: 'cheque', label: 'Cheque Books & Clearance' }
+      ],
+      reports: [
+        { id: 'general_ledger', label: 'General Ledger' },
+        { id: 'sub_ledger', label: 'Sub Ledger Detail' },
+        { id: 'trial_balance', label: 'Trial Balance' },
+        { id: 'profit_loss', label: 'Profit & Loss Statement' },
+        { id: 'aging', label: 'Aging Creditors' }
+      ]
+    },
+    {
+      id: 'procurement',
+      label: 'Procurement & Purchasing',
+      icon: ShoppingCart,
+      definitions: [
+        { id: 'vendors', label: 'Vendor Directory' },
+        { id: 'req_types', label: 'Requisition Types' }
+      ],
+      forms: [
+        { id: 'po_issue', label: 'Issue Purchase Order (PO)' },
+        { id: 'po_requisition', label: 'Purchase Requisitions' },
+        { id: 'grn_receive', label: 'Goods Receipt Note (GRN)' }
+      ],
+      reports: [
+        { id: 'po_register', label: 'Purchase Order Register' },
+        { id: 'vendor_ledger', label: 'Vendor Outstanding Ledger' }
+      ]
+    },
+    {
+      id: 'inventory',
+      label: 'Inventory & Warehouse',
+      icon: Boxes,
+      definitions: [
+        { id: 'item_master', label: 'Master Item Catalog' },
+        { id: 'categories', label: 'Item Categories & UOM' },
+        { id: 'warehouses', label: 'Warehouse Locations' }
+      ],
+      forms: [
+        { id: 'stock_adj', label: 'Stock Adjustment Note' },
+        { id: 'stock_transfer', label: 'Inter-Warehouse Transfer' },
+        { id: 'grn_entry', label: 'GRN Inventory Entry' }
+      ],
+      reports: [
+        { id: 'stock_ledger', label: 'Stock Ledger Report' },
+        { id: 'reorder_alerts', label: 'Reorder Level Warnings' },
+        { id: 'valuation', label: 'Stock Valuation Report' }
+      ]
+    },
+    {
+      id: 'sales',
+      label: 'Sales & POS Counter',
+      icon: Receipt,
+      definitions: [
+        { id: 'customers', label: 'Customer Directory' },
+        { id: 'price_lists', label: 'Retail Price Lists' },
+        { id: 'sales_reps', label: 'Sales Rep Master' }
+      ],
+      forms: [
+        { id: 'pos_counter', label: 'Express POS Counter' },
+        { id: 'tax_invoice', label: 'Tax Invoice (STRN 18%)' },
+        { id: 'quotations', label: 'Sales Quotations' }
+      ],
+      reports: [
+        { id: 'sales_register', label: 'Sales Register' },
+        { id: 'customer_aging', label: 'Customer Receivables Aging' },
+        { id: 'daily_pos', label: 'Daily POS Sales Summary' }
+      ]
+    },
+    {
+      id: 'production',
+      label: 'Production & Manufacturing',
+      icon: Factory,
+      definitions: [
+        { id: 'work_centers', label: 'Work Centers' },
+        { id: 'machines', label: 'Machine & Labor Master' }
+      ],
+      forms: [
+        { id: 'bom_setup', label: 'Bill of Materials (BOM)' },
+        { id: 'work_order', label: 'Work Order Entry' },
+        { id: 'qa_inspection', label: 'Quality Check Log' }
+      ],
+      reports: [
+        { id: 'costing_report', label: 'Production Costing Report' },
+        { id: 'wo_progress', label: 'Work Order Progress' }
+      ]
+    },
+    {
+      id: 'hr',
+      label: 'HR Management & Payroll',
+      icon: Users,
+      definitions: [
+        { id: 'emp_dir', label: 'Employee Directory' },
+        { id: 'dept_setup', label: 'Departments & Designations' },
+        { id: 'salary_bands', label: 'Salary Bands' }
+      ],
+      forms: [
+        { id: 'attendance', label: 'Attendance Log' },
+        { id: 'leave_req', label: 'Leave Request Application' },
+        { id: 'payroll_post', label: 'Monthly Payroll Posting' }
+      ],
+      reports: [
+        { id: 'salary_slips', label: 'Salary Slip Register' },
+        { id: 'tax_deductions', label: 'Tax Deduction Statement' }
+      ]
+    }
+  ];
+
+  // Helper utility items
+  const utilityItems = [
     { id: 'formBuilder' as ActiveTab, label: 'Dynamic Form Builder', icon: FileCheck2 },
     { id: 'reports' as ActiveTab, label: 'Universal Reporting Engine', icon: BarChart3 },
     { id: 'approvals' as ActiveTab, label: 'Approval Workflows', icon: ShieldCheck },
@@ -77,10 +209,27 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
     { id: 'companySettings' as ActiveTab, label: 'Company Profile & Branding', icon: Settings },
   ];
 
-  const navItems = isMasterPortal ? masterNav : clientNav;
+  // Active Modules Filtering for Client Companies
+  const isModuleActive = (moduleId: string): boolean => {
+    if (isMasterPortal) return true;
+    if (!currentCompany.activeModules || currentCompany.activeModules.length === 0) return true;
+    return currentCompany.activeModules.includes(moduleId);
+  };
+
+  const handleSubItemClick = (deptId: ActiveTab, subcategory: string, subtabId: string) => {
+    setActiveTab(deptId, subcategory, subtabId);
+
+    // Update URL query parameters
+    const url = new URL(window.location.href);
+    url.searchParams.set('module', deptId);
+    url.searchParams.set('subcategory', subcategory);
+    url.searchParams.set('subtab', subtabId);
+    window.history.pushState({}, '', url.toString());
+  };
 
   return (
     <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 min-h-[calc(100vh-57px)]">
+      {/* Header Banner */}
       <div className="p-4 border-b border-slate-800/80">
         {isMasterPortal ? (
           <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-purple-950/50 border border-purple-800/50 text-purple-200">
@@ -95,40 +244,235 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
             <Building2 className="w-4 h-4 text-cyan-400 shrink-0" />
             <div className="overflow-hidden">
               <div className="font-bold text-xs truncate">{currentCompany.name}</div>
-              <div className="text-[10px] text-cyan-300/80 font-mono truncate">{currentCompany.slug}.erp.mts.pk</div>
+              <div className="text-[10px] text-cyan-300/80 font-mono truncate">
+                mts-sap.vercel.app?company={currentCompany.slug}
+              </div>
             </div>
           </div>
         )}
       </div>
 
       <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto">
-        <div className="px-3 py-1 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-          {isMasterPortal ? 'System Control' : 'ERP Departments'}
+        {/* Section Heading */}
+        <div className="px-3 py-1 text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between">
+          <span>{isMasterPortal ? 'System Control' : 'ERP Departments'}</span>
+          {!isMasterPortal && currentCompany.industry && (
+            <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-cyan-400 font-mono">
+              {currentCompany.industry}
+            </span>
+          )}
         </div>
 
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                isActive
-                  ? isMasterPortal
+        {/* Master Portal Navigation */}
+        {isMasterPortal &&
+          masterNav.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                  isActive
                     ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30'
-                    : 'bg-cyan-600 text-white shadow-lg shadow-cyan-600/30'
-                  : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/80'
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-                <span>{item.label}</span>
+                    : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/80'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                  <span>{item.label}</span>
+                </div>
+                {isActive && <ChevronRight className="w-3.5 h-3.5" />}
+              </button>
+            );
+          })}
+
+        {/* Executive Dashboard */}
+        {!isMasterPortal && (
+          <button
+            onClick={() => setActiveTab('dashboard')}
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+              activeTab === 'dashboard'
+                ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-600/30'
+                : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/80'
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <LayoutDashboard className="w-4 h-4 text-cyan-400" />
+              <span>Executive Dashboard</span>
+            </div>
+          </button>
+        )}
+
+        {/* Client Department Hierarchical Tabs */}
+        {!isMasterPortal &&
+          departments.map((dept) => {
+            if (!isModuleActive(dept.id)) return null;
+
+            const Icon = dept.icon;
+            const isDeptActive = activeTab === dept.id;
+            const isDeptExpanded = expandedDept === dept.id;
+
+            return (
+              <div key={dept.id} className="space-y-1">
+                {/* Department Main Button */}
+                <button
+                  onClick={() => {
+                    setActiveTab(dept.id);
+                    setExpandedDept(isDeptExpanded ? null : dept.id);
+                  }}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+                    isDeptActive
+                      ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-600/20'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Icon className={`w-4 h-4 ${isDeptActive ? 'text-white' : 'text-cyan-400'}`} />
+                    <span>{dept.label}</span>
+                  </div>
+                  {isDeptExpanded ? (
+                    <ChevronDown className="w-3.5 h-3.5 text-cyan-300" />
+                  ) : (
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
+                  )}
+                </button>
+
+                {/* Subtabs Accordion: Definitions, Forms, Reports */}
+                {isDeptExpanded && (
+                  <div className="ml-4 pl-2 border-l border-slate-800 space-y-1 my-1 animate-in fade-in">
+                    {/* 1. Definitions Category */}
+                    <div>
+                      <button
+                        onClick={() =>
+                          setExpandedSubCat(expandedSubCat === `${dept.id}_defs` ? null : `${dept.id}_defs`)
+                        }
+                        className="w-full flex items-center justify-between py-1 px-2 text-[11px] font-bold text-slate-400 hover:text-amber-300 transition-colors"
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <FolderTree className="w-3 h-3 text-amber-400" />
+                          <span>Definitions</span>
+                        </div>
+                        <span className="text-[9px] px-1 rounded bg-slate-800 text-slate-400 font-mono">
+                          {dept.definitions.length}
+                        </span>
+                      </button>
+
+                      {expandedSubCat === `${dept.id}_defs` && (
+                        <div className="ml-3 border-l border-slate-800 pl-2 space-y-0.5 my-1">
+                          {dept.definitions.map((sub) => (
+                            <button
+                              key={sub.id}
+                              onClick={() => handleSubItemClick(dept.id, 'definitions', sub.id)}
+                              className="w-full text-left py-1 px-2 text-[11px] rounded text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 truncate"
+                            >
+                              • {sub.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 2. Forms Category */}
+                    <div>
+                      <button
+                        onClick={() =>
+                          setExpandedSubCat(expandedSubCat === `${dept.id}_forms` ? null : `${dept.id}_forms`)
+                        }
+                        className="w-full flex items-center justify-between py-1 px-2 text-[11px] font-bold text-slate-400 hover:text-cyan-300 transition-colors"
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <FileText className="w-3 h-3 text-cyan-400" />
+                          <span>Forms</span>
+                        </div>
+                        <span className="text-[9px] px-1 rounded bg-slate-800 text-slate-400 font-mono">
+                          {dept.forms.length}
+                        </span>
+                      </button>
+
+                      {(expandedSubCat === `${dept.id}_forms` || expandedSubCat === 'forms') && (
+                        <div className="ml-3 border-l border-slate-800 pl-2 space-y-0.5 my-1">
+                          {dept.forms.map((sub) => (
+                            <button
+                              key={sub.id}
+                              onClick={() => handleSubItemClick(dept.id, 'forms', sub.id)}
+                              className="w-full text-left py-1 px-2 text-[11px] rounded text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 truncate"
+                            >
+                              • {sub.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 3. Reports Category */}
+                    <div>
+                      <button
+                        onClick={() =>
+                          setExpandedSubCat(expandedSubCat === `${dept.id}_reports` ? null : `${dept.id}_reports`)
+                        }
+                        className="w-full flex items-center justify-between py-1 px-2 text-[11px] font-bold text-slate-400 hover:text-emerald-300 transition-colors"
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <PieChart className="w-3 h-3 text-emerald-400" />
+                          <span>Reports</span>
+                        </div>
+                        <span className="text-[9px] px-1 rounded bg-slate-800 text-slate-400 font-mono">
+                          {dept.reports.length}
+                        </span>
+                      </button>
+
+                      {expandedSubCat === `${dept.id}_reports` && (
+                        <div className="ml-3 border-l border-slate-800 pl-2 space-y-0.5 my-1">
+                          {dept.reports.map((sub) => (
+                            <button
+                              key={sub.id}
+                              onClick={() => handleSubItemClick(dept.id, 'reports', sub.id)}
+                              className="w-full text-left py-1 px-2 text-[11px] rounded text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 truncate"
+                            >
+                              • {sub.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
-              {isActive && <ChevronRight className="w-3.5 h-3.5" />}
-            </button>
-          );
-        })}
+            );
+          })}
+
+        {/* Utility Items */}
+        {!isMasterPortal && (
+          <div className="pt-2 border-t border-slate-800/60 space-y-1">
+            <div className="px-3 py-1 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+              System Utilities
+            </div>
+
+            {utilityItems.map((item) => {
+              if (!isModuleActive(item.id)) return null;
+
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+                    isActive
+                      ? 'bg-slate-800 text-white border border-slate-700'
+                      : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Icon className="w-4 h-4 text-slate-400" />
+                    <span>{item.label}</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </nav>
 
       <div className="p-3 border-t border-slate-800 text-[11px] text-slate-500 text-center font-mono">

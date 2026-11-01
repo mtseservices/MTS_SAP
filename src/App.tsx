@@ -58,10 +58,20 @@ function MainLayout() {
     }
   }, []);
 
-  const handleSelectTab = (tab: ActiveTab) => {
+  const handleSelectTab = (tab: ActiveTab, subcategory?: string, subtab?: string) => {
     setActiveTab(tab);
     const url = new URL(window.location.href);
     url.searchParams.set('module', tab);
+    if (subcategory) {
+      url.searchParams.set('subcategory', subcategory);
+    } else {
+      url.searchParams.delete('subcategory');
+    }
+    if (subtab) {
+      url.searchParams.set('subtab', subtab);
+    } else {
+      url.searchParams.delete('subtab');
+    }
     window.history.pushState({}, '', url.toString());
   };
 

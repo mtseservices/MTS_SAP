@@ -131,7 +131,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewCompanyModal, onSelectT
                     {currentCompany.name}
                   </div>
                   <div className="text-[10px] text-cyan-400 font-mono">
-                    {currentCompany.slug}.erp.mts.pk
+                    mts-sap.vercel.app?company={currentCompany.slug}
                   </div>
                 </div>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400 ml-1" />

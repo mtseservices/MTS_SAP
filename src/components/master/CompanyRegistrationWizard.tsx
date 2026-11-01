@@ -124,7 +124,7 @@ export const CompanyRegistrationWizard: React.FC<CompanyRegistrationWizardProps>
       slug: created.slug,
       name: created.name,
       username: formData.adminUsername,
-      url: created.url || `https://${created.slug}.erp.mts.pk`
+      url: created.url || `https://mts-sap.vercel.app?company=${created.slug}`
     });
   };
 
@@ -334,20 +334,17 @@ export const CompanyRegistrationWizard: React.FC<CompanyRegistrationWizardProps>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Tenant Subdomain URL Slug</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Live Free Vercel Tenant URL</label>
                 <div className="flex items-center">
                   <span className="px-2.5 py-2 bg-slate-800 text-slate-400 text-xs border border-r-0 border-slate-700 rounded-l-xl font-mono">
-                    https://
+                    https://mts-sap.vercel.app?company=
                   </span>
                   <input
                     type="text"
                     value={formData.slug}
                     onChange={(e) => setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '') })}
-                    className="flex-1 px-2.5 py-2 bg-slate-800 border border-slate-700 text-xs text-cyan-300 font-mono font-bold focus:outline-none"
+                    className="flex-1 px-2.5 py-2 bg-slate-800 border border-slate-700 text-xs text-cyan-300 font-mono font-bold focus:outline-none rounded-r-xl"
                   />
-                  <span className="px-2.5 py-2 bg-slate-800 text-slate-400 text-xs border border-l-0 border-slate-700 rounded-r-xl font-mono">
-                    .erp.mts.pk
-                  </span>
                 </div>
               </div>
             </div>

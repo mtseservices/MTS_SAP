@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
-import { Boxes, Plus, AlertTriangle, CheckCircle2, Warehouse, Tag } from 'lucide-react';
+import { Boxes, Plus, QrCode, ScanLine, CheckCircle2 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { INITIAL_INVENTORY } from '../../services/mockData';
 import { InventoryItem } from '../../types/erp';
 import { DataTable } from '../common/DataTable';
 import { TTSButton } from '../common/TTSButton';
+import { QrScannerModal, ScannedItemPayload } from '../common/QrScannerModal';
 
 export const InventoryModule: React.FC = () => {
   const { currentCompany } = useAuthTenant();
   const [items, setItems] = useState<InventoryItem[]>(INITIAL_INVENTORY);
   const [showModal, setShowModal] = useState(false);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [scannedAlert, setScannedAlert] = useState<string | null>(null);
 
   // Form
   const [code, setCode] = useState('RM-PACK-100');
@@ -19,6 +22,23 @@ export const InventoryModule: React.FC = () => {
   const [unitPrice, setUnitPrice] = useState(850);
   const [purchasePrice, setPurchasePrice] = useState(650);
   const [currentStock, setCurrentStock] = useState(1500);
+
+  const handleItemScanned = (scanned: ScannedItemPayload) => {
+    setCode(scanned.code);
+    setName(scanned.name);
+    if (scanned.category) setCategory(scanned.category);
+    if (scanned.uom) setUom(scanned.uom);
+    if (scanned.unitPrice > 0) {
+      setUnitPrice(scanned.unitPrice);
+      setPurchasePrice(Math.round(scanned.unitPrice * 0.75));
+    }
+    
+    setScannedAlert(`Scanned Item: ${scanned.name} (${scanned.code})`);
+    setTimeout(() => setScannedAlert(null), 4000);
+
+    // Open add item modal pre-filled
+    setShowModal(true);
+  };
 
   const handleAddItem = (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +63,7 @@ export const InventoryModule: React.FC = () => {
 
   const totalValue = items.reduce((acc, i) => acc + i.currentStock * i.purchasePrice, 0);
 
-  const inventorySpeech = `Inventory and Warehouse management for ${currentCompany.name}. Total active stock items: ${items.length}. Combined warehouse stock valuation: ${totalValue.toLocaleString()} Rupees. Reorder warnings monitored in real time.`;
+  const inventorySpeech = `Inventory and Warehouse management for ${currentCompany.name}. Total active stock items: ${items.length}. Combined warehouse stock valuation: ${totalValue.toLocaleString()} Rupees. QR scanner active.`;
 
   return (
     <div className="p-6 space-y-6">
@@ -54,12 +74,19 @@ export const InventoryModule: React.FC = () => {
             Inventory & Warehouse Control
           </h1>
           <p className="text-xs text-slate-400 mt-0.5">
-            Item Master, Stock Ledgers, Batch/Serial & Expiry Tracking, Warehouses, and Automated Reorder Level Alerts.
+            Item Master, Stock Ledgers, Batch/Serial & Expiry Tracking, Warehouses, and QR Barcode Scanner.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <TTSButton text={inventorySpeech} label="Inventory Audio Briefing" />
+          <button
+            onClick={() => setIsQrModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-purple-400 font-bold text-xs transition-all shadow-md"
+          >
+            <QrCode className="w-4 h-4" />
+            Scan Barcode / QR
+          </button>
           <button
             onClick={() => setShowModal(true)}
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-lg shadow-purple-600/30 transition-all"
@@ -69,6 +96,18 @@ export const InventoryModule: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {scannedAlert && (
+        <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs flex items-center justify-between animate-in fade-in">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-purple-400" />
+            <span>{scannedAlert}</span>
+          </div>
+          <span className="text-[10px] font-bold uppercase tracking-wider bg-purple-500/20 px-2 py-0.5 rounded">
+            Pre-Filled In Form
+          </span>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono text-xs">
         <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 shadow-xl">
@@ -106,9 +145,19 @@ export const InventoryModule: React.FC = () => {
       {showModal && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-lg w-full space-y-4 shadow-2xl animate-in fade-in zoom-in-95">
-            <h2 className="text-sm font-bold text-slate-100 uppercase tracking-wider text-purple-400">
-              Register New Master Item
-            </h2>
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h2 className="text-sm font-bold text-slate-100 uppercase tracking-wider text-purple-400">
+                Register New Master Item
+              </h2>
+              <button
+                type="button"
+                onClick={() => setIsQrModalOpen(true)}
+                className="px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 font-bold text-[11px] flex items-center gap-1 transition-all"
+              >
+                <ScanLine className="w-3.5 h-3.5" />
+                Scan Item Details
+              </button>
+            </div>
 
             <form onSubmit={handleAddItem} className="space-y-4">
               <div>
@@ -211,6 +260,16 @@ export const InventoryModule: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* QR Code Scanner Modal */}
+      <QrScannerModal
+        isOpen={isQrModalOpen}
+        onClose={() => setIsQrModalOpen(false)}
+        onItemScanned={handleItemScanned}
+        title="Inventory Master Barcode & QR Scanner"
+        moduleContext="INVENTORY"
+      />
     </div>
   );
 };
+

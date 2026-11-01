@@ -1,22 +1,44 @@
 import React, { useState } from 'react';
-import { Receipt, Plus, Printer, ShoppingBag, CreditCard, CheckCircle2, UserCheck } from 'lucide-react';
+import { Receipt, Plus, Printer, ShoppingBag, CreditCard, QrCode, ScanLine, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { INITIAL_SALES_INVOICES } from '../../services/mockData';
 import { SalesInvoice } from '../../types/erp';
 import { DataTable } from '../common/DataTable';
 import { TTSButton } from '../common/TTSButton';
 import { offlineStore } from '../../services/offlineStore';
+import { QrScannerModal, ScannedItemPayload } from '../common/QrScannerModal';
 
 export const SalesPosModule: React.FC = () => {
   const { currentCompany } = useAuthTenant();
   const [invoices, setInvoices] = useState<SalesInvoice[]>(INITIAL_SALES_INVOICES);
   const [activeTab, setActiveTab] = useState<'invoices' | 'pos'>('invoices');
   const [printModalInvoice, setPrintModalInvoice] = useState<SalesInvoice | null>(null);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
 
   // POS State
   const [posCustomer, setPosCustomer] = useState('Walk-in Customer / Retail');
+  const [posItemName, setPosItemName] = useState('Albarka Energy Biscuits Box');
+  const [posItemCode, setPosItemCode] = useState('FG-BISCUIT-BOX');
   const [posQty, setPosQty] = useState(5);
   const [posPrice, setPosPrice] = useState(2400);
+  const [lastScannedNotification, setLastScannedNotification] = useState<string | null>(null);
+
+  const handleItemScanned = (scanned: ScannedItemPayload) => {
+    setPosItemName(scanned.name);
+    setPosItemCode(scanned.code);
+    if (scanned.unitPrice > 0) {
+      setPosPrice(scanned.unitPrice);
+    }
+    if (scanned.qty > 0) {
+      setPosQty(scanned.qty);
+    }
+    setActiveTab('pos');
+    setLastScannedNotification(`Scanned item: ${scanned.name} (${scanned.code}) at Rs. ${scanned.unitPrice.toLocaleString()}`);
+
+    setTimeout(() => {
+      setLastScannedNotification(null);
+    }, 4000);
+  };
 
   const handleCreatePosInvoice = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +54,7 @@ export const SalesPosModule: React.FC = () => {
       date: new Date().toISOString().split('T')[0],
       dueDate: new Date().toISOString().split('T')[0],
       items: [
-        { itemId: 'item_03', itemCode: 'FG-BISCUIT-BOX', itemName: 'Albarka Energy Biscuits Box', qty: posQty, unitPrice: posPrice, discount: 0, taxRate: 18, totalPrice: subtotal }
+        { itemId: `item_${Date.now()}`, itemCode: posItemCode, itemName: posItemName, qty: posQty, unitPrice: posPrice, discount: 0, taxRate: 18, totalPrice: subtotal }
       ],
       subtotal,
       taxAmount,
@@ -59,7 +81,7 @@ export const SalesPosModule: React.FC = () => {
     }
   };
 
-  const salesSpeech = `Sales and POS Counter for ${currentCompany.name}. Total invoices logged: ${invoices.length}. Automatic 18 percent STRN sales tax applied to all registered commercial invoices.`;
+  const salesSpeech = `Sales and POS Counter for ${currentCompany.name}. Total invoices logged: ${invoices.length}. Instant QR barcode product lookup integrated.`;
 
   return (
     <div className="p-6 space-y-6">
@@ -70,12 +92,19 @@ export const SalesPosModule: React.FC = () => {
             Sales Distribution & Retail POS Counter
           </h1>
           <p className="text-xs text-slate-400 mt-0.5">
-            Sales Quotations, Sales Orders, Tax Invoices (FBR STRN 18%), Customer Ledgers, and Express POS Checkout.
+            Sales Quotations, Sales Orders, Tax Invoices (FBR STRN 18%), Express POS Checkout, and Camera QR Scanner.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <TTSButton text={salesSpeech} label="Sales Voice Summary" />
+          <button
+            onClick={() => setIsQrModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-400 font-bold text-xs transition-all shadow-md"
+          >
+            <QrCode className="w-4 h-4" />
+            Scan Product QR
+          </button>
           <div className="flex items-center gap-1 bg-slate-800 p-1 rounded-xl border border-slate-700 text-xs font-bold">
             <button
               onClick={() => setActiveTab('invoices')}
@@ -92,6 +121,18 @@ export const SalesPosModule: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {lastScannedNotification && (
+        <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs flex items-center justify-between animate-in fade-in">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-cyan-400" />
+            <span>{lastScannedNotification}</span>
+          </div>
+          <span className="text-[10px] font-bold uppercase tracking-wider bg-cyan-500/20 px-2 py-0.5 rounded">
+            POS Item Auto-Filled
+          </span>
+        </div>
+      )}
 
       {activeTab === 'invoices' && (
         <DataTable
@@ -130,9 +171,18 @@ export const SalesPosModule: React.FC = () => {
               <h2 className="text-sm font-bold text-slate-100 uppercase tracking-wider text-cyan-400">
                 Express POS Sales Checkout
               </h2>
-              <p className="text-xs text-slate-400">Instant retail billing with auto-calculated tax & receipt print.</p>
+              <p className="text-xs text-slate-400">Instant retail billing with camera barcode scanner & thermal receipt print.</p>
             </div>
-            <ShoppingBag className="w-6 h-6 text-cyan-400" />
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsQrModalOpen(true)}
+                className="px-2.5 py-1 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 font-bold text-xs flex items-center gap-1 transition-all"
+              >
+                <ScanLine className="w-3.5 h-3.5" />
+                Scan QR Code
+              </button>
+              <ShoppingBag className="w-6 h-6 text-cyan-400" />
+            </div>
           </div>
 
           <form onSubmit={handleCreatePosInvoice} className="space-y-4">
@@ -147,9 +197,27 @@ export const SalesPosModule: React.FC = () => {
               />
             </div>
 
+            <div>
+              <div className="flex justify-between items-center mb-1">
+                <label className="block text-xs font-semibold text-slate-300">Product / Inventory Item Description</label>
+                {posItemCode && (
+                  <span className="text-[10px] font-mono text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded border border-cyan-500/20">
+                    SKU: {posItemCode}
+                  </span>
+                )}
+              </div>
+              <input
+                type="text"
+                value={posItemName}
+                onChange={(e) => setPosItemName(e.target.value)}
+                required
+                className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100"
+              />
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Carton Quantity</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Quantity</label>
                 <input
                   type="number"
                   value={posQty}
@@ -263,6 +331,16 @@ export const SalesPosModule: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* QR Code Scanner Modal */}
+      <QrScannerModal
+        isOpen={isQrModalOpen}
+        onClose={() => setIsQrModalOpen(false)}
+        onItemScanned={handleItemScanned}
+        title="Sales & POS Barcode Scanner"
+        moduleContext="SALES"
+      />
     </div>
   );
 };
+

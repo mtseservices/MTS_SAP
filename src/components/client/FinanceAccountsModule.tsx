@@ -34,8 +34,18 @@ export const FinanceAccountsModule: React.FC = () => {
   // URL Query Param Sync for Subtab
   const getInitialTab = (): SubTab => {
     const params = new URLSearchParams(window.location.search);
-    const tabParam = params.get('subtab') as SubTab;
-    return tabParam || 'vouchers';
+    const tabParam = params.get('subtab');
+    if (!tabParam) return 'vouchers';
+
+    if (['coa', 'suppliers', 'cost_center'].includes(tabParam)) return 'coa';
+    if (['voucher', 'payment', 'cheque', 'vouchers'].includes(tabParam)) return 'vouchers';
+    if (['general_ledger', 'gl'].includes(tabParam)) return 'gl';
+    if (['sub_ledger', 'aging', 'subledger'].includes(tabParam)) return 'subledger';
+    if (['trial_balance', 'trialBalance'].includes(tabParam)) return 'trialBalance';
+    if (['profit_loss', 'pnl'].includes(tabParam)) return 'pnl';
+    if (tabParam === 'newVoucher') return 'newVoucher';
+
+    return 'vouchers';
   };
 
   const [activeSubTab, setActiveSubTab] = useState<SubTab>(getInitialTab);
@@ -526,13 +536,35 @@ export const FinanceAccountsModule: React.FC = () => {
 
             {/* Line Items Table */}
             <div className="space-y-3">
-              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
-                Line Items (Debit / Credit PKR)
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
+                  Journal Line Items (Debit / Credit PKR)
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const defaultAcc = accounts[0];
+                    setItems([
+                      ...items,
+                      {
+                        accountId: defaultAcc ? defaultAcc.id : 'acc_1020',
+                        accountCode: defaultAcc ? defaultAcc.code : '1020',
+                        accountName: defaultAcc ? defaultAcc.name : 'Meezan Bank Operations Account',
+                        description: 'Voucher Adjustment',
+                        debit: 0,
+                        credit: 0
+                      }
+                    ]);
+                  }}
+                  className="flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-300 font-bold"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add Line Item
+                </button>
+              </div>
 
               {items.map((item, idx) => (
                 <div key={idx} className="grid grid-cols-12 gap-2 items-center bg-slate-800/60 p-3 rounded-xl border border-slate-700">
-                  <div className="col-span-5">
+                  <div className="col-span-4">
                     <select
                       value={item.accountId}
                       onChange={(e) => {
@@ -563,7 +595,7 @@ export const FinanceAccountsModule: React.FC = () => {
                         setItems(updated);
                       }}
                       placeholder="Debit PKR"
-                      className="w-full px-2 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-emerald-400 font-mono text-right"
+                      className="w-full px-2 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-emerald-400 font-mono text-right font-bold"
                     />
                   </div>
 
@@ -577,8 +609,23 @@ export const FinanceAccountsModule: React.FC = () => {
                         setItems(updated);
                       }}
                       placeholder="Credit PKR"
-                      className="w-full px-2 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-cyan-400 font-mono text-right"
+                      className="w-full px-2 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-cyan-400 font-mono text-right font-bold"
                     />
+                  </div>
+
+                  <div className="col-span-2 flex justify-end">
+                    {items.length > 2 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setItems(items.filter((_, i) => i !== idx));
+                        }}
+                        className="px-2 py-1 rounded bg-rose-500/20 text-rose-300 hover:bg-rose-500/40 text-xs font-bold transition-all"
+                        title="Remove row"
+                      >
+                        Remove
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}

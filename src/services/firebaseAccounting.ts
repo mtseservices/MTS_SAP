@@ -3,20 +3,80 @@ import {
   doc,
   setDoc,
   getDocs,
-  onSnapshot,
-  query,
-  orderBy
+  onSnapshot
 } from 'firebase/firestore';
-import { db } from './firebaseConfig';
+import { db, auth } from './firebaseConfig';
 import { AccountHead, JournalVoucher } from '../types/erp';
 import { INITIAL_ACCOUNTS, INITIAL_VOUCHERS } from './mockData';
 
-// Helper for error handling
-function handleFirestoreError(error: unknown, op: string, path: string) {
-  console.error(`Firebase ${op} Error on [${path}]:`, error);
+export interface GeneralLedgerEntry {
+  id: string;
+  voucherId: string;
+  voucherNo: string;
+  date: string;
+  type: string;
+  accountId: string;
+  accountCode: string;
+  accountName: string;
+  debit: number;
+  credit: number;
+  narration: string;
+  referenceNo: string;
+  createdAt: string;
 }
 
-// Subscribe to real-time company Chart of Accounts
+export interface SubLedgerEntry {
+  id: string;
+  voucherNo: string;
+  date: string;
+  category: string; // Accounts Receivable, Accounts Payable, Bank, Cash
+  accountCode: string;
+  accountName: string;
+  particulars: string;
+  debit: number;
+  credit: number;
+  runningBalance: number;
+}
+
+export enum OperationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+  GET = 'get',
+  WRITE = 'write',
+}
+
+export interface FirestoreErrorInfo {
+  error: string;
+  operationType: string;
+  path: string | null;
+  authInfo: {
+    userId?: string | null;
+    email?: string | null;
+    emailVerified?: boolean | null;
+    isAnonymous?: boolean | null;
+    tenantId?: string | null;
+  };
+}
+
+function handleFirestoreError(error: unknown, op: string, path: string) {
+  const errInfo: FirestoreErrorInfo = {
+    error: error instanceof Error ? error.message : String(error),
+    authInfo: {
+      userId: auth.currentUser?.uid || 'anonymous_tenant',
+      email: auth.currentUser?.email || null,
+      emailVerified: auth.currentUser?.emailVerified || false,
+      isAnonymous: auth.currentUser?.isAnonymous || true,
+      tenantId: auth.currentUser?.tenantId || null,
+    },
+    operationType: op,
+    path
+  };
+  console.error('Firestore Error:', JSON.stringify(errInfo));
+}
+
+// 1. Real-Time COA Accounts Subscription
 export function subscribeCompanyAccounts(
   companyId: string,
   onData: (accounts: AccountHead[]) => void
@@ -28,7 +88,6 @@ export function subscribeCompanyAccounts(
     coaCol,
     (snapshot) => {
       if (snapshot.empty) {
-        // Seed initial accounts for company if empty
         INITIAL_ACCOUNTS.forEach((acc) => {
           setDoc(doc(db, 'companies', safeCompId, 'accounts', acc.id), acc).catch((err) =>
             handleFirestoreError(err, 'seed_account', `companies/${safeCompId}/accounts/${acc.id}`)
@@ -40,7 +99,6 @@ export function subscribeCompanyAccounts(
         snapshot.forEach((docSnap) => {
           loaded.push(docSnap.data() as AccountHead);
         });
-        // Sort by account code
         loaded.sort((a, b) => a.code.localeCompare(b.code));
         onData(loaded);
       }
@@ -54,7 +112,7 @@ export function subscribeCompanyAccounts(
   return unsubscribe;
 }
 
-// Subscribe to real-time company Journal & Payment Vouchers
+// 2. Real-Time Vouchers Subscription
 export function subscribeCompanyVouchers(
   companyId: string,
   onData: (vouchers: JournalVoucher[]) => void
@@ -66,7 +124,6 @@ export function subscribeCompanyVouchers(
     vouchersCol,
     (snapshot) => {
       if (snapshot.empty) {
-        // Seed initial vouchers for company
         INITIAL_VOUCHERS.forEach((v) => {
           setDoc(doc(db, 'companies', safeCompId, 'vouchers', v.id), v).catch((err) =>
             handleFirestoreError(err, 'seed_voucher', `companies/${safeCompId}/vouchers/${v.id}`)
@@ -91,7 +148,57 @@ export function subscribeCompanyVouchers(
   return unsubscribe;
 }
 
-// Post new Voucher and automatically update affected Account Head Balances in real-time
+// 3. Real-Time General Ledger Subscription
+export function subscribeGeneralLedger(
+  companyId: string,
+  onData: (glEntries: GeneralLedgerEntry[]) => void
+) {
+  const safeCompId = companyId || 'default_company';
+  const glCol = collection(db, 'companies', safeCompId, 'general_ledger');
+
+  return onSnapshot(
+    glCol,
+    (snapshot) => {
+      const loaded: GeneralLedgerEntry[] = [];
+      snapshot.forEach((docSnap) => {
+        loaded.push(docSnap.data() as GeneralLedgerEntry);
+      });
+      loaded.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      onData(loaded);
+    },
+    (error) => {
+      handleFirestoreError(error, 'subscribe_gl', `companies/${safeCompId}/general_ledger`);
+      onData([]);
+    }
+  );
+}
+
+// 4. Real-Time Sub-Ledger Subscription
+export function subscribeSubLedgers(
+  companyId: string,
+  onData: (subEntries: SubLedgerEntry[]) => void
+) {
+  const safeCompId = companyId || 'default_company';
+  const subCol = collection(db, 'companies', safeCompId, 'subledgers');
+
+  return onSnapshot(
+    subCol,
+    (snapshot) => {
+      const loaded: SubLedgerEntry[] = [];
+      snapshot.forEach((docSnap) => {
+        loaded.push(docSnap.data() as SubLedgerEntry);
+      });
+      loaded.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      onData(loaded);
+    },
+    (error) => {
+      handleFirestoreError(error, 'subscribe_subledgers', `companies/${safeCompId}/subledgers`);
+      onData([]);
+    }
+  );
+}
+
+// 5. Post New Journal Voucher & Automatically Update General Ledger, Sub-Ledger & COA
 export async function postVoucherToFirebase(
   companyId: string,
   newVoucher: JournalVoucher,
@@ -100,22 +207,69 @@ export async function postVoucherToFirebase(
   const safeCompId = companyId || 'default_company';
 
   try {
-    // 1. Save voucher document
+    // A. Save Journal Voucher
     await setDoc(doc(db, 'companies', safeCompId, 'vouchers', newVoucher.id), newVoucher);
 
-    // 2. Automatically update affected COA account balances
+    // B. Save General Ledger & Sub-Ledger line items + Update COA balances
     const updatedAccountsMap = new Map<string, number>();
 
-    newVoucher.items.forEach((item) => {
-      const netChange = (Number(item.debit) || 0) - (Number(item.credit) || 0);
+    for (const item of newVoucher.items) {
+      const debitVal = Number(item.debit) || 0;
+      const creditVal = Number(item.credit) || 0;
+      const netChange = debitVal - creditVal;
+
       const existingNet = updatedAccountsMap.get(item.accountId) || 0;
       updatedAccountsMap.set(item.accountId, existingNet + netChange);
-    });
 
+      // Save General Ledger Entry
+      const glEntryId = `gl_${newVoucher.id}_${item.accountId}_${Math.random().toString(36).substr(2, 4)}`;
+      const glDoc: GeneralLedgerEntry = {
+        id: glEntryId,
+        voucherId: newVoucher.id,
+        voucherNo: newVoucher.voucherNo,
+        date: newVoucher.date,
+        type: newVoucher.type,
+        accountId: item.accountId,
+        accountCode: item.accountCode,
+        accountName: item.accountName,
+        debit: debitVal,
+        credit: creditVal,
+        narration: newVoucher.narration,
+        referenceNo: newVoucher.referenceNo,
+        createdAt: new Date().toISOString()
+      };
+      await setDoc(doc(db, 'companies', safeCompId, 'general_ledger', glEntryId), glDoc);
+
+      // Check if Sub-Ledger entry needed
+      const targetAcc = currentAccounts.find((a) => a.id === item.accountId);
+      if (
+        targetAcc &&
+        (targetAcc.category.includes('Receivable') ||
+          targetAcc.category.includes('Payable') ||
+          targetAcc.category.includes('Bank') ||
+          targetAcc.category.includes('Cash'))
+      ) {
+        const subEntryId = `sub_${newVoucher.id}_${item.accountId}_${Math.random().toString(36).substr(2, 4)}`;
+        const subDoc: SubLedgerEntry = {
+          id: subEntryId,
+          voucherNo: newVoucher.voucherNo,
+          date: newVoucher.date,
+          category: targetAcc.category,
+          accountCode: item.accountCode,
+          accountName: item.accountName,
+          particulars: item.description || newVoucher.narration,
+          debit: debitVal,
+          credit: creditVal,
+          runningBalance: targetAcc.balance + (debitVal - creditVal)
+        };
+        await setDoc(doc(db, 'companies', safeCompId, 'subledgers', subEntryId), subDoc);
+      }
+    }
+
+    // C. Recalculate and update COA Balances
     for (const [accId, netChange] of updatedAccountsMap.entries()) {
       const targetAcc = currentAccounts.find((a) => a.id === accId);
       if (targetAcc) {
-        // For Assets & Expenses, debit increases balance. For Income & Equity, credit increases balance.
         const isDebitNormal = targetAcc.type === 'Asset' || targetAcc.type === 'Expense';
         const adjustment = isDebitNormal ? netChange : -netChange;
         const newBalance = targetAcc.balance + adjustment;
@@ -128,13 +282,14 @@ export async function postVoucherToFirebase(
         await setDoc(doc(db, 'companies', safeCompId, 'accounts', accId), updatedAccDoc);
       }
     }
-    console.log(`Voucher ${newVoucher.voucherNo} posted & balances recalculated in Firebase.`);
+
+    console.log(`Journal Voucher ${newVoucher.voucherNo} posted to GL & Sub-Ledger in Firebase.`);
   } catch (err) {
     handleFirestoreError(err, 'post_voucher', `companies/${safeCompId}/vouchers/${newVoucher.id}`);
   }
 }
 
-// Add new Account Head to Chart of Accounts
+// 6. Add new Account Head to Chart of Accounts
 export async function saveAccountHeadToFirebase(companyId: string, account: AccountHead) {
   const safeCompId = companyId || 'default_company';
   try {

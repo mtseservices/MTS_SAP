@@ -39,7 +39,7 @@ export const TenantManagement: React.FC = () => {
             Company URLs, Subdomains & Tenant Isolation
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            Manage wildcard DNS subdomains (*.erp.mts.pk), company slugs, active statuses, and multi-tenant isolation rules.
+            Manage Vercel live tenant URLs (mts-sap.vercel.app?company=...), company slugs, active statuses, and multi-tenant isolation rules.
           </p>
         </div>
       </div>

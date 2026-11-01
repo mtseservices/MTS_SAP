@@ -1,21 +1,39 @@
 import React, { useState } from 'react';
-import { ShoppingCart, Plus, CheckCircle2, Clock, FileText } from 'lucide-react';
+import { ShoppingCart, Plus, QrCode, ScanLine, Sparkles } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { INITIAL_PURCHASE_ORDERS } from '../../services/mockData';
 import { PurchaseOrder } from '../../types/erp';
 import { DataTable } from '../common/DataTable';
 import { TTSButton } from '../common/TTSButton';
+import { QrScannerModal, ScannedItemPayload } from '../common/QrScannerModal';
 
 export const ProcurementModule: React.FC = () => {
   const { currentCompany } = useAuthTenant();
   const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>(INITIAL_PURCHASE_ORDERS);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
 
   // New PO State
   const [vendorName, setVendorName] = useState('Engro Chemicals Ltd');
   const [itemName, setItemName] = useState('Raw Sugar Powder Grade A (1000kg)');
+  const [itemCode, setItemCode] = useState('RM-SUGAR-1T');
   const [qty, setQty] = useState(10);
   const [unitPrice, setUnitPrice] = useState(120000);
+
+  const handleItemScanned = (scanned: ScannedItemPayload) => {
+    setItemName(scanned.name);
+    setItemCode(scanned.code);
+    if (scanned.unitPrice > 0) {
+      setUnitPrice(scanned.unitPrice);
+    }
+    if (scanned.qty > 0) {
+      setQty(scanned.qty);
+    }
+    // Automatically open create PO modal if not open
+    if (!showCreateModal) {
+      setShowCreateModal(true);
+    }
+  };
 
   const handleCreatePO = (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +49,7 @@ export const ProcurementModule: React.FC = () => {
       date: new Date().toISOString().split('T')[0],
       deliveryDate: new Date(Date.now() + 864000000).toISOString().split('T')[0],
       items: [
-        { itemId: 'item_01', itemCode: 'RM-SUGAR-1T', itemName, qty, unitPrice, totalPrice: subtotal }
+        { itemId: `item_${Date.now()}`, itemCode, itemName, qty, unitPrice, totalPrice: subtotal }
       ],
       subtotal,
       taxAmount,
@@ -46,7 +64,7 @@ export const ProcurementModule: React.FC = () => {
     setShowCreateModal(false);
   };
 
-  const procurementSpeech = `Procurement and Purchasing Department for ${currentCompany.name}. Total active purchase orders: ${purchaseOrders.length}. All purchase requisitions subject to 18 percent STRN tax verification and multi-stage workflow approvals.`;
+  const procurementSpeech = `Procurement and Purchasing Department for ${currentCompany.name}. Total active purchase orders: ${purchaseOrders.length}. Quick QR item scanning enabled for purchase requisition entry.`;
 
   return (
     <div className="p-6 space-y-6">
@@ -57,12 +75,19 @@ export const ProcurementModule: React.FC = () => {
             Procurement & Purchasing Management
           </h1>
           <p className="text-xs text-slate-400 mt-0.5">
-            Purchase Requisitions, RFQ Comparisons, Purchase Orders (PO), Goods Receipt Notes (GRN), and Vendor Performance Audits.
+            Purchase Requisitions, RFQ Comparisons, Purchase Orders (PO), Goods Receipt Notes (GRN), and QR Item Scanning.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <TTSButton text={procurementSpeech} label="Procurement Briefing" />
+          <button
+            onClick={() => setIsQrModalOpen(true)}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 font-bold text-xs transition-all shadow-md"
+          >
+            <QrCode className="w-4 h-4" />
+            Scan Item QR
+          </button>
           <button
             onClick={() => setShowCreateModal(true)}
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shadow-lg shadow-amber-600/30 transition-all"
@@ -97,9 +122,19 @@ export const ProcurementModule: React.FC = () => {
       {showCreateModal && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-lg w-full space-y-4 shadow-2xl animate-in fade-in zoom-in-95">
-            <h2 className="text-sm font-bold text-slate-100 uppercase tracking-wider text-amber-400">
-              Create New Purchase Order (PO)
-            </h2>
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h2 className="text-sm font-bold text-slate-100 uppercase tracking-wider text-amber-400">
+                Create New Purchase Order (PO)
+              </h2>
+              <button
+                type="button"
+                onClick={() => setIsQrModalOpen(true)}
+                className="px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 font-bold text-[11px] flex items-center gap-1 transition-all"
+              >
+                <ScanLine className="w-3.5 h-3.5" />
+                Scan Item Details
+              </button>
+            </div>
 
             <form onSubmit={handleCreatePO} className="space-y-4">
               <div>
@@ -114,7 +149,14 @@ export const ProcurementModule: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Raw Material Item Description</label>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-xs font-semibold text-slate-300">Raw Material Item Description</label>
+                  {itemCode && (
+                    <span className="text-[10px] font-mono text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
+                      Code: {itemCode}
+                    </span>
+                  )}
+                </div>
                 <input
                   type="text"
                   value={itemName}
@@ -137,7 +179,7 @@ export const ProcurementModule: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Unit Price (PKR)</label>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Unit Purchase Price (PKR)</label>
                   <input
                     type="number"
                     value={unitPrice}
@@ -173,6 +215,16 @@ export const ProcurementModule: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* QR Code Scanner Modal */}
+      <QrScannerModal
+        isOpen={isQrModalOpen}
+        onClose={() => setIsQrModalOpen(false)}
+        onItemScanned={handleItemScanned}
+        title="Procurement QR / Barcode Scanner"
+        moduleContext="PROCUREMENT"
+      />
     </div>
   );
 };
+

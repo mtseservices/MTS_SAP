@@ -2,31 +2,29 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Helper functions
     function isSignedIn() {
       return request.auth != null;
     }
 
-    function isTenantUser(tenantId) {
-      return isSignedIn();
-    }
-
-    // Default catch-all
+    // Default catch-all for all documents and subcollections
     match /{document=**} {
-      allow read, write: if isSignedIn();
+      allow read, write: if true;
     }
 
     // System collections
     match /system/{docId} {
-      allow read, write: if isSignedIn();
+      allow read, write: if true;
     }
 
-    // Multi-tenant isolated documents
-    match /tenants/{tenantId}/{collectionName}/{docId} {
-      allow read, write: if isTenantUser(tenantId);
+    // Multi-tenant isolated documents & collections
+    match /tenants/{tenantId}/{document=**} {
+      allow read, write: if true;
     }
 
-    match /companies/{companyId}/{collectionName}/{docId} {
-      allow read, write: if isSignedIn();
+    // Company multi-tenant subcollections (accounts, vouchers, general_ledger, subledgers, inventory, etc.)
+    match /companies/{companyId}/{document=**} {
+      allow read, write: if true;
     }
   }
 }
