@@ -10,6 +10,7 @@ import { MasterDashboard } from './components/master/MasterDashboard';
 import { CompanyRegistrationWizard } from './components/master/CompanyRegistrationWizard';
 import { TenantManagement } from './components/master/TenantManagement';
 import { SubscriptionBillingManager } from './components/master/SubscriptionBillingManager';
+import { SystemHealthWidget } from './components/master/SystemHealthWidget';
 
 // Client Tenant ERP Views
 import { ClientDashboard } from './components/client/ClientDashboard';
@@ -42,7 +43,7 @@ function MainLayout() {
       'production', 'hr', 'formBuilder', 'reports', 'approvals',
       'aiAssistant', 'auditLogs', 'companySettings', 'masterDashboard',
       'masterCompanies', 'masterSubdomains', 'masterRegister',
-      'masterSubscriptions', 'masterAudit'
+      'masterSubscriptions', 'masterAudit', 'masterSystemHealth'
     ];
 
     const targetTab = (moduleParam && validTabs.includes(moduleParam))
@@ -116,6 +117,12 @@ function MainLayout() {
 
           {isMasterPortal && activeTab === 'masterAudit' && (
             <AuditLogViewer />
+          )}
+
+          {isMasterPortal && activeTab === 'masterSystemHealth' && (
+            <div className="p-6">
+              <SystemHealthWidget />
+            </div>
           )}
 
           {/* Client Tenant ERP Views */}

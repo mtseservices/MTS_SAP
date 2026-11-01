@@ -22,7 +22,8 @@ import {
   History,
   FolderTree,
   FileText,
-  PieChart
+  PieChart,
+  Activity
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -47,7 +48,8 @@ export type ActiveTab =
   | 'masterRegister'
   | 'masterSubdomains'
   | 'masterSubscriptions'
-  | 'masterAudit';
+  | 'masterAudit'
+  | 'masterSystemHealth';
 
 interface SidebarProps {
   activeTab: ActiveTab;
@@ -79,6 +81,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
     { id: 'masterSubdomains' as ActiveTab, label: 'Company URLs & Slugs', icon: Globe2 },
     { id: 'masterSubscriptions' as ActiveTab, label: 'Subscription & Billing', icon: CreditCard },
     { id: 'masterAudit' as ActiveTab, label: 'Global Audit Logs', icon: History },
+    { id: 'masterSystemHealth' as ActiveTab, label: 'System Health & Ping', icon: Activity },
   ];
 
   // Detailed Department Menu Hierarchy

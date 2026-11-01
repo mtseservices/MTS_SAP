@@ -82,21 +82,21 @@ export const InventoryModule: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <TTSButton text={inventorySpeech} label="Inventory Audio Briefing" />
           <button
             onClick={() => setIsQrModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-purple-400 font-bold text-xs transition-all shadow-md"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs transition-all shadow-lg shadow-purple-600/30 cursor-pointer"
           >
-            <QrCode className="w-4 h-4" />
-            Scan Barcode / QR
+            <QrCode className="w-4 h-4 text-cyan-300" />
+            <span>Open Camera QR Scanner</span>
           </button>
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-lg shadow-purple-600/30 transition-all"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 font-bold text-xs transition-all shadow-md cursor-pointer"
           >
-            <Plus className="w-4 h-4" />
-            Add Master Item
+            <Plus className="w-4 h-4 text-purple-400" />
+            <span>Add Master Item</span>
           </button>
         </div>
       </div>

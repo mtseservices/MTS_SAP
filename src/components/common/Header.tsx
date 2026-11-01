@@ -19,6 +19,7 @@ import { useAuthTenant } from '../../context/AuthTenantContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { LANGUAGES } from '../../services/translations';
 import { OfflineBanner } from './OfflineBanner';
+import { OnlineStatusIndicator } from './OnlineStatusIndicator';
 import { TTSButton } from './TTSButton';
 import { GlobalSearch } from './GlobalSearch';
 import { NotificationCenter } from './NotificationCenter';
@@ -224,6 +225,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewCompanyModal, onSelectT
           {/* Centralized Notification Center */}
           <NotificationCenter onSelectTab={onSelectTab} />
 
+          {/* Real-time Online/Offline Connectivity Status Indicator */}
+          <OnlineStatusIndicator />
+
           {/* Offline Status Banner */}
           <OfflineBanner />
 
@@ -314,7 +318,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewCompanyModal, onSelectT
           {/* Login Portal Trigger Button */}
           <button
             onClick={() => setShowLoginModal(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 text-xs font-semibold transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 text-xs font-semibold transition-all cursor-pointer"
             title="Master / Tenant Login Portal"
           >
             <LogIn className="w-3.5 h-3.5 text-purple-300" />
