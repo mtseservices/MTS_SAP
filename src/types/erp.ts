@@ -98,6 +98,19 @@ export interface ClientCompany {
     requestedAt?: string;
     status: 'PENDING' | 'APPROVED' | 'REJECTED';
   }[];
+  documents?: CompanyDocument[];
+  isArchived?: boolean;
+}
+
+export interface CompanyDocument {
+  id: string;
+  name: string;
+  category: 'Legal' | 'Tax Certificate' | 'Registration' | 'Compliance' | 'Financial Audit';
+  fileSize: string;
+  uploadDate: string;
+  uploadedBy: string;
+  fileUrl?: string;
+  status: 'VERIFIED' | 'PENDING_REVIEW' | 'EXPIRED';
 }
 
 export interface UserProfile {

@@ -25,7 +25,7 @@ import { db } from '../../services/firebaseConfig';
 
 export const TenantManagement: React.FC = () => {
   const { allCompanies, setAllCompanies, switchTenantBySlug } = useAuthTenant();
-  const [activeTab, setActiveTab] = useState<'tenants' | 'approvals' | 'backup'>('tenants');
+  const [activeTab, setActiveTab] = useState<'tenants' | 'approvals' | 'backup' | 'archive'>('tenants');
   const [editingCompany, setEditingCompany] = useState<ClientCompany | null>(null);
 
   const toggleStatus = (id: string) => {
@@ -38,6 +38,18 @@ export const TenantManagement: React.FC = () => {
         return c;
       })
     );
+  };
+
+  const handleArchiveCompany = (id: string) => {
+    setAllCompanies(prev => prev.map(c => c.id === id ? { ...c, isArchived: true } : c));
+  };
+
+  const handleRestoreCompany = (id: string) => {
+    setAllCompanies(prev => prev.map(c => c.id === id ? { ...c, isArchived: false } : c));
+  };
+
+  const handlePermanentDelete = (id: string) => {
+    setAllCompanies(prev => prev.filter(c => c.id !== id));
   };
 
   // Master Admin approves or rejects Client Admin limit increase request
@@ -120,7 +132,18 @@ export const TenantManagement: React.FC = () => {
                 : 'bg-slate-800 text-slate-400 hover:text-white'
             }`}
           >
-            🏢 Tenant List ({allCompanies.length})
+            🏢 Tenant List ({allCompanies.filter(c => !c.isArchived).length})
+          </button>
+
+          <button
+            onClick={() => setActiveTab('archive')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeTab === 'archive'
+                ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30'
+                : 'bg-slate-800 text-slate-400 hover:text-white'
+            }`}
+          >
+            📦 Archive ({allCompanies.filter(c => c.isArchived).length})
           </button>
 
           <button
@@ -157,7 +180,7 @@ export const TenantManagement: React.FC = () => {
       {/* TAB 1: TENANTS LIST */}
       {activeTab === 'tenants' && (
         <div className="grid grid-cols-1 gap-4 animate-in fade-in">
-          {allCompanies.map((comp) => (
+          {allCompanies.filter(c => !c.isArchived).map((comp) => (
             <div
               key={comp.id}
               className="p-5 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl space-y-4"
@@ -220,6 +243,14 @@ export const TenantManagement: React.FC = () => {
                       </>
                     )}
                   </button>
+
+                  <button
+                    onClick={() => handleArchiveCompany(comp.id)}
+                    className="p-1.5 px-3 rounded-xl bg-purple-600/20 hover:bg-purple-600/40 border border-purple-500/30 text-purple-300 text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer"
+                    title="Move to Archive"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" /> Archive
+                  </button>
                 </div>
               </div>
 
@@ -243,6 +274,69 @@ export const TenantManagement: React.FC = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* TAB: ARCHIVE & PERMANENT DELETE */}
+      {activeTab === 'archive' && (
+        <div className="space-y-4 animate-in fade-in">
+          <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-xs text-slate-300">
+            <strong>Archived Sample & Client Companies Vault:</strong> Master User can restore archived companies using Undo, or permanently delete them from database storage.
+          </div>
+
+          {allCompanies.filter(c => c.isArchived).length === 0 ? (
+            <div className="text-center py-12 text-slate-500 text-xs bg-slate-900 border border-slate-800 rounded-2xl">
+              No archived companies found. Click "Archive" on any tenant card to move it here.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4">
+              {allCompanies.filter(c => c.isArchived).map((comp) => (
+                <div
+                  key={comp.id}
+                  className="p-5 rounded-2xl bg-slate-900 border border-purple-500/30 shadow-xl space-y-3"
+                >
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center font-black text-purple-300 text-sm">
+                        {comp.code}
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-slate-100 text-sm flex items-center gap-2">
+                          {comp.name}
+                          <span className="text-[10px] px-2 py-0.5 rounded-full font-bold border bg-purple-500/20 text-purple-300 border-purple-500/30">
+                            ARCHIVED
+                          </span>
+                        </h3>
+                        <div className="text-xs text-slate-400 font-mono mt-0.5">
+                          Tenant ID: {comp.tenantId} • Code: {comp.code}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleRestoreCompany(comp.id)}
+                        className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-300 border border-emerald-500/30 text-xs font-bold transition-all cursor-pointer"
+                      >
+                        ↩️ Undo / Restore
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          if (confirm(`Permanently delete company ${comp.name}? This action cannot be undone.`)) {
+                            handlePermanentDelete(comp.id);
+                          }
+                        }}
+                        className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-all cursor-pointer shadow-lg shadow-rose-600/20"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" /> Permanent Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

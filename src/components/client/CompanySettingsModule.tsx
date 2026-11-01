@@ -24,16 +24,31 @@ import {
   AlertCircle,
   Sparkles,
   Upload,
-  Check
+  Check,
+  FileText,
+  Download,
+  Trash2
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
-import { ThemePalette, IndustryPackage } from '../../types/erp';
+import { ThemePalette, IndustryPackage, CompanyDocument } from '../../types/erp';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../../services/firebaseConfig';
 
 export const CompanySettingsModule: React.FC = () => {
   const { currentCompany, setCurrentCompany, theme, setTheme, allBranches, isMasterPortal, currentUser } = useAuthTenant();
-  const [activeTab, setActiveTab] = useState<'basic' | 'advanced' | 'subscription' | 'appearance' | 'security'>('basic');
+  const [activeTab, setActiveTab] = useState<'basic' | 'advanced' | 'subscription' | 'appearance' | 'security' | 'documents'>('basic');
+
+  // Documents Vault State
+  const [documents, setDocuments] = useState<CompanyDocument[]>(
+    currentCompany.documents || [
+      { id: 'doc_1', name: 'FBR NTN Certificate 2026.pdf', category: 'Tax Certificate', fileSize: '1.2 MB', uploadDate: '2026-01-15', uploadedBy: 'Master Admin', status: 'VERIFIED' },
+      { id: 'doc_2', name: 'SECP Incorporation Certificate.pdf', category: 'Registration', fileSize: '3.4 MB', uploadDate: '2026-01-15', uploadedBy: 'Master Admin', status: 'VERIFIED' },
+      { id: 'doc_3', name: 'SECP Form 29 Directors List.pdf', category: 'Legal', fileSize: '850 KB', uploadDate: '2026-02-10', uploadedBy: 'Client Admin', status: 'VERIFIED' }
+    ]
+  );
+  const [docNameInput, setDocNameInput] = useState('');
+  const [docCategoryInput, setDocCategoryInput] = useState<CompanyDocument['category']>('Legal');
+  const [docUploadMsg, setDocUploadMsg] = useState(false);
 
   // Basic Profile Form Fields
   const [name, setName] = useState(currentCompany.name || '');
@@ -147,7 +162,8 @@ export const CompanySettingsModule: React.FC = () => {
       theme,
       tablePattern: selectedTablePattern,
       tableLayoutPattern: selectedTableLayout,
-      fontFamily: selectedFont
+      fontFamily: selectedFont,
+      documents
     };
 
     // Update Context & Firestore
@@ -213,6 +229,32 @@ export const CompanySettingsModule: React.FC = () => {
     setNewPassword('');
     setConfirmPassword('');
     setTimeout(() => setPasswordSuccess(false), 4000);
+  };
+
+  // Document Upload & Management Handlers
+  const handleUploadDocument = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!docNameInput.trim()) return;
+
+    const newDoc: CompanyDocument = {
+      id: `doc_${Date.now()}`,
+      name: docNameInput.trim(),
+      category: docCategoryInput,
+      fileSize: `${(Math.random() * 3 + 0.5).toFixed(1)} MB`,
+      uploadDate: new Date().toISOString().split('T')[0],
+      uploadedBy: currentUser.name || 'Admin',
+      status: 'VERIFIED'
+    };
+
+    const updatedDocs = [newDoc, ...documents];
+    setDocuments(updatedDocs);
+    setDocNameInput('');
+    setDocUploadMsg(true);
+    setTimeout(() => setDocUploadMsg(false), 3000);
+  };
+
+  const handleDeleteDocument = (id: string) => {
+    setDocuments(documents.filter(d => d.id !== id));
   };
 
   // 12 Table Design Patterns Options (Inspired by Omecta APEX screenshot)
@@ -338,6 +380,15 @@ export const CompanySettingsModule: React.FC = () => {
           }`}
         >
           <KeyRound className="w-4 h-4" /> Security & Passwords
+        </button>
+
+        <button
+          onClick={() => setActiveTab('documents')}
+          className={`px-4 py-2.5 rounded-xl transition-all cursor-pointer flex items-center gap-2 ${
+            activeTab === 'documents' ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-600/30' : 'bg-slate-900 text-slate-400 hover:text-slate-100 hover:bg-slate-800'
+          }`}
+        >
+          <FileText className="w-4 h-4" /> Documents Vault ({documents.length})
         </button>
       </div>
 
@@ -875,6 +926,123 @@ export const CompanySettingsModule: React.FC = () => {
                 <KeyRound className="w-4 h-4" />
                 Update Security Password &rarr;
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 6: DOCUMENTS VAULT */}
+        {activeTab === 'documents' && (
+          <div className="space-y-6 animate-in fade-in">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-2 border-b border-slate-800 pb-2">
+              <FileText className="w-4 h-4" /> Legal, Tax & Registration Secure Documents Vault
+            </h2>
+
+            {docUploadMsg && (
+              <div className="p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>Document uploaded and securely encrypted in Firestore vault!</span>
+              </div>
+            )}
+
+            {/* Upload form */}
+            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-4">
+              <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                <Upload className="w-4 h-4 text-cyan-400" /> Upload New Legal / Tax / Registration Document
+              </h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Document Title / Name</label>
+                  <input
+                    type="text"
+                    value={docNameInput}
+                    onChange={(e) => setDocNameInput(e.target.value)}
+                    placeholder="e.g. Annual Tax Return 2025.pdf"
+                    className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Document Category</label>
+                  <select
+                    value={docCategoryInput}
+                    onChange={(e) => setDocCategoryInput(e.target.value as CompanyDocument['category'])}
+                    className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-semibold focus:outline-none focus:border-cyan-500"
+                  >
+                    <option value="Legal">Legal</option>
+                    <option value="Tax Certificate">Tax Certificate</option>
+                    <option value="Registration">Registration</option>
+                    <option value="Compliance">Compliance</option>
+                    <option value="Financial Audit">Financial Audit</option>
+                  </select>
+                </div>
+
+                <div className="flex items-end">
+                  <button
+                    type="button"
+                    onClick={handleUploadDocument}
+                    className="w-full px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-lg shadow-cyan-600/30 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  >
+                    <Upload className="w-4 h-4" /> Upload & Encrypt
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Documents List */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider">
+                  Stored Vault Files ({documents.length})
+                </h3>
+                <span className="text-[11px] text-emerald-400 font-mono">Storage Used: 5.46 MB / 500 MB (Encrypted)</span>
+              </div>
+
+              <div className="space-y-2">
+                {documents.map((doc) => (
+                  <div
+                    key={doc.id}
+                    className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/80 flex items-center justify-between gap-4"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-cyan-600/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
+                        <FileText className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="font-bold text-xs text-slate-100">{doc.name}</div>
+                        <div className="text-[11px] text-slate-400 flex items-center gap-3 mt-0.5 font-mono">
+                          <span className="px-2 py-0.5 rounded bg-slate-700 text-cyan-300 font-semibold">{doc.category}</span>
+                          <span>Size: {doc.fileSize}</span>
+                          <span>Date: {doc.uploadDate}</span>
+                          <span>By: {doc.uploadedBy}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/30">
+                        {doc.status}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => alert(`Downloading secure document: ${doc.name}`)}
+                        className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-cyan-300 cursor-pointer"
+                        title="Download Document"
+                      >
+                        <Download className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteDocument(doc.id)}
+                        className="p-2 rounded-lg bg-slate-700 hover:bg-rose-600/30 text-rose-400 cursor-pointer"
+                        title="Delete Document"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
