@@ -15,7 +15,13 @@ import {
   ShieldCheck,
   AlertCircle,
   RefreshCw,
-  Scale
+  Scale,
+  Zap,
+  Plus,
+  X,
+  QrCode,
+  Box,
+  ExternalLink
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -35,6 +41,7 @@ import { TTSButton } from '../common/TTSButton';
 import { ActiveTab } from '../common/Sidebar';
 import { JournalVoucher } from '../../types/erp';
 import { subscribeCompanyVouchers } from '../../services/firebaseAccounting';
+import { QrScannerModal, ScannedItemPayload } from '../common/QrScannerModal';
 
 interface ClientDashboardProps {
   onNavigateTab: (tab: ActiveTab) => void;
@@ -44,6 +51,11 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ onNavigateTab 
   const { currentCompany, currentBranch } = useAuthTenant();
   const [vouchers, setVouchers] = useState<JournalVoucher[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Quick Actions Floating Speed Dial & QR Scanner States
+  const [showQuickActionsMenu, setShowQuickActionsMenu] = useState(false);
+  const [showQrScannerModal, setShowQrScannerModal] = useState(false);
+  const [scannedItem, setScannedItem] = useState<ScannedItemPayload | null>(null);
 
   // Real-time Firebase Subscription for General Ledger & Voucher Transactions
   useEffect(() => {
@@ -384,6 +396,169 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ onNavigateTab 
           </div>
         </div>
       </div>
+
+      {/* FLOATING QUICK ACTIONS SPEED DIAL BUTTON */}
+      <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end space-y-3">
+        {/* Speed Dial Quick Actions Menu */}
+        {showQuickActionsMenu && (
+          <div className="flex flex-col items-end space-y-2 mb-2 animate-in slide-in-from-bottom-5 duration-200">
+            {/* Quick Action 1: New Journal Entry */}
+            <button
+              onClick={() => {
+                setShowQuickActionsMenu(false);
+                onNavigateTab('finance');
+              }}
+              className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-slate-900/95 border border-slate-700/80 text-slate-100 hover:border-cyan-400 hover:bg-slate-800 text-xs font-bold shadow-2xl backdrop-blur-md transition-all hover:scale-105 group cursor-pointer"
+            >
+              <span className="text-[10px] text-cyan-400 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-800 font-mono">Finance</span>
+              <span>New Journal Entry (JV)</span>
+              <div className="p-2 rounded-xl bg-cyan-500/20 text-cyan-400 group-hover:bg-cyan-500 group-hover:text-slate-950 transition-colors">
+                <DollarSign className="w-4 h-4" />
+              </div>
+            </button>
+
+            {/* Quick Action 2: Camera QR/Barcode Scan Inventory */}
+            <button
+              onClick={() => {
+                setShowQuickActionsMenu(false);
+                setShowQrScannerModal(true);
+              }}
+              className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-slate-900/95 border border-slate-700/80 text-slate-100 hover:border-emerald-400 hover:bg-slate-800 text-xs font-bold shadow-2xl backdrop-blur-md transition-all hover:scale-105 group cursor-pointer"
+            >
+              <span className="text-[10px] text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800 font-mono">Camera Scan</span>
+              <span>Scan Inventory Item</span>
+              <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-colors">
+                <QrCode className="w-4 h-4" />
+              </div>
+            </button>
+
+            {/* Quick Action 3: Create Sales Invoice / POS */}
+            <button
+              onClick={() => {
+                setShowQuickActionsMenu(false);
+                onNavigateTab('sales');
+              }}
+              className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-slate-900/95 border border-slate-700/80 text-slate-100 hover:border-amber-400 hover:bg-slate-800 text-xs font-bold shadow-2xl backdrop-blur-md transition-all hover:scale-105 group cursor-pointer"
+            >
+              <span className="text-[10px] text-amber-400 bg-amber-950 px-2 py-0.5 rounded border border-amber-800 font-mono">Sales & POS</span>
+              <span>Create Sales Invoice / POS</span>
+              <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400 group-hover:bg-amber-500 group-hover:text-slate-950 transition-colors">
+                <Receipt className="w-4 h-4" />
+              </div>
+            </button>
+
+            {/* Quick Action 4: Issue Purchase Order */}
+            <button
+              onClick={() => {
+                setShowQuickActionsMenu(false);
+                onNavigateTab('procurement');
+              }}
+              className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-slate-900/95 border border-slate-700/80 text-slate-100 hover:border-purple-400 hover:bg-slate-800 text-xs font-bold shadow-2xl backdrop-blur-md transition-all hover:scale-105 group cursor-pointer"
+            >
+              <span className="text-[10px] text-purple-400 bg-purple-950 px-2 py-0.5 rounded border border-purple-800 font-mono">Procurement</span>
+              <span>Issue Purchase Order (PO)</span>
+              <div className="p-2 rounded-xl bg-purple-500/20 text-purple-400 group-hover:bg-purple-500 group-hover:text-slate-950 transition-colors">
+                <ShoppingCart className="w-4 h-4" />
+              </div>
+            </button>
+
+            {/* Quick Action 5: Ask Gemini AI Assistant */}
+            <button
+              onClick={() => {
+                setShowQuickActionsMenu(false);
+                onNavigateTab('aiAssistant');
+              }}
+              className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-slate-900/95 border border-slate-700/80 text-slate-100 hover:border-rose-400 hover:bg-slate-800 text-xs font-bold shadow-2xl backdrop-blur-md transition-all hover:scale-105 group cursor-pointer"
+            >
+              <span className="text-[10px] text-rose-400 bg-rose-950 px-2 py-0.5 rounded border border-rose-800 font-mono">AI Voice</span>
+              <span>Ask Gemini AI Assistant</span>
+              <div className="p-2 rounded-xl bg-rose-500/20 text-rose-400 group-hover:bg-rose-500 group-hover:text-slate-950 transition-colors">
+                <Sparkles className="w-4 h-4" />
+              </div>
+            </button>
+          </div>
+        )}
+
+        {/* Main Floating Trigger Button */}
+        <button
+          onClick={() => setShowQuickActionsMenu(!showQuickActionsMenu)}
+          className={`flex items-center gap-2.5 px-5 py-3.5 rounded-full font-black text-xs text-white shadow-2xl border transition-all duration-300 transform hover:scale-105 cursor-pointer ${
+            showQuickActionsMenu
+              ? 'bg-rose-600 border-rose-400 shadow-rose-600/50 rotate-90 ring-4 ring-rose-500/20'
+              : 'bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 border-cyan-400/80 shadow-cyan-500/40 ring-4 ring-cyan-500/20 animate-pulse hover:animate-none'
+          }`}
+        >
+          {showQuickActionsMenu ? (
+            <X className="w-5 h-5 text-white" />
+          ) : (
+            <>
+              <Zap className="w-5 h-5 text-amber-300" />
+              <span className="tracking-wide uppercase">Quick Actions</span>
+            </>
+          )}
+        </button>
+      </div>
+
+      {/* QR CAMERA SCANNER MODAL */}
+      <QrScannerModal
+        isOpen={showQrScannerModal}
+        onClose={() => setShowQrScannerModal(false)}
+        onItemScanned={(itemPayload) => {
+          setScannedItem(itemPayload);
+          setShowQrScannerModal(false);
+        }}
+        title="Quick Scan Inventory QR / Barcode"
+        moduleContext="INVENTORY"
+      />
+
+      {/* SCANNED ITEM QUICK ACTION RESULT MODAL */}
+      {scannedItem && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                <h3 className="font-bold text-sm text-slate-100">Inventory Item Scanned</h3>
+              </div>
+              <button onClick={() => setScannedItem(null)} className="p-1 text-slate-400 hover:text-white">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+              <div className="text-xs font-mono text-cyan-400 font-bold">{scannedItem.code}</div>
+              <div className="text-base font-black text-slate-100">{scannedItem.name}</div>
+              <div className="grid grid-cols-2 gap-2 text-xs font-mono pt-2 border-t border-slate-800 text-slate-300">
+                <div>Unit Price: <span className="text-emerald-400 font-bold">Rs. {scannedItem.unitPrice.toLocaleString()}</span></div>
+                <div>Category: <span className="text-slate-100">{scannedItem.category}</span></div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 pt-2">
+              <button
+                onClick={() => {
+                  setScannedItem(null);
+                  onNavigateTab('sales');
+                }}
+                className="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-600/20"
+              >
+                <Receipt className="w-3.5 h-3.5" />
+                Create POS Sale
+              </button>
+              <button
+                onClick={() => {
+                  setScannedItem(null);
+                  onNavigateTab('inventory');
+                }}
+                className="py-2.5 px-3 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-cyan-600/20"
+              >
+                <Boxes className="w-3.5 h-3.5" />
+                View Stock Catalog
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
