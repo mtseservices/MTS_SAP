@@ -164,7 +164,9 @@ Analyze the provided business data in context. Provide structured, actionable in
   }
 });
 
-// Start Express + Vite dev server
+export default app;
+
+// Start Express + Vite dev server when running standalone/dev
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
@@ -184,4 +186,7 @@ async function startServer() {
   });
 }
 
-startServer();
+if (!process.env.VERCEL) {
+  startServer();
+}
+
