@@ -27,24 +27,58 @@ import { CompanySettingsModule } from './components/client/CompanySettingsModule
 
 function MainLayout() {
   const { isMasterPortal, switchTenantBySlug } = useAuthTenant();
-  const [activeTab, setActiveTab] = useState<ActiveTab>(
-    isMasterPortal ? 'masterDashboard' : 'dashboard'
-  );
+
+  // Read URL query params on initial mount
+  const getInitialState = (): { tab: ActiveTab; companySlug?: string } => {
+    const params = new URLSearchParams(window.location.search);
+    const moduleParam = params.get('module') as ActiveTab;
+    const companyParam = params.get('company');
+
+    const validTabs: ActiveTab[] = [
+      'dashboard', 'finance', 'procurement', 'inventory', 'sales',
+      'production', 'hr', 'formBuilder', 'reports', 'approvals',
+      'aiAssistant', 'auditLogs', 'companySettings', 'masterDashboard',
+      'masterCompanies', 'masterSubdomains', 'masterRegister',
+      'masterSubscriptions', 'masterAudit'
+    ];
+
+    const targetTab = (moduleParam && validTabs.includes(moduleParam))
+      ? moduleParam
+      : (isMasterPortal ? 'masterDashboard' : 'dashboard');
+
+    return { tab: targetTab, companySlug: companyParam || undefined };
+  };
+
+  const initialState = getInitialState();
+  const [activeTab, setActiveTab] = useState<ActiveTab>(initialState.tab);
+
+  React.useEffect(() => {
+    if (initialState.companySlug) {
+      switchTenantBySlug(initialState.companySlug);
+    }
+  }, []);
+
+  const handleSelectTab = (tab: ActiveTab) => {
+    setActiveTab(tab);
+    const url = new URL(window.location.href);
+    url.searchParams.set('module', tab);
+    window.history.pushState({}, '', url.toString());
+  };
 
   const handleRegisterSuccess = (slug: string) => {
     switchTenantBySlug(slug);
-    setActiveTab('dashboard');
+    handleSelectTab('dashboard');
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 font-sans">
       <Header
-        onOpenNewCompanyModal={() => setActiveTab('masterRegister')}
-        onSelectTab={(tab) => setActiveTab(tab)}
+        onOpenNewCompanyModal={() => handleSelectTab('masterRegister')}
+        onSelectTab={(tab) => handleSelectTab(tab)}
       />
 
       <div className="flex-1 flex overflow-hidden">
-        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        <Sidebar activeTab={activeTab} setActiveTab={handleSelectTab} />
 
         <main className="flex-1 overflow-y-auto bg-slate-950">
           {/* Master Admin Portal Views */}

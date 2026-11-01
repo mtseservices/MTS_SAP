@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldCheck, LogIn, Lock, User, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, LogIn, Lock, User, AlertCircle, Eye, EyeOff, Building2, CheckSquare, Square } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { auth, googleProvider } from '../../services/firebaseConfig';
 import { signInWithPopup } from 'firebase/auth';
@@ -11,20 +11,23 @@ interface MasterLoginModalProps {
 
 export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen, onClose }) => {
   const { switchTenantBySlug, setCurrentUser, allCompanies } = useAuthTenant();
-  const [username, setUsername] = useState('MTS-ERP-SAP');
-  const [password, setPassword] = useState('Same');
-  const [loginType, setLoginType] = useState<'MASTER' | 'CLIENT'>('MASTER');
+  const [username, setUsername] = useState('ACC_MGR');
+  const [password, setPassword] = useState('PASSWORD');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberUser, setRememberUser] = useState(true);
+  const [loginType, setLoginType] = useState<'MASTER' | 'CLIENT'>('CLIENT');
   const [selectedCompanySlug, setSelectedCompanySlug] = useState(allCompanies[0]?.slug || 'albarka');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   if (!isOpen) return null;
+
+  const currentComp = allCompanies.find(c => c.slug === selectedCompanySlug) || allCompanies[0];
 
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
 
     if (loginType === 'MASTER') {
-      // Master User credentials: Username "MTS-ERP-SAP" & Password "Same"
       const cleanUser = username.trim();
       const cleanPass = password.trim();
 
@@ -38,7 +41,6 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen, onCl
         setErrorMsg('Invalid Master credentials. Username: "MTS-ERP-SAP", Password: "Same".');
       }
     } else {
-      // Client Login
       switchTenantBySlug(selectedCompanySlug);
       onClose();
     }
@@ -61,43 +63,62 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen, onCl
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-md w-full space-y-6 shadow-2xl animate-in zoom-in-95">
-        <div className="text-center space-y-1 border-b border-slate-800 pb-4">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-600 to-purple-600 mx-auto flex items-center justify-center font-black text-white text-xl shadow-lg shadow-cyan-500/20 mb-2">
-            MTS
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md overflow-y-auto">
+      {/* Scenic Backdrop Layer matching Screenshot 4 */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-overlay"
+        style={{
+          backgroundImage: `url('https://images.unsplash.com/photo-1509391365360-2e959784a276?q=80&w=1920&auto=format&fit=crop')`
+        }}
+      />
+
+      <div className="relative z-10 bg-slate-900/85 border border-slate-700/80 rounded-3xl p-8 max-w-md w-full space-y-6 shadow-2xl backdrop-blur-xl animate-in zoom-in-95 my-8">
+        
+        {/* Company Logo & Title Header matching Screenshot 4 */}
+        <div className="text-center space-y-3 pb-2 border-b border-slate-800/80">
+          <div className="w-20 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-500 to-cyan-500 mx-auto flex items-center justify-center font-black text-white text-2xl shadow-xl shadow-orange-500/20 p-2">
+            {currentComp.name.charAt(0)}
           </div>
-          <h2 className="text-lg font-black text-slate-100">
-            MTS-ERP-SAP Authentication Portal
-          </h2>
-          <p className="text-xs text-slate-400">
-            Universal Enterprise Login Engine
-          </p>
+
+          <div>
+            <h2 className="text-xl font-black text-slate-100 tracking-wide">
+              {loginType === 'CLIENT' ? currentComp.name : 'MTS-ERP Central Master'}
+            </h2>
+            <p className="text-xs font-mono text-cyan-400 font-semibold mt-0.5">
+              https://{currentComp.slug}.erp.mts.pk
+            </p>
+          </div>
         </div>
 
-        {/* Login Type Switcher Pill */}
-        <div className="grid grid-cols-2 p-1 rounded-xl bg-slate-800 border border-slate-700 text-xs font-bold">
+        {/* Login Mode Selector */}
+        <div className="grid grid-cols-2 p-1 rounded-xl bg-slate-800/90 border border-slate-700 text-xs font-bold">
           <button
             type="button"
-            onClick={() => setLoginType('MASTER')}
-            className={`py-1.5 rounded-lg transition-all ${
-              loginType === 'MASTER'
-                ? 'bg-purple-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Master Admin Login
-          </button>
-          <button
-            type="button"
-            onClick={() => setLoginType('CLIENT')}
-            className={`py-1.5 rounded-lg transition-all ${
+            onClick={() => {
+              setLoginType('CLIENT');
+              setUsername('ACC_MGR');
+            }}
+            className={`py-2 rounded-lg transition-all ${
               loginType === 'CLIENT'
                 ? 'bg-cyan-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            Client Tenant Login
+            Client Tenant User
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setLoginType('MASTER');
+              setUsername('MTS-ERP-SAP');
+            }}
+            className={`py-2 rounded-lg transition-all ${
+              loginType === 'MASTER'
+                ? 'bg-purple-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            Master Admin
           </button>
         </div>
 
@@ -109,44 +130,15 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen, onCl
         )}
 
         <form onSubmit={handleLoginSubmit} className="space-y-4">
-          {loginType === 'MASTER' ? (
-            <>
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Master Portal Username</label>
-                <div className="relative">
-                  <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                    className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-mono focus:outline-none focus:border-purple-500"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Master Password</label>
-                <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-mono focus:outline-none focus:border-purple-500"
-                  />
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Select Tenant Company</label>
+          {loginType === 'CLIENT' && (
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">Select Enterprise Company</label>
+              <div className="relative">
+                <Building2 className="w-4 h-4 text-cyan-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <select
                   value={selectedCompanySlug}
                   onChange={(e) => setSelectedCompanySlug(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-cyan-500"
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-xs text-slate-100 font-semibold focus:outline-none focus:border-cyan-500"
                 >
                   {allCompanies.map((c) => (
                     <option key={c.id} value={c.slug}>
@@ -155,49 +147,76 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen, onCl
                   ))}
                 </select>
               </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Client User Name</label>
-                <div className="relative">
-                  <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="e.g. admin_gourmet"
-                    className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-mono focus:outline-none focus:border-cyan-500"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Password</label>
-                <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-mono focus:outline-none focus:border-cyan-500"
-                  />
-                </div>
-              </div>
             </div>
           )}
 
+          {/* Username Input matching Screenshot 4 */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-300 mb-1">Username / User ID</label>
+            <div className="relative">
+              <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                placeholder="ACC_MGR"
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-xs text-slate-100 font-mono font-bold uppercase tracking-wider focus:outline-none focus:border-cyan-500"
+              />
+            </div>
+          </div>
+
+          {/* Password Input with eye toggle matching Screenshot 4 */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-300 mb-1">Password</label>
+            <div className="relative">
+              <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="PASSWORD"
+                className="w-full pl-9 pr-10 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-xs text-slate-100 font-mono focus:outline-none focus:border-cyan-500"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Remember Username Checkbox matching Screenshot 4 */}
+          <div className="flex items-center justify-between text-xs text-slate-300 pt-1">
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <button
+                type="button"
+                onClick={() => setRememberUser(!rememberUser)}
+                className="text-cyan-400"
+              >
+                {rememberUser ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4 text-slate-500" />}
+              </button>
+              <span>Remember username</span>
+            </label>
+          </div>
+
+          {/* Sign In Button matching Screenshot 4 */}
           <button
             type="submit"
-            className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white font-bold text-xs shadow-xl shadow-cyan-600/30 flex items-center justify-center gap-2 transition-all"
+            className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold text-xs shadow-xl shadow-cyan-600/30 flex items-center justify-center gap-2 transition-all mt-2"
           >
-            <LogIn className="w-4 h-4" /> Authenticate & Enter Portal
+            <LogIn className="w-4 h-4" />
+            Sign In &rarr;
           </button>
         </form>
 
         <div className="pt-3 border-t border-slate-800 space-y-2">
           <button
             onClick={handleGoogleSignIn}
-            className="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold flex items-center justify-center gap-2 transition-all"
+            className="w-full py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold flex items-center justify-center gap-2 transition-all"
           >
             <img src="https://www.gstatic.com/mobilesdk/160503_mobilesdk/firebase_28dp.png" alt="Firebase" className="w-4 h-4" />
             Sign in with Google Firebase Auth
@@ -207,3 +226,4 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen, onCl
     </div>
   );
 };
+

@@ -24,5 +24,9 @@ service cloud.firestore {
     match /tenants/{tenantId}/{collectionName}/{docId} {
       allow read, write: if isTenantUser(tenantId);
     }
+
+    match /companies/{companyId}/{collectionName}/{docId} {
+      allow read, write: if isSignedIn();
+    }
   }
 }
