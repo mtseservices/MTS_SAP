@@ -6,6 +6,7 @@ import { InventoryItem } from '../../types/erp';
 import { DataTable } from '../common/DataTable';
 import { TTSButton } from '../common/TTSButton';
 import { QrScannerModal, ScannedItemPayload } from '../common/QrScannerModal';
+import { DocumentScannerModal } from '../common/DocumentScannerModal';
 import { BatchExpirationHeatmap } from './BatchExpirationHeatmap';
 
 export const InventoryModule: React.FC = () => {
@@ -14,6 +15,7 @@ export const InventoryModule: React.FC = () => {
   const [activeView, setActiveView] = useState<'heatmap' | 'items' | 'reorder'>('heatmap');
   const [showModal, setShowModal] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [isDocScannerOpen, setIsDocScannerOpen] = useState(false);
   const [scannedAlert, setScannedAlert] = useState<string | null>(null);
 
   // Form
@@ -87,6 +89,13 @@ export const InventoryModule: React.FC = () => {
         <div className="flex items-center gap-3 flex-wrap">
           <TTSButton text={inventorySpeech} label="Inventory Audio Briefing" />
           <button
+            onClick={() => setIsDocScannerOpen(true)}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-900/50 hover:bg-purple-800/50 border border-purple-500/30 text-purple-200 font-bold text-xs transition-all cursor-pointer"
+          >
+            <ScanLine className="w-4 h-4 text-purple-300" />
+            <span>Scan Invoice</span>
+          </button>
+          <button
             onClick={() => setIsQrModalOpen(true)}
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs transition-all shadow-lg shadow-purple-600/30 cursor-pointer"
           >
@@ -114,6 +123,19 @@ export const InventoryModule: React.FC = () => {
           </span>
         </div>
       )}
+
+      {/* ... (rest of the component) */}
+
+      {/* Document Scanner Modal */}
+      <DocumentScannerModal
+        isOpen={isDocScannerOpen}
+        onClose={() => setIsDocScannerOpen(false)}
+        onScanComplete={(data) => {
+          setScannedAlert('Invoice scanned successfully!');
+          console.log('Scanned data:', data);
+          setTimeout(() => setScannedAlert(null), 4000);
+        }}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono text-xs">
         <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 shadow-xl">

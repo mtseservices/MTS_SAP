@@ -15,7 +15,8 @@ import {
   Users,
   Save,
   Check,
-  X
+  X,
+  Copy
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { auditLogger } from '../../services/auditLogger';
@@ -249,11 +250,14 @@ export const TenantManagement: React.FC = () => {
                   </button>
 
                   <button
-                    onClick={() => switchTenantBySlug(comp.slug)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-200 border border-cyan-500/30 text-xs font-semibold transition-all cursor-pointer"
+                    onClick={() => {
+                      const url = `https://mts-sap.vercel.app/login/${comp.slug}`;
+                      navigator.clipboard.writeText(url);
+                      alert(`URL copied: ${url}`);
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-all cursor-pointer"
                   >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    Launch Tenant
+                    <Copy className="w-3.5 h-3.5 text-cyan-400" /> Copy URL
                   </button>
 
                   <button

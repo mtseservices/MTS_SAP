@@ -95,6 +95,18 @@
         "invitationToken": { "type": "string" }
       },
       "required": ["userId", "tenantId", "name", "email", "role"]
+    },
+    "BiometricCredential": {
+      "title": "Biometric Credential",
+      "description": "User's WebAuthn public key credential",
+      "type": "object",
+      "properties": {
+        "credentialId": { "type": "string" },
+        "publicKey": { "type": "string" },
+        "counter": { "type": "number" },
+        "deviceType": { "type": "string" }
+      },
+      "required": ["credentialId", "publicKey", "counter"]
     }
   },
   "firestore": {
@@ -113,6 +125,10 @@
     "/tenants/{tenantId}/users/{userId}": {
       "schema": "ClientUser",
       "description": "Users within a tenant"
+    },
+    "/tenants/{tenantId}/users/{userId}/biometricCredentials/{credentialId}": {
+      "schema": "BiometricCredential",
+      "description": "WebAuthn credentials for a user"
     },
     "/tenants/{tenantId}/vouchers/{voucherId}": {
       "schema": "JournalVoucher",

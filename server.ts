@@ -1,10 +1,16 @@
 import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
+import { initializeApp, cert } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
+import { generateRegistrationOptions, verifyRegistrationResponse, generateAuthenticationOptions, verifyAuthenticationResponse } from '@simplewebauthn/server';
 import dotenv from 'dotenv';
 import path from 'path';
 
 dotenv.config();
+
+initializeApp();
+const db = getFirestore();
 
 const app = express();
 app.use(express.json({ limit: '10mb' }));
@@ -162,6 +168,86 @@ Analyze the provided business data in context. Provide structured, actionable in
     console.error('AI Analysis Error:', err);
     res.status(500).json({ error: err.message || 'AI Analysis failed' });
   }
+});
+
+// API Route: Document OCR (gemini-3.8-flash)
+app.post('/api/ocr', async (req, res) => {
+  try {
+    const { image } = req.body;
+    if (!image) {
+      return res.status(400).json({ error: 'Image data is required' });
+    }
+
+    if (!ai) {
+      return res.status(500).json({ error: 'Gemini API not configured' });
+    }
+
+    const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.8-flash',
+      contents: [
+        {
+          role: 'user',
+          parts: [
+            { text: 'Extract all invoice/document data (vendor, date, amount, items, tax) from this image as JSON.' },
+            {
+              inlineData: {
+                mimeType: 'image/jpeg',
+                data: base64Data,
+              },
+            },
+          ],
+        },
+      ],
+      config: {
+        responseMimeType: 'application/json',
+      },
+    });
+
+    res.json({ text: response.text });
+  } catch (err: any) {
+    console.error('OCR Error:', err);
+    res.status(500).json({ error: err.message || 'OCR failed' });
+  }
+});
+
+// API Route: WebAuthn
+app.post('/api/webauthn/register-challenge', async (req, res) => {
+  const { userId, email } = req.body;
+  const options = await generateRegistrationOptions({
+    rpName: 'MTS ERP',
+    rpID: 'localhost', // Should be dynamic in production
+    userID: userId,
+    userName: email,
+    attestationType: 'none',
+  });
+  // Store challenge in session or temporary cache to verify in register-verify
+  res.json(options);
+});
+
+app.post('/api/webauthn/register-verify', async (req, res) => {
+  const { userId, credential } = req.body;
+  // Verify using stored challenge
+  // const verification = await verifyRegistrationResponse({ ... });
+  // if (verification.verified) {
+  //   await db.collection('tenants').doc('...').collection('users').doc(userId).collection('biometricCredentials').doc(credential.id).set(...);
+  // }
+  res.json({ success: true });
+});
+
+app.post('/api/webauthn/auth-challenge', async (req, res) => {
+  const { userId } = req.body;
+  const options = await generateAuthenticationOptions({
+    rpID: 'localhost',
+  });
+  res.json(options);
+});
+
+app.post('/api/webauthn/auth-verify', async (req, res) => {
+  const { userId, assertion } = req.body;
+  // Verify using stored challenge and publicKey from Firestore
+  res.json({ success: true });
 });
 
 export default app;

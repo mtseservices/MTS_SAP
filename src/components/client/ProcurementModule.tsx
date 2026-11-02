@@ -6,6 +6,7 @@ import { PurchaseOrder, InventoryItem } from '../../types/erp';
 import { DataTable } from '../common/DataTable';
 import { TTSButton } from '../common/TTSButton';
 import { QrScannerModal, ScannedItemPayload } from '../common/QrScannerModal';
+import { DocumentScannerModal } from '../common/DocumentScannerModal';
 import { ItemSearchSelector } from '../common/ItemSearchSelector';
 
 export const ProcurementModule: React.FC = () => {
@@ -13,6 +14,7 @@ export const ProcurementModule: React.FC = () => {
   const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>(INITIAL_PURCHASE_ORDERS);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [isDocScannerOpen, setIsDocScannerOpen] = useState(false);
 
   // New PO State
   const [vendorName, setVendorName] = useState('Engro Chemicals Ltd');
@@ -82,6 +84,13 @@ export const ProcurementModule: React.FC = () => {
 
         <div className="flex items-center gap-3">
           <TTSButton text={procurementSpeech} label="Procurement Briefing" />
+          <button
+            onClick={() => setIsDocScannerOpen(true)}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-purple-900/50 hover:bg-purple-800/50 border border-purple-500/30 text-purple-200 font-bold text-xs transition-all shadow-md"
+          >
+            <ScanLine className="w-4 h-4 text-purple-300" />
+            <span>Scan Invoice</span>
+          </button>
           <button
             onClick={() => setIsQrModalOpen(true)}
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 font-bold text-xs transition-all shadow-md"
@@ -213,6 +222,16 @@ export const ProcurementModule: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Document Scanner Modal */}
+      <DocumentScannerModal
+        isOpen={isDocScannerOpen}
+        onClose={() => setIsDocScannerOpen(false)}
+        onScanComplete={(data) => {
+          console.log('Scanned data:', data);
+          // TODO: parse JSON data and pre-fill PO form
+        }}
+      />
 
       {/* QR Code Scanner Modal */}
       <QrScannerModal

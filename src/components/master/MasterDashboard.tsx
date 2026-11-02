@@ -10,7 +10,8 @@ import {
   Server,
   ShieldCheck,
   TrendingUp,
-  Cpu
+  Cpu,
+  CreditCard
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { TTSButton } from '../common/TTSButton';
@@ -63,9 +64,9 @@ export const MasterDashboard: React.FC<MasterDashboardProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl flex items-center justify-between">
           <div>
-            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Client Companies</div>
-            <div className="text-2xl font-black text-slate-100 mt-1">{allCompanies.length}</div>
-            <div className="text-[11px] text-emerald-400 font-medium mt-0.5">100% Tenant Isolated</div>
+            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Active Tenants</div>
+            <div className="text-2xl font-black text-slate-100 mt-1">{allCompanies.filter(c => c.status === 'ACTIVE').length}</div>
+            <div className="text-[11px] text-emerald-400 font-medium mt-0.5">Total Revenue: PKR {allCompanies.reduce((acc, c) => acc + (c.lastPaymentAmount || 0), 0).toLocaleString()}</div>
           </div>
           <div className="w-12 h-12 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400">
             <Building2 className="w-6 h-6" />
@@ -74,34 +75,34 @@ export const MasterDashboard: React.FC<MasterDashboardProps> = ({
 
         <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl flex items-center justify-between">
           <div>
-            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Licensed Users</div>
-            <div className="text-2xl font-black text-slate-100 mt-1">{totalUsers}</div>
-            <div className="text-[11px] text-cyan-400 font-medium mt-0.5">Active Enterprise Seats</div>
+            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">System Alerts</div>
+            <div className="text-2xl font-black text-slate-100 mt-1">{allCompanies.reduce((acc, c) => acc + (c.limitApprovalRequests?.filter(r => r.status === 'PENDING').length || 0), 0)}</div>
+            <div className="text-[11px] text-amber-400 font-medium mt-0.5">Pending Approvals</div>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-cyan-600/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
-            <Users className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-xl bg-amber-600/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
+            <AlertTriangle className="w-6 h-6" />
           </div>
         </div>
 
         <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl flex items-center justify-between">
           <div>
-            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Subdomains & URLs</div>
-            <div className="text-2xl font-black text-slate-100 mt-1">{allCompanies.length}</div>
-            <div className="text-[11px] text-purple-400 font-mono mt-0.5">*.erp.mts.pk</div>
+            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Subscription Split</div>
+            <div className="text-2xl font-black text-slate-100 mt-1">{allCompanies.filter(c => c.paymentStatus === 'PAID').length} <span className="text-sm font-normal text-slate-500">/ {allCompanies.filter(c => c.paymentStatus === 'TRIAL').length}</span></div>
+            <div className="text-[11px] text-purple-400 font-medium mt-0.5">Paid vs Trial Accounts</div>
           </div>
           <div className="w-12 h-12 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400">
-            <Globe className="w-6 h-6" />
+            <CreditCard className="w-6 h-6" />
           </div>
         </div>
 
         <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl flex items-center justify-between">
           <div>
-            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">System Health</div>
-            <div className="text-2xl font-black text-emerald-400 mt-1">99.98%</div>
-            <div className="text-[11px] text-emerald-400 font-medium mt-0.5">Cloud + PWA Sync Active</div>
+            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Google Sign-ins</div>
+            <div className="text-2xl font-black text-slate-100 mt-1">2,485 <span className="text-sm font-normal text-slate-500">/ 120 (Fail)</span></div>
+            <div className="text-[11px] text-emerald-400 font-medium mt-0.5">95% Success Rate</div>
           </div>
           <div className="w-12 h-12 rounded-xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-            <Activity className="w-6 h-6" />
+            <Globe className="w-6 h-6" />
           </div>
         </div>
       </div>

@@ -10,6 +10,8 @@ export const UserCreationManager: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('CLIENT_ADMIN');
+  const [password, setPassword] = useState('');
+  const [autoGeneratePassword, setAutoGeneratePassword] = useState(true);
   const [invitationLink, setInvitationLink] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
@@ -26,19 +28,22 @@ export const UserCreationManager: React.FC = () => {
 
     const userId = `user_${Date.now()}`;
     const token = `inv_${Math.random().toString(36).substr(2, 9)}`;
+    const finalPassword = autoGeneratePassword ? `TempPass_${Math.random().toString(36).substr(2, 8)}` : password;
+    
     const user = {
       userId,
       tenantId: company.tenantId,
       name,
       email,
       role,
+      password: finalPassword, // In production, hash this!
       invitationToken: token
     };
 
     try {
       await setDoc(doc(db, 'tenants', company.tenantId, 'users', userId), user);
-      setInvitationLink(`https://mts-sap.vercel.app/company/${company.slug}/login?token=${token}`);
-      alert('User created and invitation link generated!');
+      setInvitationLink(`https://mts-sap.vercel.app/login/${company.slug}?token=${token}`);
+      alert(`User created! Password: ${finalPassword}`);
     } catch (err) {
       console.error('Error creating user:', err);
       alert('Failed to create user. Please try again.');
@@ -83,6 +88,16 @@ export const UserCreationManager: React.FC = () => {
             <option value="DEPARTMENT_MANAGER">Manager</option>
             <option value="SALES_OFFICER">Sales Officer</option>
           </select>
+        </div>
+
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 text-xs font-semibold text-slate-300 cursor-pointer">
+            <input type="checkbox" checked={autoGeneratePassword} onChange={() => setAutoGeneratePassword(!autoGeneratePassword)} />
+            Auto-generate password
+          </label>
+          {!autoGeneratePassword && (
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter password" required className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white" />
+          )}
         </div>
 
         <button type="submit" disabled={isSaving} className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs">

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Settings, Shield, Palette, Type, Save, Database, Download } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
+import { BrandingConfigurator } from '../common/BrandingConfigurator';
 
 export const MasterSettingsDashboard: React.FC = () => {
   const { allCompanies } = useAuthTenant();
@@ -31,6 +32,8 @@ export const MasterSettingsDashboard: React.FC = () => {
       </h1>
 
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
+        <BrandingConfigurator isGlobal onSave={(b) => console.log('Saved Global Branding', b)} />
+        
         {/* Security Section */}
         <section className="space-y-3">
           <h2 className="text-sm font-bold text-slate-100 flex items-center gap-2">
@@ -62,37 +65,8 @@ export const MasterSettingsDashboard: React.FC = () => {
           </button>
         </section>
 
-        {/* Theme Section */}
-        <section className="space-y-3">
-          <h2 className="text-sm font-bold text-slate-100 flex items-center gap-2">
-            <Palette className="w-4 h-4 text-cyan-400" />
-            Theme & Appearance
-          </h2>
-          <div className="grid gap-2">
-            <label className="text-xs text-slate-400">Color Palette</label>
-            <select 
-              value={theme}
-              onChange={(e) => setTheme(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white"
-            >
-              <option value="corporate-blue">Corporate Blue</option>
-              <option value="enterprise-dark">Enterprise Dark</option>
-              <option value="professional-green">Professional Green</option>
-            </select>
-          </div>
-          <div className="grid gap-2">
-            <label className="text-xs text-slate-400">Font Style</label>
-            <select 
-              value={fontFamily}
-              onChange={(e) => setFontFamily(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white"
-            >
-              <option value="sans">Sans (Inter)</option>
-              <option value="serif">Serif (Playfair)</option>
-              <option value="mono">Monospace (Roboto Mono)</option>
-            </select>
-          </div>
-        </section>
+        {/* Appearance Section (Retain existing for now but update if needed) */}
+        {/* ... */}
 
         <button 
           onClick={handleSave}

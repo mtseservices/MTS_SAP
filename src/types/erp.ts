@@ -123,6 +123,14 @@ export interface ClientCompany {
     contactEmail: string;
     contactPhone: string;
   };
+  branding?: {
+    primaryColor: string;
+    secondaryColor: string;
+    fontFamily: string;
+    borderRadius: number;
+    logoUrl?: string;
+    faviconUrl?: string;
+  };
 }
 
 export interface CompanyDocument {
