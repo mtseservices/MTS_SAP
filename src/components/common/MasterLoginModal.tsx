@@ -15,7 +15,8 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = tru
   const { allCompanies, login, sessionLockNotice, clearSessionLockNotice } = useAuthTenant();
   
   const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
-  const isMasterRequested = params.get('master') === 'true' || params.get('portal') === 'master';
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
+  const isMasterRequested = pathname === '/' || params.get('master') === 'true' || params.get('portal') === 'master';
   const companyFromUrl = params.get('company');
   const matchedCompany = companyFromUrl ? allCompanies.find(c => c.slug === companyFromUrl) : null;
   const initialCompanySlug = matchedCompany?.slug || allCompanies[0]?.slug || 'albarka';
