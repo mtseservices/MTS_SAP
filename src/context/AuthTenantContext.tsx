@@ -59,7 +59,12 @@ interface AuthTenantContextType {
       paymentMethod: string;
       amount: number;
       txnId: string;
+      paymentStatus?: 'PAID' | 'PENDING' | 'OVERDUE' | 'TRIAL';
     }
+  ) => Promise<void>;
+  updateCompanyCustomRoles: (
+    companyId: string,
+    roles: { id: string; name: string; code: string; department?: string; permissions?: string[] }[]
   ) => Promise<void>;
   login: (type?: 'MASTER' | 'CLIENT', companySlug?: string, role?: string) => void;
   logout: (reason?: string) => void;
@@ -120,25 +125,41 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   };
 
   const applySubOverride = (c: ClientCompany): ClientCompany => {
+    let result = { ...c };
+    try {
+      const storedRoles = localStorage.getItem(`mts_roles_${c.id}`);
+      if (storedRoles) {
+        const parsedRoles = JSON.parse(storedRoles);
+        if (Array.isArray(parsedRoles)) {
+          result.customRoles = parsedRoles;
+        }
+      }
+    } catch {}
+
     try {
       const subData = localStorage.getItem(`mts_sub_${c.id}`);
       if (subData) {
         const parsed = JSON.parse(subData);
-        return {
-          ...c,
-          subscriptionPlan: parsed.plan || c.subscriptionPlan,
-          subscriptionCycle: parsed.cycle || c.subscriptionCycle,
-          status: parsed.status || c.status,
-          subscriptionExpiresAt: parsed.expiresAt || c.subscriptionExpiresAt,
-          trialDaysRemaining: parsed.daysRemaining !== undefined ? parsed.daysRemaining : c.trialDaysRemaining,
-          lastPaymentMethod: parsed.paymentMethod || c.lastPaymentMethod,
-          lastPaymentAmount: parsed.amount !== undefined ? parsed.amount : c.lastPaymentAmount,
-          lastPaymentTxnId: parsed.txnId || c.lastPaymentTxnId,
-          lastPaymentDate: parsed.lastPaymentDate || c.lastPaymentDate
+        result = {
+          ...result,
+          subscriptionPlan: parsed.plan || result.subscriptionPlan,
+          subscriptionCycle: parsed.cycle || result.subscriptionCycle,
+          status: parsed.status || result.status,
+          subscriptionExpiresAt: parsed.expiresAt || result.subscriptionExpiresAt,
+          trialDaysRemaining: parsed.daysRemaining !== undefined ? parsed.daysRemaining : result.trialDaysRemaining,
+          lastPaymentMethod: parsed.paymentMethod || result.lastPaymentMethod,
+          lastPaymentAmount: parsed.amount !== undefined ? parsed.amount : result.lastPaymentAmount,
+          lastPaymentTxnId: parsed.txnId || result.lastPaymentTxnId,
+          lastPaymentDate: parsed.lastPaymentDate || result.lastPaymentDate,
+          paymentStatus: parsed.paymentStatus || result.paymentStatus || (parsed.amount && parsed.amount > 0 ? 'PAID' : (result.trialDaysRemaining && result.trialDaysRemaining > 0 ? 'TRIAL' : 'PENDING'))
         };
+      } else {
+        if (!result.paymentStatus) {
+          result.paymentStatus = (result.lastPaymentAmount && result.lastPaymentAmount > 0) ? 'PAID' : ((result.trialDaysRemaining && result.trialDaysRemaining > 0) ? 'TRIAL' : 'PENDING');
+        }
       }
     } catch {}
-    return c;
+    return result;
   };
 
   // Initial Companies filtered by permanent deletion list
@@ -485,6 +506,8 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       txnId: string;
     }
   ): Promise<void> => {
+    const payStatus = data.paymentStatus || (data.amount > 0 ? 'PAID' : (data.daysRemaining > 0 ? 'TRIAL' : 'PENDING'));
+
     // 1. Update in Firestore
     try {
       const companyDocRef = doc(db, 'companies', companyId);
@@ -499,7 +522,8 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           lastPaymentMethod: data.paymentMethod,
           lastPaymentAmount: data.amount,
           lastPaymentTxnId: data.txnId,
-          lastPaymentDate: new Date().toISOString()
+          lastPaymentDate: new Date().toISOString(),
+          paymentStatus: payStatus
         },
         { merge: true }
       );
@@ -517,7 +541,8 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
             lastPaymentMethod: data.paymentMethod,
             lastPaymentAmount: data.amount,
             lastPaymentTxnId: data.txnId,
-            lastPaymentDate: new Date().toISOString()
+            lastPaymentDate: new Date().toISOString(),
+            paymentStatus: payStatus
           },
           { merge: true }
         );
@@ -528,7 +553,8 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
     // 2. Persist to localStorage override
     try {
-      localStorage.setItem(`mts_sub_${companyId}`, JSON.stringify(data));
+      const payloadWithStatus = { ...data, paymentStatus: payStatus };
+      localStorage.setItem(`mts_sub_${companyId}`, JSON.stringify(payloadWithStatus));
       const custom = getCustomCompanies();
       const idx = custom.findIndex(c => c.id === companyId);
       if (idx !== -1) {
@@ -542,7 +568,8 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           lastPaymentMethod: data.paymentMethod,
           lastPaymentAmount: data.amount,
           lastPaymentTxnId: data.txnId,
-          lastPaymentDate: new Date().toISOString()
+          lastPaymentDate: new Date().toISOString(),
+          paymentStatus: payStatus
         };
         localStorage.setItem('mts_custom_companies', JSON.stringify(custom));
       }
@@ -564,7 +591,8 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
               lastPaymentMethod: data.paymentMethod,
               lastPaymentAmount: data.amount,
               lastPaymentTxnId: data.txnId,
-              lastPaymentDate: new Date().toISOString()
+              lastPaymentDate: new Date().toISOString(),
+              paymentStatus: payStatus
             }
           : c
       )
@@ -581,8 +609,36 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         lastPaymentMethod: data.paymentMethod,
         lastPaymentAmount: data.amount,
         lastPaymentTxnId: data.txnId,
-        lastPaymentDate: new Date().toISOString()
+        lastPaymentDate: new Date().toISOString(),
+        paymentStatus: payStatus
       }));
+    }
+  };
+
+  const updateCompanyCustomRoles = async (
+    companyId: string,
+    roles: { id: string; name: string; code: string; department?: string; permissions?: string[] }[]
+  ): Promise<void> => {
+    // 1. Save to localStorage
+    try {
+      localStorage.setItem(`mts_roles_${companyId}`, JSON.stringify(roles));
+    } catch {}
+
+    // 2. Persist to Firestore
+    try {
+      const companyDocRef = doc(db, 'companies', companyId);
+      await setDoc(companyDocRef, { customRoles: roles }, { merge: true });
+    } catch (e) {
+      console.warn('Firestore roles sync note:', e);
+    }
+
+    // 3. Update state
+    setAllCompanies(prev =>
+      prev.map(c => (c.id === companyId ? { ...c, customRoles: roles } : c))
+    );
+
+    if (currentCompany.id === companyId) {
+      setCurrentCompany(prev => ({ ...prev, customRoles: roles }));
     }
   };
 
@@ -608,6 +664,7 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         registerNewCompany,
         permanentDeleteCompany,
         updateCompanySubscription,
+        updateCompanyCustomRoles,
         login,
         logout,
         sessionLockNotice,

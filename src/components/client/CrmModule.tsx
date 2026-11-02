@@ -35,6 +35,7 @@ import { TTSButton } from '../common/TTSButton';
 import { collection, doc, setDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../../services/firebaseConfig';
 import { notificationStore } from '../../services/notificationStore';
+import { CrmSalesDashboard } from './CrmSalesDashboard';
 
 export interface CrmInteraction {
   id: string;
@@ -811,7 +812,10 @@ NTN: ${currentCompany.ntn} | Contact: ${currentCompany.phone}`;
         </button>
       </div>
 
-      {/* Tab 1: KANBAN SALES PIPELINE VIEW WITH AUTOMATED PROBABILITY & STALLED HIGHLIGHTS */}
+      {activeTab === 'analytics' && (
+        <CrmSalesDashboard leads={leads} deals={deals} />
+      )}
+
       {activeTab === 'kanban' && (
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-900 border border-slate-800 px-4 py-3 rounded-2xl text-xs text-slate-300">

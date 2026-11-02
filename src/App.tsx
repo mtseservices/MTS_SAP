@@ -27,6 +27,7 @@ import { ApprovalWorkflowModule } from './components/client/ApprovalWorkflowModu
 import { AiAssistantModule } from './components/client/AiAssistantModule';
 import { CompanySettingsModule } from './components/client/CompanySettingsModule';
 import { CrmModule } from './components/client/CrmModule';
+import { DepartmentMasterModule } from './components/client/DepartmentMasterModule';
 
 import { LanguageProvider } from './context/LanguageContext';
 import { MasterLoginModal } from './components/common/MasterLoginModal';
@@ -42,7 +43,7 @@ function MainLayout() {
     const companyParam = params.get('company');
 
     const validTabs: ActiveTab[] = [
-      'dashboard', 'finance', 'procurement', 'inventory', 'sales',
+      'dashboard', 'departments', 'finance', 'procurement', 'inventory', 'sales',
       'production', 'hr', 'formBuilder', 'reports', 'approvals',
       'aiAssistant', 'auditLogs', 'companySettings', 'crm', 'masterDashboard',
       'masterCompanies', 'masterSubdomains', 'masterRegister',
@@ -141,6 +142,7 @@ function MainLayout() {
             <ClientDashboard onNavigateTab={(tab) => setActiveTab(tab)} />
           )}
 
+          {!isMasterPortal && activeTab === 'departments' && <DepartmentMasterModule />}
           {!isMasterPortal && activeTab === 'finance' && <FinanceAccountsModule />}
           {!isMasterPortal && activeTab === 'procurement' && <ProcurementModule />}
           {!isMasterPortal && activeTab === 'inventory' && <InventoryModule />}

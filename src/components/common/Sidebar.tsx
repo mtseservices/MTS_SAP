@@ -32,6 +32,7 @@ import { ReportParameterModal, ReportConfigTarget } from './ReportParameterModal
 
 export type ActiveTab =
   | 'dashboard'
+  | 'departments'
   | 'finance'
   | 'procurement'
   | 'inventory'
@@ -220,6 +221,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
 
   // Helper utility items
   const utilityItems = [
+    { id: 'departments' as ActiveTab, label: '130 Department Master', icon: FolderTree },
     { id: 'crm' as ActiveTab, label: 'CRM & Sales Pipeline', icon: Users },
     { id: 'formBuilder' as ActiveTab, label: t('formBuilder'), icon: FileCheck2 },
     { id: 'reports' as ActiveTab, label: t('reports'), icon: BarChart3 },
@@ -239,6 +241,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
 
     if (activeLower.includes(targetLower)) return true;
 
+    if (targetLower === 'departments') return true;
     if (targetLower === 'finance' && (activeLower.includes('finance') || activeLower.includes('accounts'))) return true;
     if (targetLower === 'procurement' && (activeLower.includes('procurement') || activeLower.includes('purchasing'))) return true;
     if (targetLower === 'inventory' && (activeLower.includes('inventory') || activeLower.includes('warehouse'))) return true;

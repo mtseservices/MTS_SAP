@@ -45,6 +45,27 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = tru
 
   const currentComp = allCompanies.find(c => c.slug === selectedCompanySlug) || allCompanies[0];
 
+  // Fetch custom roles created for this enterprise company
+  const getCompanyRoles = (): { code: string; name: string }[] => {
+    let roles: { code: string; name: string }[] = [];
+    if (currentComp?.customRoles && currentComp.customRoles.length > 0) {
+      roles = currentComp.customRoles.map(r => ({ code: r.code || r.name, name: r.name }));
+    } else {
+      try {
+        const stored = localStorage.getItem(`mts_roles_${currentComp?.id}`);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            roles = parsed.map((r: any) => ({ code: r.code || r.name, name: r.name }));
+          }
+        }
+      } catch {}
+    }
+    return roles;
+  };
+
+  const createdRoles = getCompanyRoles();
+
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
@@ -265,22 +286,34 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = tru
             </div>
           )}
 
-          {/* Role Selector (Client Login Only) */}
+          {/* Role Selector (Client Login Only) - Shows created roles if configured, otherwise single admin only */}
           {loginType === 'CLIENT' && (
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Authorized User Role</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-semibold text-slate-300">Authorized User Role</label>
+                {createdRoles.length === 0 ? (
+                  <span className="text-[10px] text-cyan-400 font-medium">Single Admin Mode</span>
+                ) : (
+                  <span className="text-[10px] text-emerald-400 font-medium">{createdRoles.length + 1} Roles Configured</span>
+                )}
+              </div>
               <select
                 value={selectedRole}
                 onChange={(e) => setSelectedRole(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl bg-slate-800/90 border border-slate-700 text-xs text-slate-100 font-semibold focus:outline-none focus:border-cyan-500"
               >
                 <option value="CLIENT_ADMIN">Client Administrator</option>
-                <option value="ACCOUNTANT">Senior Accountant (FBR)</option>
-                <option value="PROCUREMENT_MGR">Procurement Manager</option>
-                <option value="INVENTORY_MGR">Warehouse / Inventory Head</option>
-                <option value="SALES_EXEC">Sales & POS Executive</option>
-                <option value="AUDITOR">Internal Auditor (Read-Only)</option>
+                {createdRoles.map((r) => (
+                  <option key={r.code} value={r.code}>
+                    {r.name}
+                  </option>
+                ))}
               </select>
+              {createdRoles.length === 0 && (
+                <p className="text-[10px] text-slate-400 mt-1">
+                  Single administrator account active. New roles can be created in Company Settings.
+                </p>
+              )}
             </div>
           )}
 

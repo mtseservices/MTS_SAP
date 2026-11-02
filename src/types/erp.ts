@@ -91,6 +91,14 @@ export interface ClientCompany {
   lastPaymentAmount?: number;
   lastPaymentTxnId?: string;
   lastPaymentDate?: string;
+  paymentStatus?: 'PAID' | 'PENDING' | 'OVERDUE' | 'TRIAL';
+  customRoles?: {
+    id: string;
+    name: string;
+    code: string;
+    department?: string;
+    permissions?: string[];
+  }[];
   theme: ThemePalette;
   tablePattern?: string;
   tableLayoutPattern?: string;
