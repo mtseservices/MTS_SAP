@@ -27,7 +27,10 @@ export type IndustryPackage =
   | 'Import & Export'
   | 'Pharmaceutical'
   | 'Services'
-  | 'Healthcare';
+  | 'Healthcare'
+  | 'Education'
+  | 'Banking'
+  | 'NGO';
 
 export type ThemePalette = 
   | 'corporate-blue'
@@ -477,6 +480,11 @@ export interface SubscriptionPlan {
   maxUsers: number;
   maxBranches: number;
   isPopular?: boolean;
+  smsQuota: number;
+  whatsappAlertsEnabled: boolean;
+  vendorPortalLogins: number;
+  customLayoutThemes: boolean;
+  supportedThemeModes: ThemeMode[];
 }
 
 export interface PaymentVerification {

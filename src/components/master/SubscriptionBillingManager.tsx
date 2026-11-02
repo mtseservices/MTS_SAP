@@ -110,6 +110,11 @@ export const SubscriptionBillingManager: React.FC = () => {
       includedModules: ['Finance', 'Sales', 'Inventory', 'Reports'],
       maxUsers: 10,
       maxBranches: 2,
+      smsQuota: 500,
+      whatsappAlertsEnabled: false,
+      vendorPortalLogins: 0,
+      customLayoutThemes: false,
+      supportedThemeModes: ['light', 'slate-gray']
     },
     {
       id: 'plan_pro_02',
@@ -120,7 +125,12 @@ export const SubscriptionBillingManager: React.FC = () => {
       includedModules: ['Finance', 'Procurement', 'Inventory', 'Sales', 'Production', 'HR', 'Reports'],
       maxUsers: 35,
       maxBranches: 5,
-      isPopular: true
+      isPopular: true,
+      smsQuota: 5000,
+      whatsappAlertsEnabled: true,
+      vendorPortalLogins: 50,
+      customLayoutThemes: true,
+      supportedThemeModes: ['light', 'slate-gray', 'dark']
     },
     {
       id: 'plan_yearly_03',
@@ -131,6 +141,11 @@ export const SubscriptionBillingManager: React.FC = () => {
       includedModules: ['Finance', 'Procurement', 'Inventory', 'Sales', 'Production', 'HR', 'Form Builder', 'Reports', 'Approvals', 'AI Center'],
       maxUsers: 100,
       maxBranches: 10,
+      smsQuota: 25000,
+      whatsappAlertsEnabled: true,
+      vendorPortalLogins: 250,
+      customLayoutThemes: true,
+      supportedThemeModes: ['light', 'slate-gray', 'dark']
     },
     {
       id: 'plan_onetime_04',
@@ -141,6 +156,11 @@ export const SubscriptionBillingManager: React.FC = () => {
       includedModules: ['ALL_ERP_MODULES'],
       maxUsers: 250,
       maxBranches: 25,
+      smsQuota: 100000,
+      whatsappAlertsEnabled: true,
+      vendorPortalLogins: 1000,
+      customLayoutThemes: true,
+      supportedThemeModes: ['light', 'slate-gray', 'dark']
     }
   ]);
 
@@ -217,7 +237,12 @@ export const SubscriptionBillingManager: React.FC = () => {
         businessCategories: ['Manufacturing', 'Services'],
         includedModules: ['Finance', 'Sales', 'Inventory', 'Reports'],
         maxUsers: 20,
-        maxBranches: 3
+        maxBranches: 3,
+        smsQuota: 1000,
+        whatsappAlertsEnabled: false,
+        vendorPortalLogins: 10,
+        customLayoutThemes: false,
+        supportedThemeModes: ['light', 'slate-gray']
       };
       setPlans([newPlan, ...plans]);
     }
@@ -838,9 +863,29 @@ export const SubscriptionBillingManager: React.FC = () => {
                 </div>
               </div>
 
-              <div className="text-xs text-slate-400 space-y-1 font-mono">
-                <div>Max Users: <strong className="text-slate-200">{p.maxUsers} Seats</strong></div>
-                <div>Max Branches: <strong className="text-slate-200">{p.maxBranches} Hubs</strong></div>
+              <div className="text-xs text-slate-400 space-y-1.5 font-mono">
+                <div className="flex justify-between border-b border-slate-800 pb-1">
+                  <span>Max Users:</span>
+                  <strong className="text-slate-200">{p.maxUsers} Seats</strong>
+                </div>
+                <div className="flex justify-between border-b border-slate-800 pb-1">
+                  <span>Max Branches:</span>
+                  <strong className="text-slate-200">{p.maxBranches} Hubs</strong>
+                </div>
+                <div className="flex justify-between border-b border-slate-800 pb-1">
+                  <span>SMS Quota:</span>
+                  <strong className="text-cyan-400">{p.smsQuota.toLocaleString()}</strong>
+                </div>
+                <div className="flex justify-between border-b border-slate-800 pb-1">
+                  <span>WhatsApp Alerts:</span>
+                  <strong className={p.whatsappAlertsEnabled ? 'text-emerald-400' : 'text-slate-500'}>
+                    {p.whatsappAlertsEnabled ? 'Enabled' : 'Disabled'}
+                  </strong>
+                </div>
+                <div className="flex justify-between">
+                  <span>Vendor Logins:</span>
+                  <strong className="text-purple-400">{p.vendorPortalLogins}</strong>
+                </div>
               </div>
 
               <div className="space-y-1 pt-2 border-t border-slate-800 text-[11px] text-slate-300">

@@ -4,6 +4,7 @@ import { Header } from './components/common/Header';
 import { Sidebar, ActiveTab } from './components/common/Sidebar';
 import { GeminiChatbotDrawer } from './components/common/GeminiChatbotDrawer';
 import { AuditLogViewer } from './components/common/AuditLogViewer';
+import { StylePreviewDrawer } from './components/common/StylePreviewDrawer';
 
 // Master Admin Views
 import { MasterDashboard } from './components/master/MasterDashboard';
@@ -16,6 +17,8 @@ import { MasterSettingsDashboard } from './components/master/MasterSettingsDashb
 import { UserCreationManager } from './components/master/UserCreationManager';
 import { SystemApiAuditViewer } from './components/master/SystemApiAuditViewer';
 import { AuditInsightsDashboard } from './components/master/AuditInsightsDashboard';
+import { SystemSecurityDashboard } from './components/master/SystemSecurityDashboard';
+import { BatchClientDataExport } from './components/master/BatchClientDataExport';
 
 // Client Tenant ERP Views
 import { ClientDashboard } from './components/client/ClientDashboard';
@@ -53,7 +56,7 @@ function MainLayout() {
       'aiAssistant', 'auditLogs', 'companySettings', 'crm', 'performanceMetrics', 'masterDashboard',
       'masterCompanies', 'masterSubdomains', 'masterRegister',
       'masterSubscriptions', 'masterAudit', 'masterApiAudit', 'masterAuditInsights', 'masterSystemHealth', 'masterRateLimits',
-      'masterSettings', 'masterUserCreation'
+      'masterSettings', 'masterUserCreation', 'masterSystemSecurity', 'masterBatchExport'
     ];
 
     const targetTab = (moduleParam && validTabs.includes(moduleParam))
@@ -65,6 +68,7 @@ function MainLayout() {
 
   const initialState = getInitialState();
   const [activeTab, setActiveTab] = useState<ActiveTab>(initialState.tab);
+  const [isStyleDrawerOpen, setIsStyleDrawerOpen] = useState(false);
 
   React.useEffect(() => {
     if (initialState.companySlug) {
@@ -102,6 +106,7 @@ function MainLayout() {
     <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 font-sans">
       <Header
         onOpenNewCompanyModal={() => handleSelectTab('masterRegister')}
+        onOpenStyleDrawer={() => setIsStyleDrawerOpen(true)}
         onSelectTab={(tab) => handleSelectTab(tab)}
       />
 
@@ -164,6 +169,14 @@ function MainLayout() {
             <UserCreationManager />
           )}
 
+          {isMasterPortal && activeTab === 'masterSystemSecurity' && (
+            <SystemSecurityDashboard />
+          )}
+
+          {isMasterPortal && activeTab === 'masterBatchExport' && (
+            <BatchClientDataExport />
+          )}
+
           {/* Client Tenant ERP Views */}
           {!isMasterPortal && activeTab === 'dashboard' && (
             <ClientDashboard onNavigateTab={(tab) => setActiveTab(tab)} />
@@ -189,12 +202,37 @@ function MainLayout() {
 
       {/* Floating Multi-Turn Gemini AI Chatbot Drawer */}
       <GeminiChatbotDrawer />
+
+      {/* Global Workspace Style Customizer */}
+      <StylePreviewDrawer 
+        isOpen={isStyleDrawerOpen} 
+        onClose={() => setIsStyleDrawerOpen(false)} 
+      />
     </div>
   );
 }
 
 function RootApp() {
-  const { isAuthenticated } = useAuthTenant();
+  const { isAuthenticated, isLoading } = useAuthTenant();
+
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-slate-950 z-[9999]">
+        <div className="flex flex-col items-center gap-6">
+          <div className="relative">
+            <div className="w-20 h-20 rounded-full border-2 border-cyan-500/20 border-t-cyan-500 animate-spin" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full border-2 border-blue-500/20 border-b-blue-500 animate-spin animate-reverse" />
+            </div>
+          </div>
+          <div className="text-center space-y-2">
+            <div className="text-sm font-black text-white uppercase tracking-[0.3em] animate-pulse">Initializing ERP Hub</div>
+            <div className="text-[10px] text-slate-500 font-mono">Recovering secure enterprise session...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return <MasterLoginModal isStandalone={true} />;

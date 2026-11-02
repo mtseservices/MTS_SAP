@@ -1,6 +1,6 @@
 // MTS-ERP Enterprise Department Category Mapper
 // Automatically maps industry packages and business categories to specific departments
-// from the 130 Department Master Catalogue.
+// from the 38 Department Master Catalogue.
 
 import { IndustryPackage, ClientCompany } from '../types/erp';
 import {
@@ -11,181 +11,173 @@ import {
 export const INDUSTRY_DEPARTMENT_PRESETS: Record<IndustryPackage, string[]> = {
   'Textile': [
     'dept_1',  // Accounts & Finance
-    'dept_93', // Textile Production (Spinning, Weaving, Dyeing, Finishing)
-    'dept_2',  // Inventory & Store (Cotton, Yarn, Finished Fabric)
-    'dept_3',  // Procurement & Purchasing (Raw Cotton, Dyes, Chemicals)
-    'dept_4',  // Sales Department (Local & Export Sales)
-    'dept_5',  // Human Resources (HR)
-    'dept_6',  // Payroll & Compensation
-    'dept_27', // Production Planning & Control (PPC)
-    'dept_12', // Quality Assurance & Lab Testing
-    'dept_30', // Plant & Machine Maintenance
-    'dept_8',  // Supply Chain Management
-    'dept_10', // Logistics, Export & Shipping
-    'dept_32', // Health, Safety & Environment (HSE)
-    'dept_13', // Security & Gate Operations
-    'dept_16', // Information Technology (IT)
-    'dept_7'   // Administration & Facilities
-  ],
-
-  'Food & Beverage': [
-    'dept_1',  // Accounts & Finance
-    'dept_33', // Food Production & Packaging
-    'dept_34', // Food Safety, Quality & HACCP
-    'dept_35', // Laboratory & Food Testing
-    'dept_36', // Product Formulation & R&D
-    'dept_37', // Cold Chain & Temperature Control
-    'dept_2',  // Inventory & Store
-    'dept_3',  // Procurement & Raw Ingredients
-    'dept_4',  // Sales & Distribution
-    'dept_5',  // Human Resources
-    'dept_6',  // Payroll
-    'dept_8',  // Supply Chain
-    'dept_10', // Logistics & Distribution Fleet
-    'dept_30', // Machinery Maintenance
-    'dept_32', // Food Hygiene & HSE
-    'dept_7'   // Administration
-  ],
-
-  'Solar & Electrical': [
-    'dept_1',  // Accounts & Finance
-    'dept_76', // Solar & Electrical Projects
-    'dept_2',  // Inventory & Store (Panels, Inverters, Cabling)
-    'dept_3',  // Procurement & Imports
-    'dept_4',  // Sales & Commercial Tenders
-    'dept_15', // Customer Support & Warranty
-    'dept_10', // Logistics & Site Dispatch
-    'dept_5',  // Human Resources
-    'dept_6',  // Payroll
-    'dept_12', // Quality & Inspection
-    'dept_30', // Technical Maintenance
-    'dept_32', // Safety & High-Voltage HSE
-    'dept_16', // IT & Monitoring
-    'dept_7'   // Administration
+    'dept_30', // Textile Production
+    'dept_13', // Production Management
+    'dept_2',  // Inventory
+    'dept_4',  // Procurement
+    'dept_3',  // Sales
+    'dept_5',  // HR & Payroll
+    'dept_15', // QC
+    'dept_16', // Fixed Assets
+    'dept_21', // IT
+    'dept_6'   // Admin
   ],
 
   'Manufacturing': [
-    'dept_1',  // Accounts & Finance
-    'dept_4',  // Production & Manufacturing (BOM & Assemblies)
-    'dept_2',  // Inventory & Store
-    'dept_3',  // Procurement / Purchase
-    'dept_27', // Production Planning & Control (PPC)
-    'dept_12', // Quality Control & Assurance
-    'dept_30', // Plant & Machine Maintenance
-    'dept_8',  // Supply Chain Management
-    'dept_10', // Logistics & Dispatch
-    'dept_5',  // Human Resources
-    'dept_6',  // Payroll
-    'dept_32', // HSE
-    'dept_13', // Security & Gate
-    'dept_16', // IT & Systems
-    'dept_7'   // Administration
+    'dept_1',  // Accounts
+    'dept_13', // Production
+    'dept_14', // Costing
+    'dept_2',  // Inventory
+    'dept_4',  // Procurement
+    'dept_3',  // Sales
+    'dept_15', // QC
+    'dept_5',  // HR
+    'dept_16', // Fixed Assets
+    'dept_21', // IT
+    'dept_6'   // Admin
+  ],
+
+  'Food & Beverage': [
+    'dept_1',
+    'dept_22', // F&B Industry specific
+    'dept_13', // Production
+    'dept_15', // QC
+    'dept_2',
+    'dept_4',
+    'dept_3',
+    'dept_5',
+    'dept_21',
+    'dept_6'
+  ],
+
+  'Solar & Electrical': [
+    'dept_1',
+    'dept_29', // Solar specific
+    'dept_17', // Project Management
+    'dept_2',
+    'dept_4',
+    'dept_3',
+    'dept_5',
+    'dept_21',
+    'dept_6'
   ],
 
   'Construction': [
-    'dept_1',  // Accounts & Finance
-    'dept_71', // Construction & Civil Projects
-    'dept_2',  // Inventory & Heavy Equipment Store
-    'dept_3',  // Procurement & Material Sourcing
-    'dept_12', // Quality Inspection & Testing
-    'dept_30', // Plant & Fleet Maintenance
-    'dept_32', // Site Safety & HSE
-    'dept_5',  // HR & Labor Management
-    'dept_6',  // Site Payroll & Advances
-    'dept_10', // Transport & Logistics
-    'dept_13', // Site Security & Gate
-    'dept_7'   // Administration
+    'dept_1',
+    'dept_28', // Construction specific
+    'dept_17', // Project Management
+    'dept_2',
+    'dept_4',
+    'dept_3',
+    'dept_5',
+    'dept_21',
+    'dept_6'
   ],
 
   'Wholesale': [
-    'dept_1',  // Accounts & Finance
-    'dept_2',  // Inventory & Warehouse
-    'dept_3',  // Bulk Purchasing
-    'dept_4',  // Wholesale Sales & Dispatch
-    'dept_8',  // Supply Chain
-    'dept_10', // Logistics & Transport
-    'dept_5',  // HR
-    'dept_6',  // Payroll
-    'dept_16', // IT
-    'dept_7'   // Administration
+    'dept_1',
+    'dept_27', // Retail/Wholesale specific
+    'dept_2',
+    'dept_4',
+    'dept_3',
+    'dept_7',  // CRM
+    'dept_5',
+    'dept_21',
+    'dept_6'
   ],
 
   'Retail & POS': [
-    'dept_1',  // Accounts & Finance
-    'dept_14', // Retail & POS Counter
-    'dept_2',  // Inventory & Outlet Store
-    'dept_3',  // Purchasing & Merchandising
-    'dept_4',  // Sales & Promotions
-    'dept_15', // Customer Care & Returns
-    'dept_5',  // HR
-    'dept_6',  // Payroll
-    'dept_8',  // Supply Chain
-    'dept_7'   // Administration
+    'dept_1',
+    'dept_27',
+    'dept_2',
+    'dept_4',
+    'dept_3',
+    'dept_7',
+    'dept_5',
+    'dept_21',
+    'dept_6'
   ],
 
   'Supermarket': [
-    'dept_1',  // Accounts & Finance
-    'dept_14', // POS Counter & Cashiering
-    'dept_2',  // Grocery & Fresh Store Inventory
-    'dept_37', // Cold Storage & Chiller Management
-    'dept_3',  // Daily Requisitions & Purchasing
-    'dept_4',  // Customer Loyalty & Sales
-    'dept_15', // Customer Support & Exchanges
-    'dept_5',  // HR
-    'dept_6',  // Payroll
-    'dept_7'   // Administration
+    'dept_1',
+    'dept_27',
+    'dept_2',
+    'dept_4',
+    'dept_3',
+    'dept_7',
+    'dept_5',
+    'dept_21',
+    'dept_6'
   ],
 
   'Import & Export': [
-    'dept_1',  // Accounts & Finance & Foreign Exchange
-    'dept_10', // Logistics, Customs & Clearance
-    'dept_2',  // Bonded Warehouse & Store
-    'dept_3',  // International Procurement
-    'dept_4',  // Export Sales & Letter of Credit (LC)
-    'dept_8',  // Global Supply Chain
-    'dept_12', // Quality Inspection
-    'dept_5',  // HR
-    'dept_6',  // Payroll
-    'dept_16', // IT
-    'dept_7'   // Administration
+    'dept_1',
+    'dept_12', // Logistics
+    'dept_35', // Courier/Cargo
+    'dept_2',
+    'dept_4',
+    'dept_3',
+    'dept_10', // SCM
+    'dept_5',
+    'dept_21',
+    'dept_6'
   ],
 
   'Pharmaceutical': [
-    'dept_1',  // Accounts & Finance
-    'dept_2',  // Medicine & Raw Material Inventory
-    'dept_3',  // API & Chemical Procurement
-    'dept_12', // QA / QC & Good Manufacturing Practice (GMP)
-    'dept_35', // Lab Testing & Quality Analysis
-    'dept_36', // Formulation & R&D
-    'dept_4',  // Institutional & Pharmacy Sales
-    'dept_37', // Temperature Controlled Store
-    'dept_32', // HSE & Biosafety
-    'dept_5',  // HR
-    'dept_6',  // Payroll
-    'dept_30', // Cleanroom & Equipment Maintenance
-    'dept_7'   // Administration
+    'dept_1',
+    'dept_26', // Pharmacy specific
+    'dept_15', // QC
+    'dept_2',
+    'dept_4',
+    'dept_3',
+    'dept_5',
+    'dept_21',
+    'dept_6'
   ],
 
   'Services': [
-    'dept_1',  // Accounts & Finance
-    'dept_4',  // Sales & Service Contracts
-    'dept_15', // Client Support & Ticketing
-    'dept_5',  // HR & Consultant Management
-    'dept_6',  // Professional Payroll
-    'dept_16', // IT Infrastructure & Software
-    'dept_7'   // Administration
+    'dept_1',
+    'dept_37', // Professional Services specific
+    'dept_7',  // CRM
+    'dept_36', // Advertising/Media
+    'dept_5',
+    'dept_21',
+    'dept_6'
   ],
 
   'Healthcare': [
-    'dept_1',  // Accounts & Billing
-    'dept_2',  // Pharmacy & Hospital Store
-    'dept_3',  // Medical Procurement
-    'dept_5',  // Medical Staff HR
-    'dept_6',  // Doctors & Nurses Payroll
-    'dept_12', // Clinical Audit & QA
-    'dept_32', // Hospital Infection Control & HSE
-    'dept_16', // Hospital Information System (HIS/IT)
-    'dept_7'   // Administration
+    'dept_1',
+    'dept_25', // Hospital specific
+    'dept_26', // Pharmacy
+    'dept_5',
+    'dept_21',
+    'dept_6'
+  ],
+
+  'Education': [
+    'dept_1',
+    'dept_23', // School specific
+    'dept_24', // College specific
+    'dept_5',
+    'dept_21',
+    'dept_6'
+  ],
+
+  'Banking': [
+    'dept_1',
+    'dept_33', // Banking specific
+    'dept_34', // Insurance
+    'dept_5',
+    'dept_21',
+    'dept_6'
+  ],
+
+  'NGO': [
+    'dept_1',
+    'dept_38', // NGO specific
+    'dept_5',
+    'dept_21',
+    'dept_6'
   ]
 };
 
@@ -193,12 +185,11 @@ export const INDUSTRY_DEPARTMENT_PRESETS: Record<IndustryPackage, string[]> = {
 export const DEFAULT_CORE_DEPARTMENT_IDS: string[] = [
   'dept_1', // Accounts & Finance
   'dept_2', // Inventory & Store
-  'dept_3', // Procurement / Purchase
-  'dept_4', // Sales Department
+  'dept_4', // Procurement / Purchase
+  'dept_3', // Sales Department
   'dept_5', // HR Department
-  'dept_6', // Payroll Department
-  'dept_7', // Administration
-  'dept_16' // IT Department
+  'dept_6', // Admin
+  'dept_21' // IT
 ];
 
 /**
@@ -223,8 +214,8 @@ export function getCompanyAssignedDepartments(
   company?: ClientCompany | null
 ): DepartmentCatalogItem[] {
   if (!company) {
-    // Default to Textile preset if no company provided
-    const defaultIds = INDUSTRY_DEPARTMENT_PRESETS['Textile'];
+    // Default to Manufacturing preset if no company provided
+    const defaultIds = INDUSTRY_DEPARTMENT_PRESETS['Manufacturing'];
     return COMPLETE_DEPARTMENTS_CATALOGUE.filter(d => defaultIds.includes(d.id));
   }
 

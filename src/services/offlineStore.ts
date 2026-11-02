@@ -1,4 +1,5 @@
 import { OfflineQueueItem, SalesInvoice, PurchaseOrder, JournalVoucher } from '../types/erp';
+import { subscribeFirestoreStatus } from './firebaseConfig';
 
 const DB_NAME = 'MTS_ERP_OFFLINE_DB';
 const DB_VERSION = 1;
@@ -7,14 +8,15 @@ const STORE_LOCAL_INVOICES = 'local_invoices';
 
 export class OfflineStoreManager {
   private db: IDBDatabase | null = null;
-  private isOnlineStatus: boolean = typeof navigator !== 'undefined' ? navigator.onLine : true;
+  private isOnlineStatus: boolean = false;
   private syncListeners: Array<(isOnline: boolean, pendingCount: number) => void> = [];
 
   constructor() {
     this.initDB();
     if (typeof window !== 'undefined') {
-      window.addEventListener('online', () => this.handleNetworkChange(true));
-      window.addEventListener('offline', () => this.handleNetworkChange(false));
+      subscribeFirestoreStatus((status) => {
+        this.handleNetworkChange(status === 'connected');
+      });
     }
   }
 

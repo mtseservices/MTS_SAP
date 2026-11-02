@@ -81,10 +81,16 @@ export const FinanceAccountsModule: React.FC = () => {
   const [voucherType, setVoucherType] = useState<'JOURNAL' | 'PAYMENT' | 'RECEIPT' | 'CONTRA'>('JOURNAL');
   const [narration, setNarration] = useState('');
   const [refNo, setRefNo] = useState('');
-  const [items, setItems] = useState<VoucherItem[]>([
-    { accountId: 'acc_1020', accountCode: '1020', accountName: 'Meezan Bank Operations Account', description: 'Bank Entry', debit: 250000, credit: 0 },
-    { accountId: 'acc_1200', accountCode: '1200', accountName: 'Accounts Receivable', description: 'Customer Clearance', debit: 0, credit: 250000 }
-  ]);
+  const [items, setItems] = useState<VoucherItem[]>(
+    Array(10).fill(null).map((_, idx) => ({
+      accountId: '',
+      accountCode: '',
+      accountName: '',
+      description: '',
+      debit: 0,
+      credit: 0
+    }))
+  );
 
   // Sync state to URL search parameters for dedicated tab sharing
   const switchSubTab = (tab: SubTab) => {
@@ -258,7 +264,7 @@ export const FinanceAccountsModule: React.FC = () => {
           <div className="flex items-center gap-2">
             <DollarSign className="w-6 h-6 text-emerald-400" />
             <h1 className="text-xl font-black text-slate-100">
-              Real-Time Financial Accounting Engine ({currentCompany.name})
+              Corporate Financial Accounting Engine ({currentCompany.name})
             </h1>
             <span className="px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30 flex items-center gap-1">
               <RefreshCw className="w-3 h-3 animate-spin" /> Firebase Live
@@ -448,14 +454,14 @@ export const FinanceAccountsModule: React.FC = () => {
               { key: 'narration', header: 'Description', accessor: (v) => <span className="text-slate-300 max-w-xs truncate block text-xs">{v.narration}</span> },
               {
                 key: 'actions',
-                header: 'Update&Review',
+                header: 'Audit & Review',
                 accessor: (v) => (
                   <button
                     onClick={() => setSelectedVoucherForReview(v)}
                     className="px-2.5 py-1 rounded-xl bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/40 text-xs font-bold flex items-center gap-1 transition-all"
                   >
                     <RefreshCw className="w-3 h-3 text-cyan-400" />
-                    Update&Review
+                    Audit & Review
                   </button>
                 )
               }
@@ -714,7 +720,7 @@ export const FinanceAccountsModule: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Reference / Cheque No</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Instrument / Cheque / Ref No</label>
                 <input
                   type="text"
                   value={refNo}

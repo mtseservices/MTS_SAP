@@ -1,40 +1,7 @@
 import { ClientCompany } from '../types/erp';
 import { INDUSTRY_DEPARTMENT_PRESETS } from './departmentCategoryMapper';
 
-export const INITIAL_CLIENT_COMPANIES: ClientCompany[] = [
-  {
-    id: 'comp_crest_003',
-    tenantId: 'tenant_crest',
-    name: 'Crest Textile Mills Ltd',
-    registeredName: 'Crest Textile Processing & Exports',
-    code: 'CTM003',
-    slug: 'crest',
-    subdomain: 'crest.mts-sap.vercel.app',
-    url: 'https://mts-sap.vercel.app?company=crest',
-    industry: 'Textile',
-    category: 'Spinning & Export Manufacturing',
-    ntn: '1029384-9',
-    strn: '2288440011223',
-    email: 'exports@cresttextile.com',
-    phone: '+92-41-8712345',
-    address: 'Sargodha Road, Textile Zone',
-    city: 'Faisalabad',
-    province: 'Punjab',
-    country: 'Pakistan',
-    logoUrl: 'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?auto=format&fit=crop&w=120&q=80',
-    primaryContact: 'Rashid Ahmed - Director',
-    subscriptionPlan: 'Enterprise',
-    userLimit: 100,
-    branchLimit: 8,
-    activeModules: ['Finance', 'Procurement', 'Inventory', 'Sales', 'Production', 'HR', 'Quality', 'Workflow', 'Reports'],
-    assignedDepartmentIds: INDUSTRY_DEPARTMENT_PRESETS['Textile'],
-    status: 'ACTIVE',
-    createdAt: '2026-03-01',
-    adminName: 'Rashid Ahmed',
-    adminEmail: 'admin@cresttextile.com',
-    theme: 'royal-black-gold',
-  }
-];
+export const INITIAL_CLIENT_COMPANIES: ClientCompany[] = [];
 
 export interface ResolvedTenant {
   isMasterPortal: boolean;

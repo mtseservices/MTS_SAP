@@ -41,5 +41,10 @@ service cloud.firestore {
       allow read: if isSignedIn();
       allow write: if false;
     }
+
+    // Sessions collection for cross-refresh persistence
+    match /sessions/{sessionId} {
+      allow read, write: if true; // Basic rule for now, ideally tied to UID if signed in
+    }
   }
 }

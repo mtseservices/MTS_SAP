@@ -7,7 +7,9 @@ import {
   persistentMultipleTabManager, 
   memoryLocalCache, 
   doc, 
-  getDocFromServer 
+  getDocFromServer,
+  disableNetwork,
+  enableNetwork
 } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
@@ -35,14 +37,63 @@ try {
 export const db = firestoreInstance;
 export const googleProvider = new GoogleAuthProvider();
 
-export async function testFirestoreConnection() {
+// Reactive connectivity state
+type ConnectivityStatus = 'connected' | 'offline' | 'checking';
+let currentStatus: ConnectivityStatus = 'checking';
+const listeners = new Set<(status: ConnectivityStatus) => void>();
+
+export const getFirestoreStatus = () => currentStatus;
+export const subscribeFirestoreStatus = (listener: (status: ConnectivityStatus) => void) => {
+  listeners.add(listener);
+  listener(currentStatus);
+  return () => listeners.delete(listener);
+};
+
+const notifyListeners = (status: ConnectivityStatus) => {
+  currentStatus = status;
+  listeners.forEach(l => l(status));
+};
+
+export async function testFirestoreConnection(silent = false) {
   try {
-    await getDocFromServer(doc(db, 'system', 'globalSettings'));
-    console.log('Firebase Firestore connection verified.');
+    // Try a direct fetch from server with a very short timeout (not SDK timeout, but promise timeout)
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('HEARTBEAT_TIMEOUT')), 3500)
+    );
+    
+    await Promise.race([
+      getDocFromServer(doc(db, 'system', 'heartbeat')),
+      timeoutPromise
+    ]);
+    
+    await enableNetwork(db);
+    notifyListeners('connected');
+    if (!silent) console.log('Firebase Firestore connection verified.');
+    return true;
   } catch (error: any) {
-    // Gracefully handle offline mode without uncaught console exceptions
-    console.warn('Firebase operating in offline / local cache mode due to network sandbox constraints or connectivity issues.');
+    // If it's a timeout or specific network error, disable network to prevent the 10s SDK retry loop
+    await disableNetwork(db);
+    notifyListeners('offline');
+    if (!silent) {
+      console.warn('Firebase operating in offline / local cache mode due to network constraints.');
+    }
+    return false;
   }
 }
 
+// Initial check
 testFirestoreConnection();
+
+// Periodically check if we can reconnect (every 60 seconds)
+if (typeof window !== 'undefined') {
+  setInterval(() => {
+    if (currentStatus === 'offline' && navigator.onLine) {
+      testFirestoreConnection(true);
+    }
+  }, 60000);
+
+  // Re-check when browser says it's back online
+  window.addEventListener('online', () => {
+    testFirestoreConnection(true);
+  });
+}

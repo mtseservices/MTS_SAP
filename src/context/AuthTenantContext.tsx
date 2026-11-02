@@ -1,17 +1,21 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
-import { ClientCompany, UserProfile, ThemePalette, Branch } from '../types/erp';
+import { ClientCompany, UserProfile, ThemePalette, Branch, ThemeMode, LoginTemplateId, TableDensity } from '../types/erp';
 import { INITIAL_CLIENT_COMPANIES, resolveCurrentTenant } from '../services/tenantResolver';
 import { INITIAL_BRANCHES } from '../services/mockData';
 import { getDefaultDepartmentIdsForIndustry } from '../services/departmentCategoryMapper';
-import { doc, deleteDoc, setDoc } from 'firebase/firestore';
-import { db } from '../services/firebaseConfig';
+import { doc, deleteDoc, setDoc, getDoc } from 'firebase/firestore';
+import { onAuthStateChanged, signInAnonymously, setPersistence, browserLocalPersistence } from 'firebase/auth';
+import { db, auth } from '../services/firebaseConfig';
 
 // Global Security Inactivity Middleware Constants
 export const INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; // Exactly 5 minutes (300,000 ms)
 export const INACTIVITY_CHECK_INTERVAL_MS = 1000; // 1-second check interval
+export const STORAGE_SESSION_ID_KEY = 'mts_session_id';
 export const STORAGE_AUTH_KEY = 'mts_auth';
 export const STORAGE_LAST_ACTIVITY_KEY = 'mts_last_activity';
 export const STORAGE_LOCK_NOTICE_KEY = 'mts_session_lock_notice';
+export const STORAGE_USER_KEY = 'mts_current_user';
+export const STORAGE_IS_MASTER_KEY = 'mts_is_master_portal';
 
 export const USER_INTERACTION_EVENTS = [
   'mousemove',
@@ -68,12 +72,21 @@ interface AuthTenantContextType {
     roles: { id: string; name: string; code: string; department?: string; permissions?: string[] }[]
   ) => Promise<void>;
   updateCompanyDepartments: (companyId: string, departmentIds: string[]) => Promise<void>;
+  updateCompanyBranding: (
+    companyId: string,
+    branding: {
+      themeMode?: ThemeMode;
+      loginTemplateId?: LoginTemplateId;
+      tableDensity?: TableDensity;
+    }
+  ) => Promise<void>;
   login: (type?: 'MASTER' | 'CLIENT', companySlug?: string, role?: string) => void;
   logout: (reason?: string) => void;
   sessionLockNotice: string | null;
   clearSessionLockNotice: () => void;
   secondsRemaining: number;
   resetInactivityTimer: () => void;
+  isLoading: boolean;
 }
 
 const MASTER_USER: UserProfile = {
@@ -180,27 +193,132 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     const customComps = getCustomCompanies();
     const combined = [...customComps, ...INITIAL_CLIENT_COMPANIES];
     return combined
-      .filter(c => !deletedIds.includes(c.id) && c.id !== 'comp_albarka_001' && c.id !== 'comp_solartech_002')
+      .filter(c => !deletedIds.includes(c.id))
       .map(applySubOverride);
   });
 
-  // Strict initial authentication: First time open MUST require login!
+  // Persistent state initialization from sessionStorage
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    return sessionStorage.getItem('mts_auth') === 'true';
+    return sessionStorage.getItem(STORAGE_AUTH_KEY) === 'true';
   });
 
-  const [isMasterPortal, setIsMasterPortal] = useState<boolean>(false);
+  const [isMasterPortal, setIsMasterPortal] = useState<boolean>(() => {
+    return sessionStorage.getItem(STORAGE_IS_MASTER_KEY) === 'true';
+  });
+
   const [currentCompany, setCurrentCompany] = useState<ClientCompany>(() => {
     const deletedIds = getDeletedCompanyIds();
     const available = INITIAL_CLIENT_COMPANIES.filter(
-      c => !deletedIds.includes(c.id) && c.id !== 'comp_albarka_001' && c.id !== 'comp_solartech_002'
+      c => !deletedIds.includes(c.id)
     );
     return applySubOverride(available[0] || INITIAL_CLIENT_COMPANIES[0]);
   });
 
-  const [currentUser, setCurrentUser] = useState<UserProfile>(DEFAULT_CLIENT_USER);
+  const [currentUser, setCurrentUser] = useState<UserProfile>(() => {
+    const storedUser = sessionStorage.getItem(STORAGE_USER_KEY);
+    if (storedUser) {
+      try {
+        return JSON.parse(storedUser);
+      } catch {
+        return DEFAULT_CLIENT_USER;
+      }
+    }
+    return DEFAULT_CLIENT_USER;
+  });
+
   const [currentBranch, setCurrentBranch] = useState<Branch>(INITIAL_BRANCHES[0]);
-  const [theme, setTheme] = useState<ThemePalette>('royal-black-gold');
+  const [theme, setTheme] = useState<ThemePalette>(() => {
+    const stored = sessionStorage.getItem('mts_theme');
+    return (stored as ThemePalette) || 'royal-black-gold';
+  });
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  // Persistence and Session recovery logic
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        await setPersistence(auth, browserLocalPersistence);
+      } catch (e) {
+        console.warn('Auth persistence set failed:', e);
+      }
+    };
+    initializeAuth();
+  }, []);
+
+  useEffect(() => {
+    const recoverSession = async () => {
+      const sessionId = localStorage.getItem(STORAGE_SESSION_ID_KEY);
+      if (!sessionId) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const sessionDoc = await getDoc(doc(db, 'sessions', sessionId));
+        if (sessionDoc.exists()) {
+          const sessionData = sessionDoc.data();
+          if (sessionData.status === 'ACTIVE') {
+            setIsAuthenticated(true);
+            setIsMasterPortal(sessionData.isMaster);
+            
+            // Reconstruct user profile
+            const user: UserProfile = {
+              id: sessionData.userId,
+              email: sessionData.email,
+              name: sessionData.name || (sessionData.isMaster ? 'Master Admin' : 'Client Admin'),
+              role: sessionData.role,
+              tenantId: sessionData.tenantId,
+              companyId: sessionData.companyId,
+              companyName: sessionData.companyName,
+              branchId: sessionData.branchId || 'main',
+              branchName: sessionData.branchName || 'Global HQ',
+              isMaster: sessionData.isMaster,
+              allowedCompanies: sessionData.allowedCompanies || []
+            };
+            setCurrentUser(user);
+
+            // Sync with session storage for legacy components
+            sessionStorage.setItem(STORAGE_AUTH_KEY, 'true');
+            sessionStorage.setItem(STORAGE_IS_MASTER_KEY, sessionData.isMaster ? 'true' : 'false');
+            sessionStorage.setItem(STORAGE_USER_KEY, JSON.stringify(user));
+
+            if (!sessionData.isMaster && sessionData.companyId) {
+              const matched = allCompanies.find(c => c.id === sessionData.companyId);
+              if (matched) {
+                setCurrentCompany(matched);
+                setTheme(matched.theme || 'royal-black-gold');
+              }
+            }
+            
+            console.log('Restored ERP session from Firestore:', sessionId);
+          } else {
+            // Expired or locked session found in storage, clear it
+            localStorage.removeItem(STORAGE_SESSION_ID_KEY);
+          }
+        } else {
+          // Session ID exists in local but not in Firestore, clear it
+          localStorage.removeItem(STORAGE_SESSION_ID_KEY);
+        }
+      } catch (err) {
+        console.warn('Session recovery failed:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    recoverSession();
+  }, [allCompanies]);
+
+  // Firebase Auth sync
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user && isAuthenticated) {
+        // Only logout if we lose Firebase Auth AND it's not a temporary transition
+        // For now keep it simple: Firestore session is the source of truth
+      }
+    });
+    return () => unsubscribe();
+  }, [isAuthenticated]);
 
   // Security Inactivity Tracker (5 minutes = 300,000 ms)
   const [sessionLockNotice, setSessionLockNotice] = useState<string | null>(() => {
@@ -230,25 +348,15 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   };
 
-  // Permanent purge of deleted legacy sample company references and URL query parameters
   useEffect(() => {
     try {
       const url = new URL(window.location.href);
       let changed = false;
       const compParam = url.searchParams.get('company');
       const tenantParam = url.searchParams.get('tenant');
-      if (compParam === 'albarka' || compParam === 'solartech') {
-        url.searchParams.set('company', 'crest');
-        changed = true;
-      }
-      if (tenantParam === 'albarka' || tenantParam === 'solartech' || tenantParam === 'tenant_albarka' || tenantParam === 'tenant_solartech') {
-        url.searchParams.set('tenant', 'crest');
-        changed = true;
-      }
-      if (url.pathname.includes('/albarka') || url.pathname.includes('/solartech')) {
-        url.pathname = url.pathname.replace(/\/albarka|\/solartech/g, '/crest');
-        changed = true;
-      }
+      
+      // Cleanup of path or params can be added here if needed for general normalization
+      
       if (changed) {
         window.history.replaceState({}, '', url.toString());
       }
@@ -357,20 +465,77 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   useEffect(() => {
     const resolved = resolveCurrentTenant();
+    
+    // Only auto-resolve if NOT authenticated yet, or to sync URL context
+    if (!isAuthenticated) {
+      if (resolved.company) {
+        setCurrentCompany(resolved.company);
+        setTheme(resolved.company.theme || 'corporate-blue');
+      }
+      return;
+    }
+
     if (resolved.isMasterPortal && currentUser.isMaster) {
       setIsMasterPortal(true);
-      setCurrentUser(MASTER_USER);
-    } else if (resolved.company) {
+      sessionStorage.setItem(STORAGE_IS_MASTER_KEY, 'true');
+    } else if (resolved.company && !currentUser.isMaster) {
       setIsMasterPortal(false);
+      sessionStorage.setItem(STORAGE_IS_MASTER_KEY, 'false');
       setCurrentCompany(resolved.company);
       setTheme(resolved.company.theme || 'corporate-blue');
     }
   }, []);
 
-  const login = (type: 'MASTER' | 'CLIENT' = 'CLIENT', companySlug?: string, role?: string) => {
+  const updateCompanyBranding = async (
+    companyId: string,
+    branding: {
+      themeMode?: ThemeMode;
+      loginTemplateId?: LoginTemplateId;
+      tableDensity?: TableDensity;
+    }
+  ): Promise<void> => {
+    // 1. Update Firestore
+    try {
+      const companyDocRef = doc(db, 'companies', companyId);
+      await setDoc(companyDocRef, branding, { merge: true });
+    } catch (e) {
+      console.warn('Firestore branding update error:', e);
+    }
+
+    // 2. Update memory state
+    setAllCompanies(prev =>
+      prev.map(c => {
+        if (c.id === companyId) {
+          return { ...c, ...branding };
+        }
+        return c;
+      })
+    );
+
+    if (currentCompany.id === companyId) {
+      setCurrentCompany(prev => ({ ...prev, ...branding }));
+    }
+  };
+
+  const login = async (type: 'MASTER' | 'CLIENT' = 'CLIENT', companySlug?: string, role?: string) => {
     setIsAuthenticated(true);
     sessionStorage.setItem(STORAGE_AUTH_KEY, 'true');
     sessionStorage.removeItem(STORAGE_LOCK_NOTICE_KEY);
+    
+    // Ensure Firebase Auth is active (Anonymous fallback if not Google)
+    let firebaseUser = auth.currentUser;
+    if (!firebaseUser) {
+      try {
+        const cred = await signInAnonymously(auth);
+        firebaseUser = cred.user;
+      } catch (e) {
+        console.warn('Anonymous sign-in failed:', e);
+      }
+    }
+
+    const sessionId = `sess_${Math.random().toString(36).substr(2, 9)}_${Date.now()}`;
+    localStorage.setItem(STORAGE_SESSION_ID_KEY, sessionId);
+
     try {
       localStorage.setItem(STORAGE_LAST_ACTIVITY_KEY, Date.now().toString());
     } catch {
@@ -381,18 +546,24 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     lastThrottleRef.current = Date.now();
     setSecondsRemaining(300);
 
+    let finalUser: UserProfile;
+
     if (type === 'MASTER') {
       setIsMasterPortal(true);
+      finalUser = MASTER_USER;
       setCurrentUser(MASTER_USER);
+      sessionStorage.setItem(STORAGE_IS_MASTER_KEY, 'true');
+      sessionStorage.setItem(STORAGE_USER_KEY, JSON.stringify(MASTER_USER));
     } else {
       setIsMasterPortal(false);
+      sessionStorage.setItem(STORAGE_IS_MASTER_KEY, 'false');
       const targetSlug = companySlug || currentCompany.slug;
       const matched = allCompanies.find(c => c.slug.toLowerCase() === targetSlug.toLowerCase()) || allCompanies[0];
       setCurrentCompany(matched);
       setTheme(matched.theme || 'corporate-blue');
 
       let updatedRole = role || 'CLIENT_ADMIN';
-      setCurrentUser({
+      finalUser = {
         ...DEFAULT_CLIENT_USER,
         tenantId: matched.tenantId,
         companyId: matched.id,
@@ -401,13 +572,48 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         name: matched.adminName,
         role: updatedRole as any,
         isMaster: false
+      };
+      setCurrentUser(finalUser);
+      sessionStorage.setItem(STORAGE_USER_KEY, JSON.stringify(finalUser));
+    }
+
+    // Persist session to Firestore
+    try {
+      await setDoc(doc(db, 'sessions', sessionId), {
+        sessionId,
+        userId: firebaseUser?.uid || finalUser.id,
+        email: finalUser.email,
+        name: finalUser.name,
+        role: finalUser.role,
+        isMaster: finalUser.isMaster,
+        tenantId: finalUser.tenantId,
+        companyId: finalUser.companyId,
+        companyName: finalUser.companyName,
+        branchId: finalUser.branchId || 'main',
+        branchName: finalUser.branchName || 'Global HQ',
+        allowedCompanies: finalUser.allowedCompanies,
+        createdAt: new Date().toISOString(),
+        lastActiveAt: new Date().toISOString(),
+        status: 'ACTIVE'
       });
+    } catch (e) {
+      console.warn('Failed to persist session to Firestore:', e);
     }
   };
 
-  const logout = (reason?: string) => {
+  const logout = async (reason?: string) => {
+    const sessionId = localStorage.getItem(STORAGE_SESSION_ID_KEY);
+    if (sessionId) {
+      try {
+        await setDoc(doc(db, 'sessions', sessionId), { status: 'EXPIRED', lastActiveAt: new Date().toISOString() }, { merge: true });
+      } catch {}
+      localStorage.removeItem(STORAGE_SESSION_ID_KEY);
+    }
+
     setIsAuthenticated(false);
     sessionStorage.removeItem(STORAGE_AUTH_KEY);
+    sessionStorage.removeItem(STORAGE_USER_KEY);
+    sessionStorage.removeItem(STORAGE_IS_MASTER_KEY);
     if (reason) {
       sessionStorage.setItem(STORAGE_LOCK_NOTICE_KEY, reason);
       setSessionLockNotice(reason);
@@ -438,17 +644,20 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     const matched = allCompanies.find(c => c.slug.toLowerCase() === slug.toLowerCase());
     if (matched) {
       setIsMasterPortal(false);
+      sessionStorage.setItem(STORAGE_IS_MASTER_KEY, 'false');
       setCurrentCompany(matched);
       setTheme(matched.theme || 'corporate-blue');
-      setCurrentUser(prev => ({
-        ...prev,
+      const updatedUser: UserProfile = {
+        ...currentUser,
         tenantId: matched.tenantId,
         companyId: matched.id,
         companyName: matched.name,
         email: matched.adminEmail,
         name: matched.adminName,
         isMaster: false
-      }));
+      };
+      setCurrentUser(updatedUser);
+      sessionStorage.setItem(STORAGE_USER_KEY, JSON.stringify(updatedUser));
     }
   };
 
@@ -483,7 +692,7 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       subscriptionPlan: newCompData.subscriptionPlan || 'Professional',
       userLimit: newCompData.userLimit || 25,
       branchLimit: newCompData.branchLimit || 3,
-      activeModules: ['Finance', 'Procurement', 'Inventory', 'Sales', 'HR', 'Reports'],
+      activeModules: newCompData.activeModules || ['Finance', 'Procurement', 'Inventory', 'Sales', 'HR', 'Reports'],
       assignedDepartmentIds: (newCompData.assignedDepartmentIds && newCompData.assignedDepartmentIds.length > 0)
         ? newCompData.assignedDepartmentIds
         : getDefaultDepartmentIdsForIndustry(newCompData.industry, newCompData.category),
@@ -491,7 +700,19 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       createdAt: new Date().toISOString().split('T')[0],
       adminName: newCompData.adminName || 'Company Admin',
       adminEmail: newCompData.adminEmail || 'admin@company.pk',
-      theme: newCompData.theme || 'royal-black-gold'
+      theme: newCompData.theme || 'royal-black-gold',
+      // New Advanced Fields
+      secpNumber: newCompData.secpNumber,
+      entityType: newCompData.entityType,
+      bankDetails: (newCompData as any).bankDetails || {
+        bankName: (newCompData as any).bankName || 'HBL',
+        accountTitle: (newCompData as any).accountTitle || newCompData.name || '',
+        iban: (newCompData as any).iban || '',
+      },
+      logoUrl: newCompData.logoUrl,
+      backgroundUrl: newCompData.backgroundUrl,
+      themeMode: newCompData.themeMode || 'dark',
+      loginTemplateId: newCompData.loginTemplateId || 'split'
     };
 
     // Save to custom companies in localStorage
@@ -742,12 +963,14 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         updateCompanySubscription,
         updateCompanyCustomRoles,
         updateCompanyDepartments,
+        updateCompanyBranding,
         login,
         logout,
         sessionLockNotice,
         clearSessionLockNotice,
         secondsRemaining,
-        resetInactivityTimer
+        resetInactivityTimer,
+        isLoading
       }}
     >
       <div className={`theme-${theme} min-h-screen text-slate-100`}>

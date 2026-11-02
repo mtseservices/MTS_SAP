@@ -1,0 +1,2558 @@
+ENTERPRISE ERP SOFTWARE
+COMPLETE BUILT-IN DEPARTMENTS, MASTER DATA, TRANSACTION FORMS & REPORTS
+General Business, Corporate, Manufacturing, Education, Healthcare, Trading & Industry-Specific ERP
+________________________________________
+CATEGORY 1 – BASIC / GENERAL BUSINESS DEPARTMENTS
+1. ACCOUNTS & FINANCE DEPARTMENT
+A. Definition / Master Setup
+•	Company Accounting Setup
+o	Company Name
+o	Financial Year
+o	Accounting Period
+o	Base Currency
+o	Multi-Currency Setup
+o	Fiscal Year Start & End
+o	Opening Balance Setup
+o	Accounting Method
+o	Voucher Numbering Series
+o	Approval Limits
+•	Chart of Accounts (COA)
+o	Account Code
+o	Account Name
+o	Parent Account
+o	Account Type
+o	Account Category
+o	Control Account
+o	Opening Debit
+o	Opening Credit
+o	Active / Inactive Status
+•	Account Groups
+o	Assets
+o	Current Assets
+o	Fixed Assets
+o	Liabilities
+o	Current Liabilities
+o	Long-Term Liabilities
+o	Equity
+o	Revenue / Income
+o	Direct Expenses
+o	Indirect Expenses
+o	Cost of Sales
+•	Business Parties
+o	Customer Accounts
+o	Supplier / Vendor Accounts
+o	Employee Accounts
+o	Bank Accounts
+o	Cash Accounts
+o	Other Debtors
+o	Other Creditors
+•	Cost Center Setup
+o	Cost Center Code
+o	Cost Center Name
+o	Department
+o	Branch
+o	Project
+o	Manager
+o	Budget
+•	Bank & Cash Setup
+o	Bank Name
+o	Branch Name
+o	Account Title
+o	Account Number
+o	IBAN
+o	Opening Balance
+o	Currency
+•	Tax Configuration
+o	Tax Type
+o	Tax Rate
+o	Tax Account
+o	Input Tax
+o	Output Tax
+o	Withholding Tax
+o	Tax Exemption
+•	Payment Terms
+o	Cash
+o	Advance
+o	Credit Days
+o	Installments
+o	Due Date Rules
+B. Forms / Transaction Forms
+•	Account Opening Form
+o	Account Code
+o	Account Name
+o	Account Group
+o	Account Nature
+o	Parent Account
+o	Opening Debit / Credit
+o	Cost Center
+o	Remarks
+o	Save / Edit / Delete / Approve
+•	Journal Voucher (JV)
+o	Voucher Number
+o	Voucher Date
+o	Reference Number
+o	Debit Account
+o	Credit Account
+o	Cost Center
+o	Project
+o	Description
+o	Debit Amount
+o	Credit Amount
+o	Attachment
+o	Total Debit / Credit
+o	Difference Validation
+o	Submit / Approve / Post
+•	Payment Voucher (PV)
+o	Voucher Number
+o	Payment Date
+o	Payment Mode
+o	Bank / Cash Account
+o	Paid To
+o	Supplier / Employee
+o	Invoice Reference
+o	Expense Account
+o	Amount
+o	Tax Deduction
+o	Net Payment
+o	Cheque Number
+o	Attachment
+o	Print / Save / Approve
+•	Receipt Voucher (RV)
+o	Receipt Number
+o	Receipt Date
+o	Received From
+o	Customer Account
+o	Invoice Reference
+o	Bank / Cash Account
+o	Payment Mode
+o	Received Amount
+o	Discount
+o	Tax
+o	Net Receipt
+o	Remarks
+•	Contra Voucher (CV)
+o	Transfer Date
+o	From Account
+o	To Account
+o	Transfer Amount
+o	Reference
+o	Bank Charges
+o	Remarks
+•	Bank Reconciliation Form
+o	Bank Account
+o	Statement Date
+o	Statement Balance
+o	Book Balance
+o	Unpresented Cheques
+o	Uncredited Deposits
+o	Bank Charges
+o	Reconciled Difference
+o	Match / Unmatch Transactions
+•	Expense Claim Form
+o	Employee
+o	Department
+o	Expense Date
+o	Expense Category
+o	Description
+o	Amount
+o	Receipt Attachment
+o	Approval Status
+•	Advance Payment Form
+o	Applicant
+o	Advance Type
+o	Purpose
+o	Requested Amount
+o	Approved Amount
+o	Recovery Date
+o	Settlement Status
+•	Petty Cash Form
+o	Cash In
+o	Cash Out
+o	Expense Head
+o	Voucher Reference
+o	Balance
+•	Fixed Asset Purchase Form
+o	Asset Name
+o	Asset Category
+o	Supplier
+o	Purchase Date
+o	Purchase Cost
+o	Useful Life
+o	Depreciation Method
+o	Asset Location
+•	Budget Allocation Form
+o	Financial Year
+o	Department
+o	Cost Center
+o	Budget Head
+o	Allocated Amount
+o	Revised Budget
+o	Approval
+•	Period Closing Form
+o	Accounting Period
+o	Pending Vouchers
+o	Unposted Transactions
+o	Closing Entries
+o	Lock Period
+o	Reopen Approval
+C. Reports
+•	Chart of Accounts Report
+o	Account Code, Account Name, Parent Group, Account Type, Status
+•	Voucher Register
+o	Voucher No., Date, Type, Reference, Debit, Credit, Status
+•	General Ledger
+o	Date, Voucher, Description, Debit, Credit, Running Balance
+•	Trial Balance
+o	Account Code, Account Name, Opening, Debit, Credit, Closing
+•	Balance Sheet
+o	Assets, Liabilities, Equity, Current / Non-Current Classification
+•	Profit & Loss Statement
+o	Revenue, Cost of Sales, Gross Profit, Operating Expenses, Net Profit
+•	Cash Flow Statement
+o	Operating, Investing, Financing Cash Flows
+•	Cash Book
+o	Date, Receipt, Payment, Cash Balance
+•	Bank Book
+o	Bank Receipts, Bank Payments, Running Balance
+•	Bank Reconciliation Report
+o	Statement Balance, Book Balance, Outstanding Items, Difference
+•	Accounts Receivable Aging
+o	Customer, Invoice, Due Date, Current, 30, 60, 90+ Days
+•	Accounts Payable Aging
+o	Supplier, Bill, Due Date, Outstanding, Overdue Days
+•	Customer Ledger
+o	Opening, Sales, Receipts, Credit Notes, Closing
+•	Supplier Ledger
+o	Opening, Purchases, Payments, Debit Notes, Closing
+•	Expense Analysis
+o	Expense Head, Department, Cost Center, Budget, Actual
+•	Cost Center Report
+o	Department, Budget, Actual Cost, Variance
+•	Budget vs Actual Report
+o	Budget, Actual, Difference, Variance %
+•	Fixed Asset Register
+o	Asset Code, Cost, Location, Depreciation, Net Book Value
+•	Depreciation Report
+o	Opening Value, Depreciation, Accumulated Depreciation, Closing Value
+•	Tax Summary Report
+o	Taxable Value, Tax Rate, Tax Amount, Tax Type
+•	Withholding Tax Report
+o	Party, Taxable Amount, Tax Deducted, Certificate Reference
+•	Financial Year Closing Report
+o	Closing Balances, Unadjusted Entries, Closing Status
+________________________________________
+2. INVENTORY & STORE DEPARTMENT
+A. Definition / Master Setup
+•	Item Master
+o	Item Code / SKU
+o	Item Name
+o	Item Description
+o	Item Category
+o	Subcategory
+o	Brand
+o	Model
+o	Barcode
+o	UOM
+o	Purchase Price
+o	Average Cost
+o	Selling Price
+o	Minimum Stock
+o	Maximum Stock
+o	Reorder Level
+o	Opening Stock
+•	Item Categories
+o	Raw Material
+o	Finished Goods
+o	Semi-Finished Goods
+o	Packing Material
+o	Spare Parts
+o	Consumables
+o	Trading Items
+o	Services
+•	Unit of Measurement
+o	Piece
+o	Kg
+o	Gram
+o	Litre
+o	ML
+o	Meter
+o	Box
+o	Carton
+o	Pack
+o	Set
+•	Warehouse / Store Setup
+o	Warehouse Code
+o	Warehouse Name
+o	Branch
+o	Store Incharge
+o	Location
+o	Storage Capacity
+•	Rack / Bin Location
+o	Warehouse
+o	Rack Number
+o	Shelf Number
+o	Bin Number
+•	Stock Valuation
+o	FIFO
+o	Weighted Average
+o	Standard Cost
+•	Batch / Serial Number Setup
+o	Batch Number
+o	Manufacturing Date
+o	Expiry Date
+o	Serial Number
+o	Warranty
+•	Vehicle / Equipment Master
+o	Vehicle Number
+o	Registration
+o	Equipment Code
+o	Assigned Department
+•	Stock Alert Configuration
+o	Minimum Level
+o	Reorder Level
+o	Maximum Level
+o	Expiry Alert Days
+B. Forms
+•	Item Creation Form
+o	Item Code, Name, Category, Brand, UOM, Barcode, Tax, Cost, Price, Reorder Level
+•	Opening Stock Form
+o	Item, Warehouse, Opening Qty, Unit Cost, Total Value, Batch / Serial
+•	Material Requisition Form (MR)
+o	Request No., Department, Requested By, Required Date, Item, Available Stock, Required Qty, Purpose
+•	Material Issue Form (MI)
+o	Issue No., Requisition Reference, Warehouse, Issued To, Item, Issued Qty, Batch, Receiver Signature
+•	Material Return Form
+o	Return No., Original Issue, Item, Return Qty, Condition, Return Reason
+•	Goods Receipt Note (GRN)
+o	GRN No., PO Reference, Supplier, Invoice No., Item, Ordered Qty, Received Qty, Rejected Qty, Accepted Qty, Batch, Expiry
+•	Goods Return Note
+o	Return No., Supplier, GRN Reference, Item, Return Qty, Reason, Debit Note Reference
+•	Stock Transfer Form
+o	Transfer No., From Warehouse, To Warehouse, Item, Transfer Qty, Dispatch Date, Received Qty, Status
+•	Stock Adjustment Form
+o	Item, Warehouse, System Qty, Physical Qty, Difference, Reason, Adjustment Value, Approval
+•	Physical Stock Count Form
+o	Count Sheet, Warehouse, Item, Book Qty, Physical Qty, Variance, Counter, Verified By
+•	Stock Reservation Form
+o	Customer / Order, Item, Reserved Qty, Required Date, Release Status
+•	Stock Disposal Form
+o	Item, Quantity, Disposal Reason, Scrap Value, Approval
+•	Batch Tracking Form
+o	Item, Batch, Manufacturing Date, Expiry Date, Supplier, Warehouse, Remaining Qty
+•	Barcode Label Form
+o	Item, Barcode, Label Size, Quantity, Print
+•	Stock Opening / Closing Form
+o	Period, Warehouse, Item, Opening Qty, Inward, Outward, Closing Qty
+C. Reports
+•	Stock Summary
+o	Item, Category, Warehouse, Opening, Inward, Outward, Closing
+•	Stock Ledger
+o	Date, Transaction Type, Reference, In Qty, Out Qty, Balance
+•	Warehouse Stock Report
+o	Warehouse, Item, Available, Reserved, Damaged, In-Transit
+•	Item Wise Stock Report
+o	Item Code, Name, UOM, Quantity, Average Cost, Stock Value
+•	Category Wise Stock Report
+o	Category, Item Count, Quantity, Total Value
+•	Stock Valuation Report
+o	Item, Qty, Cost Method, Unit Cost, Total Value
+•	Minimum / Reorder Report
+o	Item, Current Stock, Minimum, Reorder Level, Suggested Purchase Qty
+•	Stock Aging Report
+o	Item, Batch, Age, Last Movement, Remaining Qty, Value
+•	Expiry Alert Report
+o	Item, Batch, Expiry Date, Days Remaining, Quantity
+•	Slow / Non-Moving Stock
+o	Item, Last Movement, Days Inactive, Quantity, Value
+•	Dead Stock Report
+o	Item, No Movement Period, Stock Value
+•	Stock Transfer Report
+o	From, To, Dispatch Qty, Received Qty, Pending Qty
+•	GRN Register
+o	GRN No., Supplier, PO, Received Qty, Rejected Qty, Date
+•	Material Issue Register
+o	Issue No., Department, Item, Qty, Issued By, Received By
+•	Material Return Report
+o	Return No., Item, Qty, Condition, Reason
+•	Physical Stock Variance
+o	Book Qty, Physical Qty, Difference, Adjustment Value
+•	Batch / Serial Tracking
+o	Batch, Serial, Supplier, Warehouse, Expiry, Transaction History
+•	Inventory Turnover
+o	Cost of Goods Sold, Average Inventory, Turnover Ratio
+•	Stock Coverage Report
+o	Current Stock, Average Consumption, Estimated Days Cover
+________________________________________
+3. SALES & DISTRIBUTION DEPARTMENT
+A. Definition / Master Setup
+•	Customer Master
+o	Customer Code
+o	Customer Name
+o	Contact Person
+o	Mobile
+o	Email
+o	Billing Address
+o	Shipping Address
+o	City
+o	Customer Type
+o	Credit Limit
+o	Credit Days
+o	Tax Registration
+o	Opening Balance
+•	Customer Categories
+o	Retailer
+o	Wholesaler
+o	Distributor
+o	Corporate
+o	Walk-in Customer
+o	Online Customer
+•	Salesperson Master
+o	Employee Code
+o	Salesperson Name
+o	Territory
+o	Commission %
+o	Target
+•	Price List
+o	Item
+o	Customer Category
+o	Retail Price
+o	Wholesale Price
+o	Distributor Price
+o	Effective Date
+•	Sales Terms
+o	Payment Terms
+o	Delivery Terms
+o	Discount Policy
+o	Tax Policy
+•	Sales Territory
+o	Region
+o	City
+o	Area
+o	Assigned Salesperson
+B. Forms
+•	Customer Registration Form
+o	Customer Code, Name, Contact, Address, Type, Credit Limit, Tax Details, Opening Balance
+•	Sales Quotation Form
+o	Quotation No., Date, Customer, Validity, Item, Qty, Rate, Discount, Tax, Net Total, Terms
+o	Buttons: Add Item, Remove Item, Calculate, Save, Print, Email, Convert to Sales Order
+•	Sales Order Form
+o	Order No., Customer, Quotation Reference, Order Date, Delivery Date, Warehouse, Item, Qty, Rate, Discount, Tax, Total
+o	Order Status: Draft, Pending Approval, Approved, Partially Delivered, Completed, Cancelled
+•	Sales Invoice Form
+o	Invoice No., Date, Customer, Sales Order, Delivery Note, Item, Qty, Rate, Discount, Tax, Net Amount, Due Date
+o	Payment Terms, Salesperson, Cost Center
+•	POS / Cash Sale Form
+o	Receipt No., Counter, Cashier, Barcode, Item, Qty, Rate, Discount, Tax, Cash Received, Change
+•	Delivery Challan Form
+o	Challan No., Customer, Sales Order, Vehicle, Driver, Item, Dispatch Qty, Received Qty, Delivery Status
+•	Sales Return Form
+o	Return No., Original Invoice, Customer, Item, Return Qty, Reason, Condition, Refund / Credit Note
+•	Credit Note Form
+o	Customer, Original Invoice, Return Reference, Amount, Tax Adjustment, Reason
+•	Debit Note Form
+o	Customer, Reference, Additional Charges, Tax, Amount, Reason
+•	Customer Receipt Form
+o	Receipt No., Customer, Invoice, Payment Mode, Bank / Cash, Amount, Discount, Balance
+•	Sales Commission Form
+o	Salesperson, Period, Sales Target, Achieved Sales, Eligible Sales, Commission Rate, Commission Amount
+•	Sales Target Form
+o	Salesperson, Territory, Period, Target Qty, Target Value, Approval
+•	Customer Discount Approval Form
+o	Customer, Item, Requested Discount, Allowed Discount, Approved By
+•	Dispatch Planning Form
+o	Order, Delivery Date, Vehicle, Driver, Route, Dispatch Items
+C. Reports
+•	Daily Sales Register
+o	Invoice No., Date, Customer, Salesperson, Gross, Discount, Tax, Net Sales
+•	Monthly Sales Summary
+o	Month, Sales Qty, Gross Sales, Returns, Net Sales
+•	Customer Wise Sales
+o	Customer, Invoice Count, Sales, Returns, Outstanding
+•	Item Wise Sales
+o	Item, Qty Sold, Average Rate, Net Sales, Gross Margin
+•	Category Wise Sales
+o	Category, Qty, Sales Value, Contribution %
+•	Salesperson Performance
+o	Target, Achieved, Variance, Commission
+•	Territory Wise Sales
+o	Region, City, Customer Count, Sales Value
+•	Sales Order Pending Report
+o	Order, Customer, Ordered Qty, Delivered Qty, Pending Qty, Due Date
+•	Quotation Follow-up Report
+o	Quotation, Customer, Amount, Validity, Status, Follow-up Date
+•	Delivery Pending Report
+o	Challan, Customer, Dispatch Date, Pending Qty, Delivery Status
+•	Sales Return Report
+o	Customer, Invoice, Return Qty, Return Value, Reason
+•	Discount Analysis
+o	Customer, Salesperson, Discount %, Discount Value
+•	Customer Outstanding Report
+o	Customer, Invoice, Due Date, Balance, Aging
+•	Gross Profit Report
+o	Sales, Cost, Gross Profit, Margin %
+•	Sales Tax Summary
+o	Taxable Sales, Tax Rate, Tax Amount
+•	Commission Report
+o	Salesperson, Eligible Sales, Commission Rate, Payable Commission
+•	Customer Statement
+o	Opening, Invoices, Receipts, Credit Notes, Closing Balance
+________________________________________
+4. PROCUREMENT / PURCHASE DEPARTMENT
+A. Definition / Master Setup
+•	Supplier / Vendor Master
+o	Vendor Code
+o	Company Name
+o	Contact Person
+o	Mobile
+o	Email
+o	Address
+o	City
+o	NTN / STRN
+o	Bank Details
+o	Payment Terms
+o	Credit Days
+o	Vendor Category
+•	Purchase Categories
+o	Raw Material
+o	Packing Material
+o	Machinery
+o	Spare Parts
+o	Office Supplies
+o	Services
+o	Capital Items
+•	Purchase Terms
+o	Payment Terms
+o	Delivery Schedule
+o	Tax Terms
+o	Freight Terms
+o	Warranty Terms
+•	Approval Matrix
+o	Purchase Limit
+o	Department Approval
+o	Finance Approval
+o	Management Approval
+•	Approved Vendor List
+o	Vendor
+o	Item Category
+o	Approval Date
+o	Validity
+o	Performance Rating
+B. Forms
+•	Purchase Requisition (PR)
+o	PR No., Department, Requested By, Date, Required Date, Item, Qty, Estimated Rate, Purpose, Budget Head
+•	Request for Quotation (RFQ)
+o	RFQ No., PR Reference, Supplier List, Item, Qty, Specification, Quotation Due Date
+•	Supplier Quotation Entry
+o	Supplier, Quotation No., Date, Item, Rate, Tax, Freight, Discount, Delivery Time, Payment Terms
+•	Comparative Statement (CS)
+o	Item, Vendor 1 Rate, Vendor 2 Rate, Vendor 3 Rate, Tax, Freight, Delivery, Payment Terms, Recommended Vendor
+•	Purchase Order (PO)
+o	PO No., Supplier, Quotation Reference, Delivery Schedule, Item, Qty, Rate, Discount, Tax, Freight, Total, Terms
+•	Purchase Invoice / Bill
+o	Bill No., Supplier, PO, GRN, Invoice Date, Item, Qty, Rate, Tax, Freight, Payable Amount, Due Date
+•	Goods Receipt Note (GRN)
+o	PO, Supplier, Received Qty, Accepted Qty, Rejected Qty, Inspection, Batch, Expiry
+•	Purchase Return Form
+o	Supplier, GRN, Item, Return Qty, Reason, Debit Note
+•	Supplier Payment Form
+o	Supplier, Bill, Payment Mode, Bank, Amount, Tax Deduction, Reference
+•	Purchase Price Revision Form
+o	Item, Old Rate, New Rate, Supplier, Effective Date, Approval
+•	Vendor Evaluation Form
+o	Quality Score, Price Score, Delivery Score, Service Score, Overall Rating
+•	Purchase Cancellation Form
+o	PO, Reason, Pending Qty, Approval
+C. Reports
+•	Purchase Requisition Register
+o	PR No., Department, Date, Required Date, Status
+•	Pending PR Report
+o	PR, Item, Qty, Required Date, Pending Approval
+•	RFQ Register
+o	RFQ, Supplier, Due Date, Quotation Received, Status
+•	Supplier Quotation Comparison
+o	Supplier, Rate, Tax, Freight, Total Landed Cost, Delivery Time
+•	Comparative Statement Report
+o	Item, Vendor Rates, Recommended Vendor, Approval Status
+•	Purchase Order Register
+o	PO, Supplier, Date, Value, Delivery Status
+•	Pending Purchase Order
+o	PO, Ordered Qty, Received Qty, Pending Qty, Due Date
+•	Purchase Register
+o	Bill No., Supplier, Date, Taxable Value, Tax, Total
+•	Supplier Wise Purchase
+o	Supplier, Item, Qty, Purchase Value, Average Rate
+•	Item Wise Purchase
+o	Item, Supplier, Qty, Rate, Price Trend
+•	Purchase Return Report
+o	Supplier, Item, Return Qty, Return Value, Reason
+•	Vendor Performance Report
+o	Quality, Delivery, Price, Rejection %, Rating
+•	Purchase Price History
+o	Item, Supplier, Previous Rate, Current Rate, Difference %
+•	Purchase Tax Report
+o	Supplier, Taxable Value, Input Tax, Withholding Tax
+•	Supplier Outstanding
+o	Supplier, Bill, Due Date, Paid, Balance, Aging
+•	Purchase Budget vs Actual
+o	Department, Budget, Purchase Value, Variance
+________________________________________
+5. HUMAN RESOURCE (HR) & PAYROLL DEPARTMENT
+A. Definition / Master Setup
+•	Employee Master
+o	Employee ID
+o	Employee Name
+o	Father / Guardian Name
+o	CNIC
+o	Mobile
+o	Email
+o	Address
+o	Joining Date
+o	Department
+o	Section
+o	Designation
+o	Grade
+o	Reporting Manager
+o	Employment Type
+o	Basic Salary
+o	Bank Details
+o	Emergency Contact
+•	Department Master
+•	Designation Master
+•	Job Grade / Pay Scale
+•	Shift Master
+•	Attendance Rules
+•	Leave Types
+•	Salary Components
+o	Basic Salary
+o	House Rent
+o	Medical
+o	Conveyance
+o	Allowances
+o	Overtime
+o	Bonus
+o	Tax
+o	Loan Recovery
+o	Advance Recovery
+•	Payroll Configuration
+o	Salary Period
+o	Working Days
+o	Overtime Rate
+o	Late Deduction
+o	Tax Slabs
+o	EOBI / Social Security Configuration where applicable
+•	Holiday Calendar
+•	Bank Salary Setup
+B. Forms
+•	Employee Registration Form
+o	Personal Information
+o	Contact Information
+o	CNIC / Documents
+o	Qualification
+o	Experience
+o	Department / Designation
+o	Salary Package
+o	Bank Account
+o	Attachments
+•	Employee Profile Update Form
+o	Employee ID, Field to Update, Old Value, New Value, Approval
+•	Job Application Form
+o	Applicant, Position, Qualification, Experience, CV, Interview Status
+•	Interview Evaluation Form
+o	Candidate, Interviewer, Skills, Score, Remarks, Recommendation
+•	Employee Appointment Form
+o	Job Title, Salary, Joining Date, Probation, Contract Terms
+•	Attendance Entry Form
+o	Employee, Date, Shift, In Time, Out Time, Late Minutes, Working Hours
+•	Biometric Import Form
+o	Device, Employee Code, Date, Time, Attendance Status
+•	Leave Application Form
+o	Employee, Leave Type, From Date, To Date, Total Days, Reason, Approval
+•	Overtime Form
+o	Employee, Date, Hours, Rate, Approval
+•	Employee Loan Form
+o	Employee, Loan Type, Requested Amount, Approved Amount, Installments, Recovery
+•	Salary Advance Form
+o	Employee, Requested Amount, Purpose, Recovery Month
+•	Payroll Processing Form
+o	Month, Employee, Basic, Allowances, Overtime, Deductions, Tax, Net Salary
+•	Salary Slip Form
+o	Employee, Period, Earnings, Deductions, Net Pay, Payment Mode
+•	Performance Appraisal Form
+o	Employee, KPI, Target, Achievement, Rating, Manager Remarks
+•	Training Request Form
+o	Employee, Training, Provider, Duration, Cost, Approval
+•	Warning / Disciplinary Form
+o	Employee, Issue Date, Violation, Explanation, Action, Approval
+•	Resignation Form
+o	Employee, Notice Date, Last Working Day, Reason, Clearance
+•	Exit Clearance Form
+o	Department, Assets Returned, Advances, Dues, IT Clearance, HR Approval
+•	Employee Transfer Form
+o	Old Department, New Department, Old Designation, New Designation, Effective Date
+C. Reports
+•	Employee Master List
+o	ID, Name, Department, Designation, Joining Date, Status
+•	Department Wise Headcount
+o	Department, Total Employees, Active, Inactive
+•	Attendance Register
+o	Employee, Present, Absent, Late, Half Day, Leave
+•	Daily Attendance Report
+o	Employee, In Time, Out Time, Working Hours, Status
+•	Late Arrival Report
+o	Employee, Late Minutes, Occurrences, Deduction
+•	Absenteeism Report
+o	Employee, Absent Days, Period, Department
+•	Leave Balance Report
+o	Employee, Leave Type, Entitlement, Used, Balance
+•	Overtime Report
+o	Employee, Hours, Rate, Amount
+•	Monthly Payroll Register
+o	Employee, Basic, Allowances, Deductions, Net Salary
+•	Salary Slip Register
+o	Employee, Month, Gross, Deduction, Net
+•	Loan / Advance Outstanding
+o	Employee, Loan Amount, Recovered, Balance
+•	Employee Cost Report
+o	Department, Salary Cost, Overtime, Benefits
+•	Recruitment Status
+o	Position, Applicants, Interviews, Selected, Pending
+•	Employee Turnover Report
+o	Opening Staff, Joinings, Resignations, Closing Staff
+•	Performance Appraisal Report
+o	Employee, KPI Score, Rating, Department
+•	Contract Expiry Report
+o	Employee, Contract End Date, Remaining Days
+•	EOBI / Social Security Report where applicable
+•	Final Settlement Report
+o	Employee, Salary Due, Leave Encashment, Deductions, Net Settlement
+________________________________________
+6. ADMINISTRATION & OFFICE MANAGEMENT
+A. Definition / Master Setup
+•	Branch Master
+•	Office Location Master
+•	Department Master
+•	Office Expense Categories
+•	Gate Pass Types
+•	Visitor Categories
+•	Vehicle Master
+•	Office Asset Master
+•	Stationery Items
+•	Service Provider Master
+•	Meeting Room Master
+•	Security Rules
+•	Document Categories
+B. Forms
+•	Visitor Registration Form
+o	Visitor Name, CNIC, Mobile, Company, Person to Meet, Purpose, In Time, Out Time
+•	Inward Mail Register
+o	Letter No., Sender, Subject, Received Date, Department, Attachment
+•	Outward Mail Register
+o	Dispatch No., Recipient, Subject, Date, Courier, Tracking No.
+•	Inward Gate Pass
+o	Pass No., Supplier / Person, Item, Qty, Vehicle, Entry Time, Security
+•	Outward Gate Pass
+o	Pass No., Department, Item, Qty, Purpose, Receiver, Approval, Exit Time
+•	Vehicle Request Form
+o	Employee, Department, Destination, Date, Purpose, Vehicle, Driver
+•	Vehicle Log Form
+o	Vehicle, Date, Opening KM, Closing KM, Fuel, Driver, Maintenance
+•	Stationery Requisition Form
+o	Department, Item, Required Qty, Issued Qty, Approved By
+•	Office Maintenance Request
+o	Location, Problem, Priority, Assigned Person, Cost, Completion Status
+•	Meeting Room Booking Form
+o	Room, Date, Time, Organizer, Participants, Purpose
+•	Complaint / Service Request Form
+o	Requester, Department, Issue, Priority, Assigned To, Resolution
+•	Travel / Visit Request Form
+o	Employee, Destination, Date, Transport, Accommodation, Advance
+C. Reports
+•	Visitor Register
+•	Inward / Outward Mail Register
+•	Gate Pass Register
+•	Pending Gate Pass Report
+•	Vehicle Usage Report
+•	Fuel Consumption Report
+•	Vehicle Maintenance Report
+•	Stationery Consumption Report
+•	Office Expense Report
+•	Maintenance Request Status
+•	Meeting Room Utilization
+•	Travel Expense Report
+•	Asset Allocation Report
+•	Branch Wise Administration Expense
+________________________________________
+7. CUSTOMER RELATIONSHIP MANAGEMENT (CRM)
+A. Definition / Master Setup
+•	Lead Sources
+•	Lead Categories
+•	Customer Segments
+•	Sales Pipeline Stages
+•	Campaign Types
+•	Contact Types
+•	Follow-up Types
+•	Customer Communication Templates
+B. Forms
+•	Lead Registration Form
+o	Lead ID, Name, Company, Mobile, Email, Source, Product Interest, Estimated Value
+•	Lead Qualification Form
+o	Need, Budget, Authority, Timeline, Probability, Qualification Status
+•	Opportunity Form
+o	Opportunity, Customer, Product, Value, Expected Closing Date, Probability
+•	Follow-up Form
+o	Lead, Date, Contact Mode, Discussion, Next Follow-up, Assigned User
+•	Customer Complaint Form
+o	Complaint No., Customer, Invoice, Product, Issue, Priority, Assigned To
+•	Complaint Resolution Form
+o	Complaint, Root Cause, Corrective Action, Resolution Date, Customer Feedback
+•	Customer Visit Form
+o	Customer, Salesperson, Visit Date, Purpose, Findings, Next Action
+•	Campaign Form
+o	Campaign Name, Target Audience, Budget, Start Date, End Date, Results
+•	Customer Feedback Form
+o	Customer, Rating, Product Quality, Service Rating, Suggestions
+C. Reports
+•	Lead Register
+•	Lead Source Analysis
+•	Lead Conversion Report
+•	Opportunity Pipeline
+•	Follow-up Due Report
+•	Sales Funnel Report
+•	Customer Complaint Register
+•	Complaint Aging Report
+•	Customer Satisfaction Report
+•	Customer Retention Report
+•	Campaign Performance
+•	Lost Customer Analysis
+•	Salesperson CRM Activity
+________________________________________
+8. MARKETING DEPARTMENT
+A. Definition / Master Setup
+•	Marketing Channels
+•	Campaign Categories
+•	Advertisement Platforms
+•	Marketing Budget Heads
+•	Target Audience
+•	Brand Master
+•	Promotional Schemes
+•	Marketing Vendors
+B. Forms
+•	Marketing Campaign Form
+o	Campaign ID, Name, Channel, Target Audience, Budget, Dates, Objective, Approval
+•	Advertisement Request Form
+o	Platform, Content, Size, Schedule, Cost, Department
+•	Promotional Scheme Form
+o	Scheme Name, Product, Discount, Validity, Customer Category
+•	Marketing Expense Form
+o	Vendor, Expense Type, Amount, Invoice, Campaign Reference
+•	Market Survey Form
+o	Product, Competitor, Price, Customer Feedback, Findings
+•	Brand Activity Form
+o	Brand, Activity, Location, Budget, Results
+C. Reports
+•	Campaign Budget vs Actual
+•	Marketing Expense Register
+•	Channel Wise Performance
+•	Advertisement Cost Report
+•	Promotion Sales Impact
+•	Market Survey Analysis
+•	Brand Performance Report
+•	Return on Marketing Investment
+________________________________________
+9. DOCUMENT MANAGEMENT & RECORDS
+A. Definition / Master Setup
+•	Document Categories
+•	Document Types
+•	Confidentiality Levels
+•	Retention Periods
+•	Approval Routes
+•	Archive Locations
+•	Document Numbering
+B. Forms
+•	Document Upload Form
+o	Document ID, Title, Category, Department, Owner, Date, Version, File Attachment
+•	Document Approval Form
+o	Document, Submitted By, Reviewer, Approver, Comments, Status
+•	Document Revision Form
+o	Old Version, New Version, Revision Reason, Effective Date
+•	Contract Registration Form
+o	Contract No., Party, Start Date, End Date, Value, Renewal Reminder
+•	Document Issue / Return Form
+o	Document, Issued To, Issue Date, Return Date
+•	Record Disposal Form
+o	Document, Retention Expiry, Disposal Reason, Approval
+C. Reports
+•	Document Register
+•	Pending Approval Documents
+•	Expiring Contracts
+•	Document Revision History
+•	Department Wise Documents
+•	Confidential Document Access Log
+•	Archived Records
+•	Document Retention / Disposal Report
+________________________________________
+CATEGORY 2 – OPERATIONAL & ADVANCED BUSINESS DEPARTMENTS
+10. SUPPLY CHAIN MANAGEMENT (SCM)
+A. Definition / Master Setup
+•	Supply Chain Network
+•	Supplier Locations
+•	Distribution Centers
+•	Demand Planning Rules
+•	Lead Time Master
+•	Replenishment Rules
+•	Safety Stock Rules
+•	Service Level Targets
+B. Forms
+•	Demand Forecast Form
+o	Item, Period, Historical Demand, Forecast Qty, Forecast Method
+•	Replenishment Planning Form
+o	Warehouse, Current Stock, Forecast Demand, Safety Stock, Suggested Qty
+•	Supply Plan Form
+o	Item, Supplier, Required Date, Planned Qty, Lead Time
+•	Distribution Plan Form
+o	From Warehouse, To Warehouse, Item, Qty, Dispatch Date
+•	Supplier Delivery Schedule
+o	Supplier, PO, Delivery Date, Item, Qty, Status
+C. Reports
+•	Demand Forecast vs Actual
+•	Supply Plan Report
+•	Replenishment Report
+•	Supplier Lead Time Report
+•	Supply Chain Cost Report
+•	Stock Availability by Location
+•	Distribution Performance
+•	Service Level Report
+________________________________________
+11. WAREHOUSE MANAGEMENT SYSTEM (WMS)
+A. Definition / Master Setup
+•	Warehouse Zones
+•	Rack / Bin Locations
+•	Storage Rules
+•	Picking Methods
+•	Packing Stations
+•	Dispatch Areas
+•	Warehouse Staff
+•	Barcode Configuration
+B. Forms
+•	Put-Away Form
+o	GRN, Item, Qty, Suggested Bin, Actual Bin, Operator
+•	Picking List Form
+o	Sales Order, Warehouse, Item, Required Qty, Picked Qty, Bin
+•	Packing Form
+o	Order, Package No., Items, Weight, Dimensions, Packing Material
+•	Dispatch Form
+o	Shipment, Vehicle, Driver, Packages, Dispatch Date
+•	Bin Transfer Form
+o	From Bin, To Bin, Item, Qty, Reason
+•	Cycle Count Form
+o	Bin, Item, Book Qty, Counted Qty, Variance
+C. Reports
+•	Bin Wise Stock
+•	Picking Accuracy
+•	Packing Register
+•	Dispatch Performance
+•	Warehouse Utilization
+•	Put-Away Pending
+•	Cycle Count Variance
+•	Warehouse Productivity
+________________________________________
+12. LOGISTICS & TRANSPORT
+A. Definition / Master Setup
+•	Vehicle Master
+•	Driver Master
+•	Transporter Master
+•	Route Master
+•	Fuel Types
+•	Freight Rates
+•	Delivery Zones
+•	Vehicle Maintenance Schedule
+B. Forms
+•	Vehicle Trip Sheet
+o	Vehicle, Driver, Route, Start KM, End KM, Fuel, Trip Date
+•	Delivery Planning Form
+o	Customer, Order, Destination, Vehicle, Driver, Delivery Window
+•	Freight Booking Form
+o	Transporter, Shipment, Weight, Volume, Freight Rate
+•	Fuel Issue Form
+o	Vehicle, Driver, Litres, Rate, Amount, Odometer
+•	Vehicle Maintenance Form
+o	Vehicle, Service Type, Date, Parts, Labour, Cost
+•	Shipment Tracking Form
+o	Shipment No., Carrier, Dispatch, Expected Delivery, Actual Delivery, Status
+C. Reports
+•	Vehicle Trip Register
+•	Fuel Consumption by Vehicle
+•	KM per Litre Analysis
+•	Freight Expense Report
+•	Delivery Performance
+•	Shipment Tracking Report
+•	Vehicle Maintenance Cost
+•	Driver Performance
+•	Transporter Performance
+________________________________________
+13. PRODUCTION / MANUFACTURING DEPARTMENT
+A. Definition / Master Setup
+•	Product Master
+•	Raw Material Master
+•	Finished Goods Master
+•	Semi-Finished Goods Master
+•	Bill of Materials (BOM)
+o	Product
+o	Component Item
+o	Standard Qty
+o	Wastage %
+o	UOM
+•	Routing Master
+o	Operation
+o	Work Center
+o	Sequence
+o	Standard Time
+•	Machine / Work Center Master
+•	Production Shift Master
+•	Production Line Master
+•	Production Capacity
+•	Labour Rate
+•	Manufacturing Overhead
+•	Scrap / By-Product Setup
+B. Forms
+•	Production Plan Form
+o	Product, Planned Qty, Start Date, End Date, Production Line, Shift
+•	Production Order Form
+o	Order No., BOM, Planned Qty, Required Materials, Work Center, Priority
+•	Material Issue to Production
+o	Production Order, Raw Material, Required Qty, Issued Qty, Batch
+•	Production Consumption Form
+o	Production Order, Item, Standard Qty, Actual Qty, Variance
+•	Daily Production Report (DPR)
+o	Date, Shift, Machine, Product, Target Qty, Produced Qty, Rejected Qty
+•	Production Completion Form
+o	Order, Planned Qty, Produced Qty, Accepted Qty, Rejected Qty
+•	Machine Downtime Form
+o	Machine, Start Time, End Time, Downtime Reason, Responsible Person
+•	Scrap Entry Form
+o	Production Order, Material, Scrap Qty, Scrap Reason, Scrap Value
+•	By-Product Entry Form
+o	Main Product, By-Product, Qty, Recovery Value
+•	Finished Goods Receipt Form
+o	Production Order, Finished Item, Accepted Qty, Warehouse, Batch
+•	Rework Form
+o	Rejected Item, Rework Qty, Reason, Rework Cost, Final Result
+C. Reports
+•	Production Plan vs Actual
+•	Production Order Status
+•	Daily Production Report
+•	Shift Wise Production
+•	Product Wise Production
+•	Raw Material Consumption
+•	Standard vs Actual Consumption
+•	Production Yield Report
+•	Wastage / Scrap Report
+•	Rework Report
+•	Machine Utilization
+•	Downtime Analysis
+•	Work Center Efficiency
+•	Production Cost Report
+•	Finished Goods Output
+•	Capacity Utilization
+•	Labour Productivity
+•	Batch Production Traceability
+________________________________________
+14. COSTING & MANAGEMENT ACCOUNTING
+A. Definition / Master Setup
+•	Cost Categories
+•	Direct Material
+•	Direct Labour
+•	Direct Expenses
+•	Factory Overhead
+•	Administrative Overhead
+•	Selling & Distribution Overhead
+•	Cost Centers
+•	Cost Allocation Rules
+•	Standard Cost
+•	Actual Cost
+•	Costing Methods
+•	Product Cost Sheets
+B. Forms
+•	Product Cost Sheet Form
+o	Product, BOM, Material Qty, Material Rate, Labour, Overhead, Total Cost
+•	Raw Material Costing Form
+o	Item, Supplier, Purchase Rate, Freight, Tax, Handling, Landed Cost
+•	Labour Costing Form
+o	Employee Category, Hours, Rate, Total Labour Cost
+•	Overhead Allocation Form
+o	Cost Center, Expense Head, Allocation Basis, Amount
+•	Production Cost Calculation Form
+o	Production Order, Material Cost, Labour, Overhead, Scrap Recovery
+•	Batch Costing Form
+o	Batch No., Input Qty, Output Qty, Actual Cost, Unit Cost
+•	Variance Analysis Form
+o	Standard Cost, Actual Cost, Price Variance, Usage Variance
+•	Selling Price Calculation Form
+o	Unit Cost, Desired Margin, Tax, Discount, Final Selling Price
+C. Reports
+•	Product Wise Cost Sheet
+•	Standard vs Actual Cost
+•	Raw Material Cost Analysis
+•	Labour Cost Report
+•	Factory Overhead Report
+•	Cost Center Wise Expenses
+•	Batch Production Cost
+•	Unit Cost Report
+•	Cost Variance Analysis
+•	Wastage Cost Report
+•	Gross Margin Analysis
+•	Break-Even Analysis
+•	Contribution Margin
+•	Department Cost Summary
+•	Product Profitability Report
+________________________________________
+15. QUALITY CONTROL / QUALITY ASSURANCE (QC / QA)
+A. Definition / Master Setup
+•	Quality Standards
+•	Inspection Parameters
+•	Testing Methods
+•	Acceptance Limits
+•	Rejection Reasons
+•	Sampling Plans
+•	Approved Testing Equipment
+•	Defect Categories
+B. Forms
+•	Incoming Inspection Form
+o	GRN, Supplier, Item, Batch, Sample Qty, Parameters, Results, Accepted / Rejected
+•	In-Process Inspection Form
+o	Production Order, Operation, Sample, Test Result, Inspector
+•	Final Quality Inspection Form
+o	Finished Product, Batch, Specification, Test Results, Release Status
+•	Non-Conformance Report (NCR)
+o	Defect, Source, Severity, Root Cause, Responsible Department
+•	Corrective Action Form (CAPA)
+o	NCR Reference, Action, Responsible Person, Due Date, Verification
+•	Customer Quality Complaint Form
+o	Customer, Product, Batch, Defect, Investigation, Resolution
+•	Equipment Calibration Form
+o	Equipment, Calibration Date, Result, Next Due Date
+C. Reports
+•	Incoming Inspection Register
+•	Rejection Report
+•	Batch Quality Report
+•	In-Process Inspection Report
+•	Final Inspection Report
+•	NCR Register
+•	CAPA Pending Report
+•	Supplier Quality Rating
+•	Defect Trend Analysis
+•	Customer Complaint Quality Report
+•	Calibration Due Report
+•	First Pass Yield Report
+________________________________________
+16. FIXED ASSETS & MAINTENANCE
+A. Definition / Master Setup
+•	Asset Categories
+•	Asset Locations
+•	Asset Custodians
+•	Depreciation Methods
+•	Maintenance Types
+•	Spare Parts
+•	Maintenance Vendors
+•	Warranty Rules
+B. Forms
+•	Asset Registration Form
+o	Asset Code, Name, Category, Purchase Date, Cost, Location, Custodian
+•	Asset Allocation Form
+o	Asset, Employee, Department, Issue Date, Condition
+•	Asset Transfer Form
+o	Old Location, New Location, Old Custodian, New Custodian
+•	Preventive Maintenance Form
+o	Asset, Schedule, Service Type, Technician, Cost
+•	Breakdown Maintenance Form
+o	Asset, Breakdown Date, Problem, Downtime, Repair Cost
+•	Asset Disposal Form
+o	Asset, Disposal Date, Book Value, Sale Value, Approval
+•	Warranty Claim Form
+o	Asset, Supplier, Warranty End Date, Fault, Claim Status
+C. Reports
+•	Fixed Asset Register
+•	Asset Location Report
+•	Employee Wise Asset Allocation
+•	Depreciation Schedule
+•	Asset Transfer History
+•	Preventive Maintenance Due
+•	Breakdown Register
+•	Maintenance Cost Analysis
+•	Warranty Expiry Report
+•	Asset Disposal Report
+________________________________________
+17. PROJECT MANAGEMENT
+A. Definition / Master Setup
+•	Project Categories
+•	Project Phases
+•	Project Managers
+•	Task Categories
+•	Resource Master
+•	Project Budget Heads
+•	Milestone Templates
+B. Forms
+•	Project Registration Form
+o	Project Code, Name, Client, Manager, Start Date, End Date, Budget
+•	Project Task Form
+o	Task, Assigned To, Priority, Start Date, Due Date, Status
+•	Project Budget Form
+o	Cost Head, Planned Budget, Approved Budget
+•	Project Expense Form
+o	Project, Expense Head, Amount, Vendor, Attachment
+•	Project Progress Form
+o	Milestone, Planned %, Actual %, Remarks
+•	Project Change Request
+o	Change Description, Cost Impact, Time Impact, Approval
+•	Project Closure Form
+o	Completion Date, Final Cost, Deliverables, Client Acceptance
+C. Reports
+•	Project Status Report
+•	Project Budget vs Actual
+•	Task Pending Report
+•	Milestone Tracking
+•	Resource Utilization
+•	Project Profitability
+•	Project Expense Register
+•	Project Delay Analysis
+•	Project Completion Report
+________________________________________
+18. BUDGETING & FINANCIAL PLANNING
+A. Definition / Master Setup
+•	Budget Period
+•	Budget Categories
+•	Department Budgets
+•	Cost Center Budgets
+•	Budget Approval Matrix
+•	Forecasting Rules
+B. Forms
+•	Annual Budget Form
+o	Department, Account Head, Annual Budget, Monthly Allocation
+•	Revised Budget Form
+o	Original Budget, Revision, Reason, Approval
+•	Budget Transfer Form
+o	From Department, To Department, Amount, Approval
+•	Forecast Form
+o	Period, Actuals, Forecast Amount, Assumptions
+•	Capital Expenditure Request
+o	Asset / Project, Estimated Cost, Business Justification
+C. Reports
+•	Annual Budget Report
+•	Monthly Budget Report
+•	Department Budget
+•	Budget vs Actual
+•	Budget Variance
+•	Cash Flow Forecast
+•	Capital Expenditure Report
+•	Budget Utilization
+________________________________________
+19. TAXATION & STATUTORY COMPLIANCE
+A. Definition / Master Setup
+•	Tax Types
+•	Tax Rates
+•	Tax Codes
+•	Tax Exemption Rules
+•	Withholding Tax Rules
+•	Tax Filing Periods
+•	Statutory Authorities
+•	Applicable Tax Registration Details
+B. Forms
+•	Sales Tax Invoice Configuration
+•	Purchase Tax Entry
+•	Withholding Tax Deduction Form
+•	Tax Payment Voucher
+•	Tax Adjustment Form
+•	Tax Exemption Certificate Form
+•	Tax Return Working Paper
+•	Tax Reconciliation Form
+C. Reports
+•	Sales Tax Register
+•	Purchase Tax Register
+•	Input Tax Summary
+•	Output Tax Summary
+•	Withholding Tax Register
+•	Tax Deduction Certificate Register
+•	Tax Liability Report
+•	Tax Payment History
+•	Tax Reconciliation
+•	Tax Filing Checklist
+________________________________________
+20. INTERNAL AUDIT, RISK & COMPLIANCE
+A. Definition / Master Setup
+•	Audit Categories
+•	Audit Checklist
+•	Risk Categories
+•	Risk Ratings
+•	Control Matrix
+•	Compliance Requirements
+•	Audit Teams
+B. Forms
+•	Audit Plan Form
+o	Audit Area, Scope, Period, Auditor, Schedule
+•	Audit Observation Form
+o	Finding, Evidence, Risk Level, Responsible Department
+•	Corrective Action Form
+o	Observation, Action Plan, Owner, Due Date, Verification
+•	Risk Assessment Form
+o	Risk, Probability, Impact, Rating, Mitigation
+•	Compliance Checklist Form
+o	Requirement, Evidence, Status, Reviewer
+•	User Access Review Form
+o	User, Role, Permissions, Reviewer, Action
+C. Reports
+•	Annual Audit Plan
+•	Audit Observation Register
+•	Pending Audit Actions
+•	Risk Register
+•	Risk Heat Map Data
+•	Compliance Status
+•	Internal Control Exceptions
+•	User Access Review
+•	Audit Trail Report
+•	Approval History Report
+________________________________________
+21. IT, SYSTEM ADMINISTRATION & HELPDESK
+A. Definition / Master Setup
+•	User Master
+•	Role Master
+•	Permission Master
+•	Module Access
+•	Branch Access
+•	Approval Rights
+•	Device Master
+•	Software License Master
+•	Backup Schedule
+•	System Configuration
+B. Forms
+•	User Creation Form
+o	User ID, Name, Email, Department, Role, Branch, Status
+•	Role Permission Form
+o	Role, Module, View, Add, Edit, Delete, Approve, Export
+•	Password Reset Form
+•	Access Request Form
+•	IT Complaint Form
+o	User, Device, Issue, Priority, Assigned Technician
+•	IT Asset Issue Form
+•	Software License Entry Form
+•	Backup Execution Form
+•	System Configuration Form
+•	Change Request Form
+C. Reports
+•	User Login History
+•	User Activity Log
+•	Role Permission Matrix
+•	Failed Login Report
+•	Access Change History
+•	IT Complaint Register
+•	Ticket Aging Report
+•	Device / IT Asset Register
+•	Software License Expiry
+•	Backup Status Report
+•	System Audit Trail
+________________________________________
+CATEGORY 3 – INDUSTRY-SPECIFIC DEPARTMENTS
+22. FOOD & BEVERAGE / FMCG INDUSTRY
+A. Definition / Master Setup
+•	Product Formulation Master
+•	Recipe Master
+•	Ingredient Master
+•	Packaging Specification
+•	Batch Size Setup
+•	Shelf Life Rules
+•	Expiry Management
+•	Food Safety Parameters
+•	Nutrition / Label Data
+•	Allergen Configuration
+•	Production Line Master
+•	Filling / Packing Machine Master
+•	Quality Specification
+•	By-Product / Wastage Rules
+B. Forms
+•	Recipe Creation Form
+o	Product, Batch Size, Ingredient, UOM, Standard Qty, Percentage, Cost
+•	Recipe Revision Form
+o	Old Version, New Version, Revision Reason, Effective Date
+•	Batch Production Form
+o	Batch No., Recipe, Planned Qty, Actual Qty, Production Date, Expiry Date
+•	Ingredient Issue Form
+o	Batch, Ingredient, Required Qty, Issued Qty, Batch Reference
+•	Mixing / Processing Form
+o	Tank, Batch, Temperature, Mixing Time, Operator, Process Result
+•	Filling & Packing Form
+o	Product, Batch, Bottle / Jar / Pouch, Packing Qty, Rejected Qty
+•	Batch Quality Form
+o	Brix, pH, Weight, Appearance, Taste, Microbiological Result where applicable
+•	Finished Goods Release Form
+o	Batch, Inspection Result, Approved Qty, QC Release
+•	Product Recall Form
+o	Product, Batch, Customer / Distributor, Quantity, Recall Reason
+•	Expiry / Damage Form
+o	Product, Batch, Expiry, Damaged Qty, Disposal Approval
+C. Reports
+•	Product Recipe Costing
+•	Ingredient Consumption
+•	Batch Production Register
+•	Batch Yield Report
+•	Production Wastage Report
+•	Packaging Consumption
+•	Batch Quality Report
+•	Expiry Wise Stock
+•	Shelf Life Remaining
+•	Product Recall Traceability
+•	Production Cost per Litre / Kg / Unit
+•	Product Profitability
+•	Raw Material Variance
+•	Finished Goods Batch Ledger
+________________________________________
+23. SCHOOL MANAGEMENT SYSTEM
+A. Definition / Master Setup
+•	Campus Master
+•	Academic Session
+•	Class Master
+•	Section Master
+•	Subject Master
+•	Grade / Class Level
+•	Student Category
+•	Fee Category
+•	Fee Structure
+•	Admission Criteria
+•	Teacher Master
+•	Parent / Guardian Master
+•	Timetable Setup
+•	Examination Grading
+•	Transport Routes
+•	Hostel Setup where applicable
+B. Forms
+•	Student Admission Form
+o	Admission No., Student Name, DOB, Gender, B-Form, Father Name, Guardian CNIC, Mobile, Address, Previous School, Class, Section, Documents
+•	Student Enrollment Form
+o	Student, Session, Class, Section, Roll No., Admission Date
+•	Student Promotion Form
+o	Previous Class, New Class, Result, Promotion Status
+•	Student Withdrawal Form
+o	Student, Leaving Date, Reason, Clearance, Certificate Status
+•	Fee Challan Form
+o	Student, Month, Fee Head, Tuition Fee, Admission Fee, Discount, Fine, Net Payable, Due Date
+•	Fee Receipt Form
+o	Challan, Student, Amount Received, Payment Mode, Receipt No., Balance
+•	Fee Discount / Scholarship Form
+o	Student, Discount Type, Percentage / Amount, Reason, Approval
+•	Teacher Registration Form
+o	Teacher ID, Name, Qualification, Subject, Contact, Salary
+•	Class Timetable Form
+o	Class, Section, Day, Period, Subject, Teacher, Room
+•	Student Attendance Form
+o	Date, Class, Section, Student, Present / Absent / Leave
+•	Examination Setup Form
+o	Exam, Session, Class, Subject, Total Marks, Passing Marks
+•	Marks Entry Form
+o	Student, Subject, Total Marks, Obtained Marks, Grade, Remarks
+•	Report Card Form
+o	Student, Subjects, Marks, Percentage, Grade, Position, Remarks
+•	Transport Assignment Form
+o	Student, Route, Vehicle, Stop, Monthly Fee
+•	Library Issue / Return Form
+o	Student, Book, Issue Date, Due Date, Return Date, Fine
+C. Reports
+•	Student Admission Register
+•	Class Wise Student List
+•	Section Wise Enrollment
+•	Student Attendance Register
+•	Monthly Attendance Summary
+•	Defaulter Student Report
+•	Fee Challan Register
+•	Fee Collection Report
+•	Outstanding Fee Report
+•	Fee Aging Report
+•	Discount / Scholarship Report
+•	Student Result Register
+•	Class Wise Result Summary
+•	Subject Wise Result Analysis
+•	Position Holders Report
+•	Teacher Attendance Report
+•	Teacher Workload Report
+•	Timetable Report
+•	Student Promotion Report
+•	Student Withdrawal Report
+•	Transport Student List
+•	Library Issue / Overdue Report
+•	Student Strength / Enrollment Analysis
+________________________________________
+24. COLLEGE / UNIVERSITY MANAGEMENT SYSTEM
+A. Definition / Master Setup
+•	Faculty Master
+•	Department Master
+•	Degree Program Master
+•	Program Duration
+•	Semester Master
+•	Course / Subject Master
+•	Credit Hours
+•	Eligibility Criteria
+•	Admission Policy
+•	Merit Formula
+•	Examination Rules
+•	Grading System
+•	Academic Calendar
+•	Campus Master
+•	Scholarship Categories
+•	Hostel / Transport Setup
+B. Forms
+•	Online Admission Form
+o	Applicant, CNIC / B-Form, Qualification, Marks, Program, Documents
+•	Admission Evaluation Form
+o	Eligibility, Merit Marks, Verification, Admission Decision
+•	Student Registration Form
+o	Student ID, Program, Department, Batch, Semester
+•	Course Registration Form
+o	Student, Semester, Course Code, Credit Hours
+•	Semester Enrollment Form
+o	Student, Program, Semester, Fee Status
+•	Fee Voucher Form
+o	Tuition, Admission, Examination, Library, Other Charges, Scholarship
+•	Scholarship Application Form
+o	Student, Scholarship Type, Marks, Financial Criteria, Documents
+•	Faculty Registration Form
+o	Teacher, Qualification, Department, Designation, Specialization
+•	Course Allocation Form
+o	Faculty, Course, Program, Semester, Section
+•	Examination Date Sheet Form
+o	Exam, Course, Date, Time, Room
+•	Marks Submission Form
+o	Student, Course, Midterm, Final, Assignment, Practical
+•	GPA / CGPA Calculation Form
+o	Course, Credit Hours, Grade, Grade Points, Semester GPA
+•	Transcript Generation Form
+o	Student, Semester Results, CGPA, Academic Status
+•	Degree Completion Form
+o	Credit Hours, Required Courses, CGPA, Clearance, Approval
+•	Migration / Transfer Form
+o	Previous Institution, Program, Credits, Equivalence
+•	Student Clearance Form
+o	Accounts, Library, Hostel, Department, Examination
+C. Reports
+•	Admission Applications
+•	Merit List
+•	Program Wise Enrollment
+•	Semester Wise Student List
+•	Course Registration Report
+•	Student Fee Ledger
+•	Outstanding Fee Report
+•	Scholarship Register
+•	Faculty Workload
+•	Course Allocation Report
+•	Examination Attendance
+•	Result Gazette
+•	GPA / CGPA Report
+•	Semester Result Analysis
+•	Transcript Register
+•	Degree Completion Report
+•	Student Dropout Report
+•	Student Academic Progress
+•	Department Wise Enrollment
+•	Graduation / Convocation List
+________________________________________
+25. HOSPITAL / HEALTHCARE MANAGEMENT SYSTEM
+A. Definition / Master Setup
+•	Hospital Branch
+•	Department / Specialty
+•	Doctor Master
+•	Consultant Master
+•	Patient Category
+•	Service Master
+•	Consultation Charges
+•	Ward Master
+•	Bed Master
+•	Laboratory Test Master
+•	Radiology Test Master
+•	Pharmacy Item Master
+•	Insurance Provider Master
+•	Operation Theatre Master
+•	Medical Equipment Master
+B. Forms
+•	Patient Registration Form
+o	Patient ID, Name, Age, Gender, CNIC, Mobile, Address, Emergency Contact
+•	Appointment Form
+o	Patient, Doctor, Department, Date, Time, Appointment Type
+•	OPD Consultation Form
+o	Patient, Doctor, Symptoms, Diagnosis, Prescription, Follow-up
+•	Admission Form
+o	Patient, Ward, Bed, Consultant, Admission Date, Initial Diagnosis
+•	Patient Transfer Form
+o	Old Ward, New Ward, Bed, Transfer Reason
+•	Discharge Form
+o	Patient, Admission, Diagnosis, Treatment Summary, Discharge Date, Consultant
+•	Nursing Notes Form
+o	Patient, Vitals, Observation, Medication, Nurse
+•	Laboratory Request Form
+o	Patient, Doctor, Test, Sample, Priority
+•	Laboratory Result Form
+o	Test, Result, Reference Range, Technician, Verification
+•	Radiology Request Form
+o	Patient, Test, Body Part, Doctor, Priority
+•	Pharmacy Prescription Form
+o	Patient, Medicine, Dose, Frequency, Duration
+•	Pharmacy Sale Form
+o	Prescription, Medicine, Qty, Rate, Discount, Payment
+•	Operation Theatre Booking Form
+o	Patient, Surgeon, Procedure, Date, OT, Anesthesia
+•	Medical Billing Form
+o	Consultation, Tests, Medicines, Bed Charges, Procedures, Discounts, Total
+•	Insurance Claim Form
+o	Patient, Provider, Policy, Service, Claim Amount, Approval
+•	Patient Feedback / Complaint Form
+o	Patient, Department, Complaint, Rating, Resolution
+C. Reports
+•	Patient Registration Register
+•	Daily OPD Report
+•	Doctor Wise Patient Report
+•	Appointment Pending Report
+•	Patient Admission Register
+•	Discharge Register
+•	Bed Occupancy Report
+•	Ward Wise Patient List
+•	Laboratory Test Register
+•	Lab Results Pending
+•	Radiology Register
+•	Pharmacy Stock Report
+•	Medicine Expiry Report
+•	Pharmacy Sales Report
+•	Operation Theatre Schedule
+•	Surgery Register
+•	Patient Billing Report
+•	Outstanding Patient Dues
+•	Insurance Claim Register
+•	Doctor Revenue Report
+•	Department Revenue Report
+•	Patient Waiting Time
+•	Hospital Utilization Report
+________________________________________
+26. PHARMACY / MEDICAL STORE
+A. Definition / Master Setup
+•	Medicine Master
+•	Generic Name
+•	Brand Name
+•	Strength
+•	Dosage Form
+•	Batch / Expiry
+•	Manufacturer
+•	Supplier
+•	Prescription Rules
+•	Controlled Stock Rules where applicable
+•	Storage Conditions
+B. Forms
+•	Medicine Purchase Form
+•	Medicine GRN Form
+•	Batch Registration Form
+•	Pharmacy Sale Form
+•	Prescription Sale Form
+•	Medicine Return Form
+•	Supplier Return Form
+•	Stock Transfer Form
+•	Expiry Disposal Form
+•	Controlled Stock Register Form
+•	Insurance Billing Form
+C. Reports
+•	Medicine Stock Register
+•	Batch Wise Stock
+•	Near Expiry Report
+•	Expired Medicine Report
+•	Medicine Sales Register
+•	Generic Wise Sales
+•	Brand Wise Sales
+•	Prescription Pending Report
+•	Purchase Price Analysis
+•	Pharmacy Gross Margin
+•	Supplier Outstanding
+•	Controlled Stock Movement
+________________________________________
+27. RETAIL / WHOLESALE / DISTRIBUTION
+A. Definition / Master Setup
+•	Retail Outlet Master
+•	POS Counter Master
+•	Cashier Master
+•	Product Barcode Master
+•	Price Levels
+•	Discount Schemes
+•	Customer Loyalty Setup
+•	Distributor Territory
+•	Route / Beat Master
+•	Credit Policy
+B. Forms
+•	POS Sales Form
+o	Barcode, Product, Qty, Rate, Discount, Tax, Payment, Change
+•	Cash Drawer Opening / Closing Form
+o	Opening Cash, Cash Sales, Refunds, Expenses, Closing Cash, Difference
+•	Customer Loyalty Registration
+o	Customer, Mobile, Points, Membership
+•	Distributor Order Form
+o	Distributor, Territory, Product, Qty, Rate, Scheme
+•	Van Sales Form
+o	Vehicle, Salesperson, Opening Stock, Sales, Returns, Closing Stock
+•	Route Sales Visit Form
+o	Customer, Visit, Order, Collection, Remarks
+•	Retail Stock Replenishment Form
+o	Outlet, Item, Current Stock, Required Qty
+•	Cash Refund Form
+o	Original Receipt, Product, Refund Amount, Reason
+C. Reports
+•	POS Daily Sales
+•	Counter Wise Sales
+•	Cashier Wise Sales
+•	Cash Drawer Variance
+•	Product Barcode Sales
+•	Outlet Wise Sales
+•	Distributor Wise Sales
+•	Route Wise Sales
+•	Van Sales Report
+•	Customer Loyalty Report
+•	Discount Scheme Performance
+•	Retail Stock Replenishment
+•	Outlet Profitability
+•	Cash Collection Report
+________________________________________
+28. CONSTRUCTION / REAL ESTATE / ENGINEERING
+A. Definition / Master Setup
+•	Project Master
+•	Site Master
+•	BOQ Master
+•	Work Category
+•	Contractor Master
+•	Subcontractor Master
+•	Material Specification
+•	Equipment Master
+•	Labour Category
+•	Drawing / Revision Master
+•	Project Budget Heads
+B. Forms
+•	Project Registration Form
+•	BOQ Preparation Form
+o	Item, Description, Unit, Qty, Rate, Amount
+•	Work Order Form
+o	Contractor, Work Scope, Qty, Rate, Value, Duration
+•	Site Material Requisition
+o	Site, Item, Required Qty, Date, Approval
+•	Site Material Issue
+o	Item, Issued Qty, Receiver, Site
+•	Daily Progress Report
+o	Site, Activity, Planned Work, Actual Work, Labour, Equipment
+•	Measurement Book Form
+o	Work Item, Measurement, Qty, Verified By
+•	Contractor Bill Form
+o	Work Order, Completed Qty, Rate, Gross Amount, Retention, Net Payable
+•	Variation Order Form
+o	Original Scope, Additional Work, Cost Impact, Approval
+•	Site Expense Form
+o	Expense Head, Site, Amount, Voucher
+•	Project Handover Form
+o	Project, Completion, Defects, Client Acceptance
+C. Reports
+•	Project Cost Summary
+•	BOQ vs Actual
+•	Site Wise Material Consumption
+•	Contractor Payment Register
+•	Work Progress Report
+•	Daily Progress Report
+•	Project Delay Analysis
+•	Labour Attendance
+•	Equipment Utilization
+•	Variation Order Register
+•	Project Budget Variance
+•	Work Completion Report
+•	Project Profitability
+________________________________________
+29. SOLAR / EPC / RENEWABLE ENERGY
+A. Definition / Master Setup
+•	Solar Product Master
+•	Panel Master
+•	Inverter Master
+•	Battery Master
+•	Structure / Mounting Items
+•	Cable & Protection Items
+•	Installation Service Master
+•	Site Master
+•	Customer System Type
+•	System Capacity
+•	Supplier / Installer Master
+•	Warranty & Serial Tracking
+B. Forms
+•	Solar Inquiry Form
+o	Customer, Site, Load, Monthly Units, System Type, Budget
+•	Site Survey Form
+o	Roof Area, Orientation, Shade, Load Details, Photos
+•	Solar Design Form
+o	System KW, Panels, Inverter, Battery, Estimated Generation
+•	Quotation Form
+o	Equipment, Qty, Rate, Installation, Freight, Tax, Total
+•	Project Installation Order
+o	Customer, Site, System Capacity, Team, Schedule
+•	Material Issue Form
+o	Panel, Inverter, Cable, Structure, Qty, Serial Numbers
+•	Installation Progress Form
+o	Site, Work Stage, Completed %, Pending Work
+•	Testing & Commissioning Form
+o	Equipment, Test Result, Date, Engineer, Approval
+•	Net Metering Documentation Form
+o	Customer, Application, Documents, Submission Status
+•	Warranty Claim Form
+o	Serial Number, Equipment, Fault, Supplier, Claim Status
+•	Service / Maintenance Request
+o	Customer, Site, Issue, Technician, Resolution
+C. Reports
+•	Solar Inquiry Register
+•	Site Survey Register
+•	Quotation Conversion Report
+•	Project Installation Status
+•	System Capacity Report
+•	Panel / Inverter Serial Tracking
+•	Material Consumption Report
+•	Project Costing Report
+•	Installation Team Performance
+•	Commissioning Report
+•	Warranty Expiry Report
+•	Service Complaint Report
+•	Project Profitability
+•	Net Metering Application Status
+________________________________________
+30. TEXTILE / GARMENTS / APPAREL
+A. Definition / Master Setup
+•	Fabric Master
+•	Yarn Master
+•	Colour Master
+•	Size Master
+•	Style Master
+•	Design Master
+•	Accessories Master
+•	Process Master
+•	Production Line
+•	Stitching Operation
+•	Finishing Standards
+B. Forms
+•	Fabric Purchase Form
+•	Yarn Purchase Form
+•	Fabric Inspection Form
+•	Dyeing / Processing Order
+•	Cutting Plan Form
+•	Cutting Issue Form
+•	Stitching Production Form
+•	Finishing Inspection Form
+•	Size / Colour Packing Form
+•	Garment Order Form
+•	Shipment Packing List
+•	Rejection / Rework Form
+C. Reports
+•	Fabric Stock Register
+•	Yarn Consumption
+•	Style Wise Production
+•	Size / Colour Stock
+•	Cutting Wastage
+•	Stitching Efficiency
+•	Finishing Rejection
+•	Order Completion Status
+•	Fabric Costing
+•	Garment Unit Cost
+•	Export Shipment Register
+•	Production Line Efficiency
+________________________________________
+31. AGRICULTURE / FARMING / DAIRY
+A. Definition / Master Setup
+•	Farm Master
+•	Field / Land Master
+•	Crop Master
+•	Seed Master
+•	Fertilizer Master
+•	Pesticide Master
+•	Machinery Master
+•	Animal / Livestock Master
+•	Feed Master
+•	Milk Quality Parameters
+•	Veterinary Service Master
+B. Forms
+•	Crop Planning Form
+•	Land Preparation Form
+•	Seed Issue Form
+•	Fertilizer / Pesticide Application Form
+•	Irrigation Log Form
+•	Harvest Entry Form
+•	Crop Sale Form
+•	Livestock Registration Form
+•	Animal Health Record
+•	Milk Collection Form
+•	Feed Consumption Form
+•	Veterinary Treatment Form
+•	Animal Purchase / Sale Form
+C. Reports
+•	Crop Production Report
+•	Field Wise Yield
+•	Seed / Fertilizer Consumption
+•	Harvest Register
+•	Crop Costing
+•	Farm Expense Report
+•	Livestock Register
+•	Milk Production Report
+•	Milk Quality Report
+•	Feed Consumption
+•	Animal Health History
+•	Farm Profitability
+________________________________________
+32. HOTEL / RESTAURANT / FOOD SERVICE
+A. Definition / Master Setup
+•	Outlet Master
+•	Dining Table Master
+•	Menu Item Master
+•	Recipe Master
+•	Kitchen Station
+•	Room Master
+•	Room Type
+•	Reservation Rules
+•	Service Charges
+•	Tax Setup
+•	Staff Shift Setup
+B. Forms
+•	Table Reservation Form
+•	Guest Check-in Form
+•	Guest Check-out Form
+•	Restaurant POS Order Form
+•	Kitchen Order Ticket Form
+•	Menu Item Recipe Form
+•	Food Purchase Form
+•	Kitchen Material Issue Form
+•	Food Wastage Form
+•	Room Service Order Form
+•	Guest Billing Form
+•	Banquet / Event Booking Form
+•	Customer Complaint Form
+C. Reports
+•	Daily Restaurant Sales
+•	Menu Item Sales
+•	Table Utilization
+•	Kitchen Order Pending
+•	Food Cost Report
+•	Food Wastage Report
+•	Recipe Costing
+•	Room Occupancy
+•	Guest Register
+•	Room Revenue
+•	Event Booking Register
+•	Staff Shift Report
+•	Outlet Profitability
+________________________________________
+33. BANKING / MICROFINANCE / FINANCIAL SERVICES
+A. Definition / Master Setup
+•	Branch Master
+•	Customer / Account Holder Master
+•	Account Type
+•	Product / Scheme Master
+•	Loan Product Master
+•	Interest Rate Setup
+•	Repayment Schedule
+•	Collateral Type
+•	KYC Document Categories
+•	Risk Categories
+B. Forms
+•	Customer KYC Form
+•	Account Opening Form
+•	Cash Deposit Form
+•	Cash Withdrawal Form
+•	Fund Transfer Form
+•	Loan Application Form
+•	Loan Approval Form
+•	Disbursement Form
+•	Installment Collection Form
+•	Collateral Registration Form
+•	Customer Complaint Form
+•	Account Closure Form
+C. Reports
+•	Account Opening Register
+•	Deposit Register
+•	Withdrawal Register
+•	Daily Cash Position
+•	Loan Portfolio
+•	Loan Aging
+•	Installment Due Report
+•	Overdue Loan Report
+•	Branch Wise Performance
+•	Customer KYC Pending
+•	Collateral Register
+•	Non-Performing Loan Report
+________________________________________
+34. INSURANCE / TAKAFUL
+A. Definition / Master Setup
+•	Insurance Product Master
+•	Policy Type
+•	Coverage Type
+•	Premium Rules
+•	Customer Master
+•	Agent / Broker Master
+•	Risk Category
+•	Claim Category
+•	Renewal Rules
+B. Forms
+•	Insurance Inquiry Form
+•	Policy Proposal Form
+•	Risk Assessment Form
+•	Policy Issuance Form
+•	Premium Collection Form
+•	Policy Renewal Form
+•	Endorsement Form
+•	Claim Registration Form
+•	Claim Assessment Form
+•	Claim Settlement Form
+•	Policy Cancellation Form
+C. Reports
+•	Policy Register
+•	Premium Collection
+•	Policy Expiry / Renewal
+•	Outstanding Premium
+•	Claims Register
+•	Pending Claims
+•	Claims Settlement Report
+•	Agent Commission
+•	Product Wise Premium
+•	Customer Policy History
+________________________________________
+35. LOGISTICS / COURIER / CARGO
+A. Definition / Master Setup
+•	Service Type
+•	Origin / Destination
+•	Branch / Hub Master
+•	Courier Partner
+•	Shipment Category
+•	Package Type
+•	Weight Slabs
+•	Freight Rates
+•	Delivery Zones
+B. Forms
+•	Booking Form
+o	Consignment No., Sender, Receiver, Address, Weight, Service, Charges
+•	Pickup Request Form
+•	Shipment Manifest Form
+•	Hub Receiving Form
+•	Shipment Transfer Form
+•	Delivery Attempt Form
+•	Proof of Delivery Form
+•	Return to Origin Form
+•	Cash on Delivery Settlement Form
+•	Customer Complaint Form
+C. Reports
+•	Consignment Register
+•	Shipment Tracking
+•	Pending Delivery
+•	Delivery Success Rate
+•	Return to Origin Report
+•	Hub Wise Shipment
+•	Courier Expense Report
+•	COD Collection Report
+•	COD Settlement Pending
+•	Customer Complaint Report
+________________________________________
+36. ADVERTISING / MEDIA / DIGITAL AGENCY
+A. Definition / Master Setup
+•	Client Master
+•	Service Master
+•	Campaign Type
+•	Creative Resource Master
+•	Media Platform
+•	Rate Card
+•	Freelancer / Vendor Master
+•	Project Team
+B. Forms
+•	Client Inquiry Form
+•	Client Proposal Form
+•	Campaign Brief Form
+•	Creative Work Order
+•	Design / Content Approval Form
+•	Media Booking Form
+•	Campaign Expense Form
+•	Client Invoice Form
+•	Revision Request Form
+•	Campaign Performance Entry
+C. Reports
+•	Client Register
+•	Project / Campaign Status
+•	Campaign Budget vs Actual
+•	Creative Workload
+•	Revision Register
+•	Client Outstanding
+•	Campaign Performance
+•	Service Wise Profitability
+•	Team Productivity
+________________________________________
+37. PROFESSIONAL SERVICES / IT SOFTWARE HOUSE
+A. Definition / Master Setup
+•	Client Master
+•	Service Catalog
+•	Project Type
+•	Developer / Consultant Master
+•	Skill Master
+•	Hourly Rate
+•	Contract / SLA Master
+•	Support Priority
+B. Forms
+•	Client Onboarding Form
+•	Project Proposal Form
+•	Project Work Order
+•	Task Assignment Form
+•	Timesheet Form
+•	Bug / Issue Tracking Form
+•	Change Request Form
+•	Service Ticket Form
+•	SLA Escalation Form
+•	Client Acceptance Form
+•	Recurring Billing Form
+C. Reports
+•	Project Status
+•	Task Completion
+•	Developer Utilization
+•	Timesheet Summary
+•	Billable vs Non-Billable Hours
+•	Bug / Issue Register
+•	SLA Compliance
+•	Client Billing
+•	Project Profitability
+•	Support Ticket Aging
+________________________________________
+38. NGO / WELFARE / NON-PROFIT ORGANIZATION
+A. Definition / Master Setup
+•	Donor Master
+•	Beneficiary Master
+•	Project / Program Master
+•	Donation Categories
+•	Grant Master
+•	Fund Restrictions
+•	Welfare Service Categories
+•	Volunteer Master
+B. Forms
+•	Donor Registration Form
+•	Donation Receipt Form
+•	Grant Application Form
+•	Fund Allocation Form
+•	Beneficiary Registration Form
+•	Assistance Distribution Form
+•	Volunteer Registration Form
+•	Project Expense Form
+•	Program Monitoring Form
+•	Beneficiary Verification Form
+C. Reports
+•	Donor Register
+•	Donation Collection
+•	Grant Utilization
+•	Fund Balance
+•	Project Budget vs Actual
+•	Beneficiary Register
+•	Assistance Distribution
+•	Volunteer Activity
+•	Program Performance
+•	Restricted Fund Utilization
+________________________________________
+CATEGORY 4 – COMMON ENTERPRISE-WIDE BUILT-IN SYSTEMS
+39. WORKFLOW & APPROVAL MANAGEMENT
+•	Definition
+o	Approval Levels
+o	Department Approval
+o	Financial Approval Limits
+o	Delegation Rules
+o	Escalation Rules
+•	Forms
+o	Approval Matrix Setup
+o	Approval Request
+o	Delegation Request
+o	Approval Reversal Request
+•	Reports
+o	Pending Approvals
+o	Approval History
+o	Rejected Transactions
+o	Approval Turnaround Time
+o	User Wise Approval Activity
+40. NOTIFICATION & REMINDER MANAGEMENT
+•	Definition
+o	Email Templates
+o	SMS Templates
+o	In-App Notifications
+o	Reminder Rules
+o	Escalation Notifications
+•	Forms
+o	Notification Template Form
+o	Reminder Schedule Form
+o	Alert Configuration Form
+•	Reports
+o	Sent Notifications
+o	Failed Notifications
+o	Pending Reminders
+o	Alert History
+41. DASHBOARD & BUSINESS INTELLIGENCE
+•	Definition
+o	KPI Master
+o	Dashboard Layout
+o	Chart Configuration
+o	Date Filters
+o	Department Filters
+o	Branch Filters
+o	User Dashboard Permissions
+•	Forms
+o	KPI Setup Form
+o	Dashboard Designer
+o	Widget Configuration
+o	Report Schedule Form
+•	Reports / Dashboards
+o	Executive Dashboard
+o	Financial Dashboard
+o	Sales Dashboard
+o	Purchase Dashboard
+o	Inventory Dashboard
+o	Production Dashboard
+o	HR Dashboard
+o	School / College Dashboard
+o	Hospital Dashboard
+o	Project Dashboard
+o	Costing Dashboard
+o	Branch Performance Dashboard
+42. SECURITY & ACCESS CONTROL
+•	Definition
+o	User Accounts
+o	Roles
+o	Permissions
+o	Data Access Rules
+o	Branch Access
+o	Department Access
+o	Record-Level Access
+o	Password Policy
+o	Session Timeout
+•	Forms
+o	User Creation
+o	Role Creation
+o	Permission Assignment
+o	Access Request
+o	Password Reset
+o	User Deactivation
+•	Reports
+o	User Register
+o	Login History
+o	Failed Login Attempts
+o	Permission Matrix
+o	Data Access History
+o	User Activity Audit
+43. MULTI-COMPANY / MULTI-BRANCH MANAGEMENT
+•	Definition
+o	Company Master
+o	Branch Master
+o	Business Unit
+o	Legal Entity
+o	Intercompany Accounts
+o	Consolidation Rules
+o	Currency Rules
+•	Forms
+o	Company Registration
+o	Branch Registration
+o	Branch Transfer
+o	Intercompany Journal
+o	Intercompany Invoice
+•	Reports
+o	Company Wise Profit & Loss
+o	Branch Wise Sales
+o	Branch Wise Expenses
+o	Consolidated Balance Sheet
+o	Intercompany Reconciliation
+o	Company Comparison
+44. SYSTEM CONFIGURATION & AUDIT TRAIL
+•	Definition
+o	Numbering Series
+o	Date Format
+o	Currency Format
+o	UOM Rules
+o	Print Templates
+o	Backup Configuration
+o	Data Retention
+•	Forms
+o	System Settings
+o	Voucher Numbering Setup
+o	Print Layout Designer
+o	Backup / Restore
+o	Data Import
+o	Data Export
+•	Reports
+o	Record Creation Log
+o	Record Modification Log
+o	Record Deletion Log
+o	Before / After Value History
+o	Backup History
+o	Data Import / Export Log
+________________________________________
+CATEGORY 5 – STANDARD FORM DESIGN FOR EVERY DEPARTMENT
+Every transaction form should follow a consistent professional ERP layout:
+A. Form Header
+•	Company Logo
+•	Company Name
+•	Department Name
+•	Form Title
+•	Document Number
+•	Document Date
+•	Branch / Location
+•	Financial Year
+•	Transaction Status
+B. Main Information Tab
+•	Customer / Supplier / Employee / Department
+•	Reference Document
+•	Transaction Date
+•	Required Date
+•	Description
+•	Responsible User
+C. Item / Detail Grid
+•	Sr. No.
+•	Item / Account / Service Code
+•	Description
+•	UOM
+•	Quantity
+•	Rate
+•	Discount %
+•	Discount Amount
+•	Tax %
+•	Tax Amount
+•	Net Amount
+•	Remarks
+D. Additional Tabs
+•	Details
+•	Accounting
+•	Attachments
+•	Terms & Conditions
+•	Approval History
+•	Activity Log
+•	Notes / Remarks
+E. Standard Form Buttons
+•	New
+•	Save
+•	Edit
+•	Delete
+•	Search
+•	Refresh
+•	Submit for Approval
+•	Approve
+•	Reject
+•	Cancel
+•	Print
+•	Export PDF
+•	Export Excel
+•	Attach Document
+•	Close
+F. Form Validation
+•	Mandatory Field Validation
+•	Duplicate Document Number Check
+•	Date Validation
+•	Quantity / Amount Validation
+•	Debit = Credit Validation where applicable
+•	Stock Availability Validation
+•	Credit Limit Validation
+•	Approval Limit Validation
+•	Period Lock Validation
+•	Duplicate Transaction Prevention
+________________________________________
+CATEGORY 6 – STANDARD REPORT DESIGN FOR EVERY DEPARTMENT
+Every report should have the following built-in features:
+A. Report Filters
+•	From Date
+•	To Date
+•	Financial Year
+•	Company
+•	Branch
+•	Department
+•	Section
+•	Employee / User
+•	Customer
+•	Supplier
+•	Item / Product
+•	Category
+•	Warehouse
+•	Project
+•	Document Status
+•	Transaction Type
+B. Report Columns
+•	Sr. No.
+•	Document Number
+•	Document Date
+•	Reference Number
+•	Party / Account / Item
+•	Department / Branch
+•	Quantity
+•	Rate
+•	Gross Amount
+•	Discount
+•	Tax
+•	Net Amount
+•	Paid Amount
+•	Outstanding Amount
+•	Status
+•	Created By
+•	Approved By
+C. Report Features
+•	Search Within Report
+•	Column Sorting
+•	Column Filtering
+•	Group By
+•	Subtotal
+•	Grand Total
+•	Running Balance
+•	Drill Down to Source Voucher
+•	Open Source Transaction
+•	Print Preview
+•	PDF Export
+•	Excel Export
+•	CSV Export
+•	Page Numbering
+•	Company Header / Footer
+•	Generated Date & User
+•	Saved Report Filters
+________________________________________
+CATEGORY 7 – POPUP FORMS & SUB-FORMS STRUCTURE
+All master selection fields should open searchable popup forms instead of requiring manual entry.
+A. Master Selection Popups
+•	Customer Selection Popup
+o	Customer Code, Name, Mobile, City, Balance, Credit Limit
+•	Supplier Selection Popup
+o	Vendor Code, Name, Contact, City, Outstanding Balance
+•	Employee Selection Popup
+o	Employee ID, Name, Department, Designation, Status
+•	Item Selection Popup
+o	Item Code, Name, Category, UOM, Available Stock, Rate
+•	Account Selection Popup
+o	Account Code, Name, Group, Account Type
+•	Warehouse Selection Popup
+o	Warehouse Code, Name, Location
+•	Project Selection Popup
+o	Project Code, Name, Manager, Status
+•	Cost Center Selection Popup
+o	Cost Center Code, Name, Department
+B. Transaction Sub-Forms
+•	Add New Customer Popup
+•	Add New Supplier Popup
+•	Add New Item Popup
+•	Add New Employee Popup
+•	Add New Account Popup
+•	Add New Warehouse Popup
+•	Add New Cost Center Popup
+•	Add New Project Popup
+•	Add Attachment Popup
+•	Add Payment Details Popup
+•	Add Tax Details Popup
+•	Add Approval Comment Popup
+•	Add Terms & Conditions Popup
+C. Popup Behaviour
+•	Open from relevant field using Search / Lookup button
+•	Search by Code, Name, Mobile or Barcode
+•	Show matching records in a grid
+•	Select a record and return it to the parent form
+•	Allow authorized users to create a new master without closing the parent form
+•	Refresh the parent form after creating a new master
+•	Enforce permissions and mandatory fields
+•	Prevent duplicate master records
+________________________________________
+CATEGORY 8 – STANDARD ERP DOCUMENT FLOW
+1. Purchase-to-Pay
+•	Purchase Requisition
+o	RFQ
+o	Supplier Quotation
+o	Comparative Statement
+o	Purchase Order
+o	Goods Receipt Note
+o	Quality Inspection
+o	Purchase Invoice
+o	Supplier Payment
+o	Supplier Ledger Update
+2. Order-to-Cash
+•	Customer Inquiry
+o	Sales Quotation
+o	Sales Order
+o	Stock Reservation
+o	Delivery Challan
+o	Sales Invoice
+o	Customer Receipt
+o	Customer Ledger Update
+3. Plan-to-Produce
+•	Demand Forecast
+o	Production Plan
+o	Material Requirement Planning
+o	Production Order
+o	Material Issue
+o	Production Entry
+o	Quality Inspection
+o	Finished Goods Receipt
+o	Production Cost Calculation
+4. Hire-to-Retire
+•	Manpower Request
+o	Job Advertisement
+o	Applicant Registration
+o	Interview
+o	Selection
+o	Appointment
+o	Employee Registration
+o	Attendance
+o	Payroll
+o	Performance Appraisal
+o	Resignation / Retirement
+o	Final Settlement
+5. Record-to-Report
+•	Business Transaction
+o	Source Voucher
+o	Accounting Posting
+o	General Ledger
+o	Trial Balance
+o	Adjustments
+o	Financial Statements
+o	Period Closing
+________________________________________
+CATEGORY 9 – ENTERPRISE ERP STANDARD DOCUMENT NUMBERING
+•	JV – Journal Voucher
+•	PV – Payment Voucher
+•	RV – Receipt Voucher
+•	CV – Contra Voucher
+•	PR – Purchase Requisition
+•	RFQ – Request for Quotation
+•	SQ – Supplier Quotation
+•	CS – Comparative Statement
+•	PO – Purchase Order
+•	GRN – Goods Receipt Note
+•	PI – Purchase Invoice
+•	DN – Delivery Note / Delivery Challan
+•	MI – Material Issue
+•	MR – Material Requisition
+•	MRN – Material Return Note
+•	STN – Stock Transfer Note
+•	SA – Stock Adjustment
+•	SO – Sales Order
+•	SQN – Sales Quotation
+•	SI – Sales Invoice
+•	SR – Sales Return
+•	CN – Credit Note
+•	DN – Debit Note
+•	BOM – Bill of Materials
+•	WO – Work Order
+•	MO – Manufacturing Order
+•	DPR – Daily Production Report
+•	QC – Quality Control
+•	NCR – Non-Conformance Report
+•	CAPA – Corrective and Preventive Action
+•	EMP – Employee Record
+•	LA – Leave Application
+•	OT – Overtime
+•	PRL – Payroll
+•	FA – Fixed Asset
+•	BRS – Bank Reconciliation Statement
+•	BOQ – Bill of Quantities
+•	WIP – Work in Progress
+•	MRP – Material Requirements Planning
+•	KPI – Key Performance Indicator
+•	SLA – Service Level Agreement
+________________________________________
+FINAL IMPLEMENTATION NOTE
+•	All departments should be configurable according to company type and business size.
+•	Small businesses can activate only Accounts, Inventory, Sales, Procurement and HR.
+•	Trading businesses can additionally activate Distribution, WMS, Logistics and CRM.
+•	Manufacturing businesses can activate Production, BOM, MRP, QC, Costing and Maintenance.
+•	Schools and colleges can activate Admissions, Academics, Examination, Student Fees, Faculty and Student Records.
+•	Hospitals can activate Patient Registration, OPD, IPD, Laboratory, Pharmacy, Billing and Insurance.
+•	Construction and solar companies can activate Projects, Site Operations, BOQ, Material Management, Installation and Costing.
+•	Each department should have its own Dashboard, Definition, Master Data, Forms, Reports, Approval Workflow and Access Permissions.
+•	Every form should open in a separate popup / window or dedicated form screen.
+•	Every report should open in a separate report viewer with filters, preview, drill-down, print and export functionality.
+•	All transactions should update relevant departments automatically through controlled workflows.
+•	Accounting entries, inventory movements, audit logs and approval history should be linked with their original source transactions.
+•	Departments, forms, fields, reports and permissions should be configurable; not every industry needs every module.
+

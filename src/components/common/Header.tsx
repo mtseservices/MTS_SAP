@@ -35,10 +35,15 @@ import { ActiveTab } from './Sidebar';
 
 interface HeaderProps {
   onOpenNewCompanyModal?: () => void;
+  onOpenStyleDrawer: () => void;
   onSelectTab: (tab: ActiveTab) => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenNewCompanyModal, onSelectTab }) => {
+export const Header: React.FC<HeaderProps> = ({ 
+  onOpenNewCompanyModal, 
+  onOpenStyleDrawer,
+  onSelectTab 
+}) => {
   const {
     isMasterPortal,
     currentCompany,
@@ -263,41 +268,14 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewCompanyModal, onSelectT
             </button>
           )}
 
-          {/* Theme Picker */}
-          <div className="relative">
-            <button
-              onClick={() => setShowThemeMenu(!showThemeMenu)}
-              title="Theme Customizer"
-              className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 transition-all cursor-pointer"
-            >
-              <Palette className="w-4 h-4 text-cyan-400" />
-            </button>
-
-            {showThemeMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-2 z-50">
-                <div className="px-2 py-1 text-[11px] font-semibold text-slate-400 border-b border-slate-800 uppercase tracking-wider mb-1">
-                  Company Theme
-                </div>
-                {themes.map((t) => (
-                  <button
-                    key={t.id}
-                    onClick={() => {
-                      setTheme(t.id);
-                      setShowThemeMenu(false);
-                    }}
-                    className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer ${
-                      theme === t.id
-                        ? 'bg-slate-800 text-cyan-300 border border-slate-700'
-                        : 'hover:bg-slate-800/60 text-slate-300'
-                    }`}
-                  >
-                    <span className={`w-3 h-3 rounded-full ${t.color}`} />
-                    {t.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* Workspace Styler (Theme, Layout, Density) */}
+          <button
+            onClick={onOpenStyleDrawer}
+            title="Open Workspace Styler"
+            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 transition-all cursor-pointer group"
+          >
+            <Palette className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
+          </button>
 
           {/* Multilingual Language Selector Toggle (English / Urdu / Arabic) */}
           <div className="relative">

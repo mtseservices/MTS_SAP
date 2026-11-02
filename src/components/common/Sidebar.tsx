@@ -32,7 +32,8 @@ import {
   Wrench,
   Flame,
   Truck,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Download
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -73,7 +74,9 @@ export type ActiveTab =
   | 'masterSystemHealth'
   | 'masterRateLimits'
   | 'masterSettings'
-  | 'masterUserCreation';
+  | 'masterUserCreation'
+  | 'masterSystemSecurity'
+  | 'masterBatchExport';
 
 interface SidebarProps {
   activeTab: ActiveTab;
@@ -145,6 +148,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
     { id: 'masterRateLimits' as ActiveTab, label: 'API Rate Limits & Quotas', icon: ShieldAlert },
     { id: 'masterSettings' as ActiveTab, label: 'System Settings', icon: Settings },
     { id: 'masterUserCreation' as ActiveTab, label: 'User Creation Portal', icon: Users },
+    { id: 'masterSystemSecurity' as ActiveTab, label: 'System Security & Sessions', icon: ShieldAlert },
+    { id: 'masterBatchExport' as ActiveTab, label: 'Batch Client Data Export', icon: Download },
   ];
 
   // Helper utility items (The isolated "130 Department Master" bottom link has been removed as requested)

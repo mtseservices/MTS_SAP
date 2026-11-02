@@ -107,6 +107,27 @@
         "deviceType": { "type": "string" }
       },
       "required": ["credentialId", "publicKey", "counter"]
+    },
+    "AuthSession": {
+      "title": "Authentication Session",
+      "description": "Secure record tracking a Master or Tenant user session",
+      "type": "object",
+      "properties": {
+        "sessionId": { "type": "string" },
+        "userId": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string" },
+        "isMaster": { "type": "boolean" },
+        "tenantId": { "type": "string" },
+        "companyId": { "type": "string" },
+        "companyName": { "type": "string" },
+        "branchId": { "type": "string" },
+        "branchName": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "lastActiveAt": { "type": "string" },
+        "status": { "type": "string", "enum": ["ACTIVE", "EXPIRED", "LOCKED"] }
+      },
+      "required": ["sessionId", "userId", "email", "role", "isMaster", "status", "branchId", "branchName"]
     }
   },
   "firestore": {
@@ -117,6 +138,10 @@
     "/system/globalSettings": {
       "schema": "ClientCompany",
       "description": "Global Master ERP configurations"
+    },
+    "/sessions/{sessionId}": {
+      "schema": "AuthSession",
+      "description": "Cross-refresh persistent user sessions"
     },
     "/tenants/{tenantId}/companies/{companyId}": {
       "schema": "ClientCompany",
