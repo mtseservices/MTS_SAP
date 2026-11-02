@@ -37,11 +37,11 @@ export const googleProvider = new GoogleAuthProvider();
 
 export async function testFirestoreConnection() {
   try {
-    await getDocFromServer(doc(db, 'system', 'connection'));
+    await getDocFromServer(doc(db, 'system', 'globalSettings'));
     console.log('Firebase Firestore connection verified.');
   } catch (error: any) {
     // Gracefully handle offline mode without uncaught console exceptions
-    console.warn('Firebase operating in offline / local cache mode due to network sandbox constraints.');
+    console.warn('Firebase operating in offline / local cache mode due to network sandbox constraints or connectivity issues.');
   }
 }
 

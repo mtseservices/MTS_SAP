@@ -18,13 +18,14 @@ import {
   X
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
+import { auditLogger } from '../../services/auditLogger';
 import { ClientCompany } from '../../types/erp';
 import { DatabaseBackupManager } from './DatabaseBackupManager';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../../services/firebaseConfig';
 
 export const TenantManagement: React.FC = () => {
-  const { allCompanies, setAllCompanies, switchTenantBySlug, permanentDeleteCompany } = useAuthTenant();
+  const { allCompanies, setAllCompanies, switchTenantBySlug, permanentDeleteCompany, currentUser } = useAuthTenant();
   const [activeTab, setActiveTab] = useState<'tenants' | 'approvals' | 'backup' | 'archive'>('tenants');
   const [editingCompany, setEditingCompany] = useState<ClientCompany | null>(null);
 
@@ -40,12 +41,42 @@ export const TenantManagement: React.FC = () => {
     );
   };
 
-  const handleArchiveCompany = (id: string) => {
-    setAllCompanies(prev => prev.map(c => c.id === id ? { ...c, isArchived: true } : c));
+  const handleArchiveCompany = async (comp: ClientCompany) => {
+    const updated = { ...comp, isArchived: true, status: 'INACTIVE' };
+    setAllCompanies(prev => prev.map(c => c.id === comp.id ? updated : c));
+    try {
+      await setDoc(doc(db, 'companies', comp.id), updated, { merge: true });
+    } catch (e) {
+      console.warn('Firebase archive sync error:', e);
+    }
+    await auditLogger.logAction({
+      tenantId: 'system_master',
+      userId: currentUser.id,
+      userName: currentUser.name,
+      userRole: currentUser.role,
+      actionType: 'SETTINGS_CHANGE',
+      module: 'Tenant Management',
+      details: `Archived company: ${comp.name} (${comp.code})`
+    });
   };
 
-  const handleRestoreCompany = (id: string) => {
-    setAllCompanies(prev => prev.map(c => c.id === id ? { ...c, isArchived: false } : c));
+  const handleRestoreCompany = async (comp: ClientCompany) => {
+    const updated = { ...comp, isArchived: false, status: 'ACTIVE' };
+    setAllCompanies(prev => prev.map(c => c.id === comp.id ? updated : c));
+    try {
+      await setDoc(doc(db, 'companies', comp.id), updated, { merge: true });
+    } catch (e) {
+      console.warn('Firebase restore sync error:', e);
+    }
+    await auditLogger.logAction({
+      tenantId: 'system_master',
+      userId: currentUser.id,
+      userName: currentUser.name,
+      userRole: currentUser.role,
+      actionType: 'SETTINGS_CHANGE',
+      module: 'Tenant Management',
+      details: `Restored company: ${comp.name} (${comp.code})`
+    });
   };
 
   const handlePermanentDelete = async (id: string) => {
@@ -245,7 +276,7 @@ export const TenantManagement: React.FC = () => {
                   </button>
 
                   <button
-                    onClick={() => handleArchiveCompany(comp.id)}
+                    onClick={() => handleArchiveCompany(comp)}
                     className="p-1.5 px-3 rounded-xl bg-purple-600/20 hover:bg-purple-600/40 border border-purple-500/30 text-purple-300 text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer"
                     title="Move to Archive"
                   >
@@ -327,7 +358,7 @@ export const TenantManagement: React.FC = () => {
 
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => handleRestoreCompany(comp.id)}
+                        onClick={() => handleRestoreCompany(comp)}
                         className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-300 border border-emerald-500/30 text-xs font-bold transition-all cursor-pointer"
                       >
                         ↩️ Undo / Restore

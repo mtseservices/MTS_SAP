@@ -108,14 +108,27 @@ export function resolveCurrentTenant(): ResolvedTenant {
   }
 
   const hostname = window.location.hostname;
+  const pathname = window.location.pathname;
   const searchParams = new URLSearchParams(window.location.search);
   const hash = window.location.hash;
 
+  // 1. Check Path-based: /company/{slug}
+  if (pathname.startsWith('/company')) {
+    const parts = pathname.split('/');
+    const slug = parts[2]; // /company/albarka -> ['','company', 'albarka']
+    if (slug) {
+      const matchedCompany = INITIAL_CLIENT_COMPANIES.find(c => c.slug.toLowerCase() === slug.toLowerCase());
+      if (matchedCompany) {
+        return { isMasterPortal: false, tenantSlug: matchedCompany.slug, company: matchedCompany };
+      }
+    }
+  }
+
   // Check URL query param ?company=albarka or ?tenant=albarka or ?master=true
   const queryTenant = searchParams.get('company') || searchParams.get('tenant');
-  const isMasterParam = searchParams.get('master') === 'true' || hash.includes('/master');
+  const isMasterParam = searchParams.get('master') === 'true' || hash.includes('/master') || pathname === '/';
 
-  if (isMasterParam) {
+  if (isMasterParam && !queryTenant && !pathname.startsWith('/company')) {
     return { isMasterPortal: true, tenantSlug: null, company: null };
   }
 
@@ -136,7 +149,12 @@ export function resolveCurrentTenant(): ResolvedTenant {
     }
   }
 
-  // Default fallback: Default to first company tenant or Master switchable state
+  // Default fallback: Default to Master if at root
+  if (pathname === '/') {
+    return { isMasterPortal: true, tenantSlug: null, company: null };
+  }
+
+  // Default fallback: Default to first company tenant
   return {
     isMasterPortal: false,
     tenantSlug: INITIAL_CLIENT_COMPANIES[0].slug,
