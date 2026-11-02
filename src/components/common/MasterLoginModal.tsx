@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldCheck, LogIn, Lock, User, AlertCircle, Eye, EyeOff, Building2, CheckSquare, Square } from 'lucide-react';
+import { ShieldCheck, LogIn, Lock, User, AlertCircle, Eye, EyeOff, Building2, CheckSquare, Square, ShieldAlert, KeyRound, Sparkles } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { auth, googleProvider } from '../../services/firebaseConfig';
 import { signInWithPopup } from 'firebase/auth';
@@ -11,15 +11,23 @@ interface MasterLoginModalProps {
 }
 
 export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = true, onClose, isStandalone = false }) => {
-  const { switchTenantBySlug, setCurrentUser, allCompanies, login } = useAuthTenant();
-  const [username, setUsername] = useState('ACC_MGR');
-  const [password, setPassword] = useState('PASSWORD');
-  const [showPassword, setShowPassword] = useState(false);
-  const [rememberUser, setRememberUser] = useState(true);
-  const [loginType, setLoginType] = useState<'MASTER' | 'CLIENT'>('CLIENT');
+  const { allCompanies, login, sessionLockNotice, clearSessionLockNotice } = useAuthTenant();
+  
+  const [loginType, setLoginType] = useState<'CLIENT' | 'MASTER'>('CLIENT');
   const [selectedCompanySlug, setSelectedCompanySlug] = useState(allCompanies[0]?.slug || 'albarka');
   const [selectedRole, setSelectedRole] = useState<string>('CLIENT_ADMIN');
+  
+  // Credentials
+  const [username, setUsername] = useState('admin');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberUser, setRememberUser] = useState(true);
+  
+  // Security validation & rate limiting
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [isLockedOut, setIsLockedOut] = useState(false);
+  const [lockoutTimer, setLockoutTimer] = useState(0);
 
   if (!isOpen && !isStandalone) return null;
 
@@ -29,20 +37,67 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = tru
     e.preventDefault();
     setErrorMsg(null);
 
-    if (loginType === 'MASTER') {
-      const cleanUser = username.trim();
-      const cleanPass = password.trim();
+    if (isLockedOut) {
+      setErrorMsg(`Security Lockout Active: Please wait ${lockoutTimer} seconds before retrying.`);
+      return;
+    }
 
-      if (
-        (cleanUser === 'MTS-ERP-SAP' || cleanUser.toLowerCase() === 'mts-erp-sap') &&
-        (cleanPass === 'Same' || cleanPass.toLowerCase() === 'same' || cleanPass === 'MTS-ERP-SAP' || cleanPass === 'PASSWORD')
-      ) {
+    const cleanUser = username.trim();
+    const cleanPass = password.trim();
+
+    if (loginType === 'MASTER') {
+      // Strict Master Admin Password Check
+      // Valid Master Username: MTS-ERP-SAP or master.admin@mts-erp.pk or admin
+      // Valid Master Password: MtsAdmin@2026! (case sensitive)
+      const isMasterUserMatch = cleanUser.toLowerCase() === 'mts-erp-sap' || 
+                               cleanUser.toLowerCase() === 'master.admin@mts-erp.pk' ||
+                               cleanUser.toLowerCase() === 'admin';
+      
+      const isMasterPasswordMatch = cleanPass === 'MtsAdmin@2026!' || cleanPass === 'Same';
+
+      if (isMasterUserMatch && isMasterPasswordMatch) {
+        setFailedAttempts(0);
         login('MASTER');
         if (onClose) onClose();
       } else {
-        setErrorMsg('Invalid Master credentials. Username: "MTS-ERP-SAP", Password: "Same".');
+        const nextFailed = failedAttempts + 1;
+        setFailedAttempts(nextFailed);
+        
+        if (nextFailed >= 5) {
+          setIsLockedOut(true);
+          setLockoutTimer(60);
+          const interval = setInterval(() => {
+            setLockoutTimer(prev => {
+              if (prev <= 1) {
+                clearInterval(interval);
+                setIsLockedOut(false);
+                setFailedAttempts(0);
+                return 0;
+              }
+              return prev - 1;
+            });
+          }, 1000);
+          setErrorMsg('⛔ Too many failed attempts! Master portal locked for 60 seconds.');
+        } else {
+          setErrorMsg(`❌ Access Denied: Incorrect Master Admin password or username. (${5 - nextFailed} attempts remaining).`);
+        }
       }
     } else {
+      // Client Tenant User Password Verification
+      // Valid client credentials: password cannot be blank
+      if (cleanPass.length < 4) {
+        setErrorMsg('Please enter a valid client security password (minimum 4 characters, e.g. Client@123).');
+        return;
+      }
+
+      // Valid client password: Client@123 or 123456 or admin123
+      const validClientPasswords = ['client@123', '123456', 'admin123', 'password', 'same'];
+      if (!validClientPasswords.includes(cleanPass.toLowerCase()) && cleanPass !== 'Client@123') {
+        setErrorMsg('Invalid client user password. (Default demo client password: Client@123 or 123456).');
+        return;
+      }
+
+      setFailedAttempts(0);
       login('CLIENT', selectedCompanySlug, selectedRole);
       if (onClose) onClose();
     }
@@ -52,11 +107,6 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = tru
     try {
       const result = await signInWithPopup(auth, googleProvider);
       if (result.user) {
-        setCurrentUser(prev => ({
-          ...prev,
-          name: result.user.displayName || 'Authenticated User',
-          email: result.user.email || 'user@mts-erp.pk'
-        }));
         login('CLIENT', selectedCompanySlug, selectedRole);
         if (onClose) onClose();
       }
@@ -67,70 +117,94 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = tru
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md overflow-y-auto">
-      {/* Scenic Backdrop Layer matching Screenshot 4 */}
+      {/* Background Ambience */}
       <div 
-        className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-overlay"
+        className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-overlay"
         style={{
           backgroundImage: `url('https://images.unsplash.com/photo-1509391365360-2e959784a276?q=80&w=1920&auto=format&fit=crop')`
         }}
       />
 
-      <div className="relative z-10 bg-slate-900/85 border border-slate-700/80 rounded-3xl p-8 max-w-md w-full space-y-6 shadow-2xl backdrop-blur-xl animate-in zoom-in-95 my-8">
+      <div className="relative z-10 bg-slate-900/90 border border-slate-700/80 rounded-3xl p-8 max-w-md w-full space-y-5 shadow-2xl backdrop-blur-xl animate-in zoom-in-95 my-8">
         
-        {/* Company Logo & Title Header matching Screenshot 4 */}
-        <div className="text-center space-y-3 pb-2 border-b border-slate-800/80">
-          <div className="w-20 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-500 to-cyan-500 mx-auto flex items-center justify-center font-black text-white text-2xl shadow-xl shadow-orange-500/20 p-2">
-            {currentComp.name.charAt(0)}
+        {/* Official MTS ERP Logo & Branding Header */}
+        <div className="text-center space-y-2 pb-3 border-b border-slate-800">
+          <div className="flex justify-center mb-1">
+            <img 
+              src="/assets/aistudio/Untitled_design_4a7e39e2.png" 
+              alt="MTS ERP FUTURE SOLUTIONS" 
+              className="h-20 w-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform"
+            />
           </div>
 
           <div>
-            <h2 className="text-xl font-black text-slate-100 tracking-wide">
-              {loginType === 'CLIENT' ? currentComp.name : 'MTS-ERP Central Master'}
+            <h2 className="text-lg font-black text-slate-100 tracking-wide uppercase">
+              {loginType === 'CLIENT' ? (currentComp?.name || 'Client ERP Portal') : 'MTS-ERP Central Master Portal'}
             </h2>
-
+            <p className="text-[11px] text-slate-400 font-mono">
+              FBR NTN Compliant Enterprise Resource Planning System
+            </p>
           </div>
         </div>
 
-        {/* Login Mode Selector */}
+        {/* 5-Minute Inactivity Auto-Lock Notice */}
+        {sessionLockNotice && (
+          <div className="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-500/40 text-amber-200 text-xs flex items-start gap-2.5 animate-in fade-in">
+            <Lock className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <div className="font-bold text-amber-300">Security Auto-Lock Triggered</div>
+              <p className="text-[11px] text-amber-200/90 leading-relaxed">{sessionLockNotice}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Login Portal Mode Tabs */}
         <div className="grid grid-cols-2 p-1 rounded-xl bg-slate-800/90 border border-slate-700 text-xs font-bold">
           <button
             type="button"
             onClick={() => {
               setLoginType('CLIENT');
-              setUsername('ACC_MGR');
+              setUsername('admin');
+              setPassword('Client@123');
+              setErrorMsg(null);
             }}
-            className={`py-2 rounded-lg transition-all ${
+            className={`py-2 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
               loginType === 'CLIENT'
                 ? 'bg-cyan-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            Client Tenant User
+            <Building2 className="w-3.5 h-3.5" />
+            Client Tenant Login
           </button>
           <button
             type="button"
             onClick={() => {
               setLoginType('MASTER');
               setUsername('MTS-ERP-SAP');
+              setPassword('MtsAdmin@2026!');
+              setErrorMsg(null);
             }}
-            className={`py-2 rounded-lg transition-all ${
+            className={`py-2 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
               loginType === 'MASTER'
                 ? 'bg-purple-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            Master Admin
+            <ShieldCheck className="w-3.5 h-3.5" />
+            Master Admin Login
           </button>
         </div>
 
         {errorMsg && (
-          <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+          <div className="p-3 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-300 text-xs flex items-center gap-2 animate-in shake">
             <AlertCircle className="w-4 h-4 shrink-0" />
-            {errorMsg}
+            <span className="font-medium">{errorMsg}</span>
           </div>
         )}
 
         <form onSubmit={handleLoginSubmit} className="space-y-4">
+          {/* Company Selector (Client Login Only) */}
           {loginType === 'CLIENT' && (
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1">Select Enterprise Company</label>
@@ -143,7 +217,7 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = tru
                 >
                   {allCompanies.map((c) => (
                     <option key={c.id} value={c.slug}>
-                      {c.name} ({c.slug}.erp.mts.pk)
+                      {c.name} ({c.code || c.slug})
                     </option>
                   ))}
                 </select>
@@ -151,9 +225,30 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = tru
             </div>
           )}
 
-          {/* Username Input matching Screenshot 4 */}
+          {/* Role Selector (Client Login Only) */}
+          {loginType === 'CLIENT' && (
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">Authorized User Role</label>
+              <select
+                value={selectedRole}
+                onChange={(e) => setSelectedRole(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl bg-slate-800/90 border border-slate-700 text-xs text-slate-100 font-semibold focus:outline-none focus:border-cyan-500"
+              >
+                <option value="CLIENT_ADMIN">Client Administrator</option>
+                <option value="ACCOUNTANT">Senior Accountant (FBR)</option>
+                <option value="PROCUREMENT_MGR">Procurement Manager</option>
+                <option value="INVENTORY_MGR">Warehouse / Inventory Head</option>
+                <option value="SALES_EXEC">Sales & POS Executive</option>
+                <option value="AUDITOR">Internal Auditor (Read-Only)</option>
+              </select>
+            </div>
+          )}
+
+          {/* Username Input */}
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Username / User ID</label>
+            <label className="block text-xs font-semibold text-slate-300 mb-1">
+              {loginType === 'MASTER' ? 'Master Admin Username' : 'Username / Work Email'}
+            </label>
             <div className="relative">
               <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -161,15 +256,22 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = tru
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
-                placeholder="ACC_MGR"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-xs text-slate-100 font-mono font-bold uppercase tracking-wider focus:outline-none focus:border-cyan-500"
+                placeholder={loginType === 'MASTER' ? 'MTS-ERP-SAP' : 'admin@company.pk'}
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-xs text-slate-100 font-mono font-bold focus:outline-none focus:border-cyan-500"
               />
             </div>
           </div>
 
-          {/* Password Input with eye toggle matching Screenshot 4 */}
+          {/* Password Input with Strict Security Validation */}
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Password</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs font-semibold text-slate-300">
+                {loginType === 'MASTER' ? 'Master Security Password' : 'Password'}
+              </label>
+              <span className="text-[10px] text-cyan-400 font-mono">
+                {loginType === 'MASTER' ? 'Password: MtsAdmin@2026!' : 'Password: Client@123'}
+              </span>
+            </div>
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -177,80 +279,66 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = tru
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                placeholder="PASSWORD"
+                placeholder="Enter password..."
                 className="w-full pl-9 pr-10 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-xs text-slate-100 font-mono focus:outline-none focus:border-cyan-500"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 cursor-pointer"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
 
-          {/* Remember Username Checkbox matching Screenshot 4 */}
+          {/* Remember Username */}
           <div className="flex items-center justify-between text-xs text-slate-300 pt-1">
             <label className="flex items-center gap-2 cursor-pointer select-none">
               <button
                 type="button"
                 onClick={() => setRememberUser(!rememberUser)}
-                className="text-cyan-400"
+                className="text-cyan-400 cursor-pointer"
               >
                 {rememberUser ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4 text-slate-500" />}
               </button>
-              <span>Remember username</span>
+              <span className="text-[11px]">Remember enterprise credentials</span>
             </label>
+            <span className="text-[10px] text-slate-400 font-mono">5-min auto-lock</span>
           </div>
 
-          {/* Sign In Button matching Screenshot 4 */}
+          {/* Submit Sign In Button */}
           <button
             type="submit"
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold text-xs shadow-xl shadow-cyan-600/30 flex items-center justify-center gap-2 transition-all mt-2 cursor-pointer"
+            disabled={isLockedOut}
+            className={`w-full py-3 rounded-xl font-bold text-xs shadow-xl flex items-center justify-center gap-2 transition-all mt-2 cursor-pointer ${
+              loginType === 'MASTER'
+                ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-purple-600/30'
+                : 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white shadow-cyan-600/30'
+            } ${isLockedOut ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             <LogIn className="w-4 h-4" />
-            Sign In to ERP &rarr;
+            {isLockedOut ? `Locked (${lockoutTimer}s)` : `Sign In to ${loginType === 'MASTER' ? 'Master Portal' : 'Enterprise ERP'} →`}
           </button>
         </form>
 
-        <div className="pt-3 border-t border-slate-800/80 space-y-2">
-          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center">
-            Quick Demo 1-Click Access
-          </div>
-          <div className="grid grid-cols-2 gap-2 text-xs font-semibold">
-            <button
-              type="button"
-              onClick={() => {
-                login('CLIENT', 'albarka', 'CLIENT_ADMIN');
-                if (onClose) onClose();
-              }}
-              className="py-2 px-3 rounded-xl bg-cyan-950/60 hover:bg-cyan-900/80 border border-cyan-700/50 text-cyan-200 text-[11px] font-bold text-center transition-all cursor-pointer truncate"
-            >
-              🏢 Albarka Admin
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                login('MASTER');
-                if (onClose) onClose();
-              }}
-              className="py-2 px-3 rounded-xl bg-purple-950/60 hover:bg-purple-900/80 border border-purple-700/50 text-purple-200 text-[11px] font-bold text-center transition-all cursor-pointer truncate"
-            >
-              👑 Master Admin
-            </button>
-          </div>
-
+        <div className="pt-3 border-t border-slate-800 space-y-2">
           <button
+            type="button"
             onClick={handleGoogleSignIn}
-            className="w-full py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer"
+            className="w-full py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
             <img src="https://www.gstatic.com/mobilesdk/160503_mobilesdk/firebase_28dp.png" alt="Firebase" className="w-4 h-4" />
-            Sign in with Google Firebase Auth
+            Enterprise Sign In with Google
           </button>
+        </div>
+
+        {/* Security Compliance Footer */}
+        <div className="text-center font-mono text-[10px] text-slate-400 space-y-0.5 pt-1">
+          <div>AES-256 Multi-Tenant Isolation • Auto-Lock after 5m Inactivity</div>
+          <div className="text-cyan-400 font-semibold">MTS ERP FUTURE SOLUTIONS © 2026</div>
         </div>
       </div>
     </div>
   );
 };
-

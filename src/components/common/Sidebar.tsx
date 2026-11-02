@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { ReportParameterModal, ReportConfigTarget } from './ReportParameterModal';
 
 export type ActiveTab =
   | 'dashboard'
@@ -76,6 +77,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
   const [expandedDept, setExpandedDept] = useState<ActiveTab | null>(activeTab);
   // Expanded subcategory state ('definitions' | 'forms' | 'reports')
   const [expandedSubCat, setExpandedSubCat] = useState<string | null>('forms');
+  // Report parameter modal target matching image_21e62cc3.png
+  const [selectedReportTarget, setSelectedReportTarget] = useState<ReportConfigTarget | null>(null);
 
   const masterNav = [
     { id: 'masterDashboard' as ActiveTab, label: 'Master Overview', icon: LayoutDashboard },
@@ -105,11 +108,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
         { id: 'cheque', label: 'Cheque Books & Clearance' }
       ],
       reports: [
-        { id: 'general_ledger', label: 'General Ledger' },
-        { id: 'sub_ledger', label: 'Sub Ledger Detail' },
+        { id: 'chart_of_account', label: 'Chart of Account' },
+        { id: 'voucher_print', label: 'Voucher Print' },
+        { id: 'journal_ledger', label: 'Journal Ledger' },
         { id: 'trial_balance', label: 'Trial Balance' },
-        { id: 'profit_loss', label: 'Profit & Loss Statement' },
-        { id: 'aging', label: 'Aging Creditors' }
+        { id: 'day_book', label: 'Day Book' },
+        { id: 'daily_bank_activity', label: 'Daily Bank Activity' },
+        { id: 'pending_cheque', label: 'Pending Cheque' },
+        { id: 'sub_ledger', label: 'Sub ledger' },
+        { id: 'po_view', label: 'Po View' },
+        { id: 'child_sub_ledger', label: 'Child Sub Ledger' },
+        { id: 'user_voucher_posting', label: 'User Voucher Posting' }
       ]
     },
     {
@@ -250,6 +259,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
   const handleSubItemClick = (deptId: ActiveTab, subcategory: string, subtabId: string) => {
     setActiveTab(deptId, subcategory, subtabId);
 
+    // If a report subtab was clicked, pop up the universal report parameter form matching image_21e62cc3.png
+    if (subcategory === 'reports') {
+      const deptObj = departments.find((d) => d.id === deptId);
+      const reportItem = deptObj?.reports.find((r) => r.id === subtabId);
+      const label = reportItem ? reportItem.label : subtabId.replace(/_/g, ' ').toUpperCase();
+      let code = subtabId.toUpperCase();
+      if (!code.endsWith('_REP')) {
+        code = `${code}_REP`;
+      }
+      setSelectedReportTarget({
+        id: subtabId,
+        code,
+        title: label,
+        category: deptId === 'finance' ? 'Accounts' : deptId === 'inventory' ? 'Inventory' : deptId === 'procurement' ? 'Procurement' : 'Sales'
+      });
+    }
+
     // Update URL query parameters
     const url = new URL(window.location.href);
     url.searchParams.set('module', deptId);
@@ -259,7 +285,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
   };
 
   return (
-    <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 min-h-[calc(100vh-57px)]">
+    <>
+      <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 min-h-[calc(100vh-57px)]">
       {/* Header Banner */}
       <div className="p-4 border-b border-slate-800/80">
         {isMasterPortal ? (
@@ -512,5 +539,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
         Pakistan Localization (PKR) • FBR Compliant
       </div>
     </aside>
+
+    {/* Universal Report Parameter Popup matching image_21e62cc3.png */}
+    <ReportParameterModal
+      isOpen={!!selectedReportTarget}
+      onClose={() => setSelectedReportTarget(null)}
+      reportTarget={selectedReportTarget}
+    />
+  </>
   );
 };

@@ -24,7 +24,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../../services/firebaseConfig';
 
 export const TenantManagement: React.FC = () => {
-  const { allCompanies, setAllCompanies, switchTenantBySlug } = useAuthTenant();
+  const { allCompanies, setAllCompanies, switchTenantBySlug, permanentDeleteCompany } = useAuthTenant();
   const [activeTab, setActiveTab] = useState<'tenants' | 'approvals' | 'backup' | 'archive'>('tenants');
   const [editingCompany, setEditingCompany] = useState<ClientCompany | null>(null);
 
@@ -48,8 +48,8 @@ export const TenantManagement: React.FC = () => {
     setAllCompanies(prev => prev.map(c => c.id === id ? { ...c, isArchived: false } : c));
   };
 
-  const handlePermanentDelete = (id: string) => {
-    setAllCompanies(prev => prev.filter(c => c.id !== id));
+  const handlePermanentDelete = async (id: string) => {
+    await permanentDeleteCompany(id);
   };
 
   // Master Admin approves or rejects Client Admin limit increase request
@@ -250,6 +250,18 @@ export const TenantManagement: React.FC = () => {
                     title="Move to Archive"
                   >
                     <Trash2 className="w-3.5 h-3.5" /> Archive
+                  </button>
+
+                  <button
+                    onClick={async () => {
+                      if (window.confirm(`Permanently delete "${comp.name}"? This will permanently remove the company, its settings, and sample data from storage.`)) {
+                        await handlePermanentDelete(comp.id);
+                      }
+                    }}
+                    className="p-1.5 px-3 rounded-xl bg-rose-600/20 hover:bg-rose-600/40 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer"
+                    title="Permanently Delete Company"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 text-rose-400" /> Permanent Delete
                   </button>
                 </div>
               </div>

@@ -13,7 +13,8 @@ import {
   LogIn,
   LogOut,
   User,
-  Globe
+  Globe,
+  Lock
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -46,7 +47,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewCompanyModal, onSelectT
     allBranches,
     theme,
     setTheme,
-    switchTenantBySlug
+    switchTenantBySlug,
+    secondsRemaining,
+    logout
   } = useAuthTenant();
 
   const { language, setLanguage, t } = useLanguage();
@@ -78,23 +81,25 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewCompanyModal, onSelectT
           <div
             onClick={() => setShowCompanyDrawer(true)}
             className="flex items-center gap-2.5 cursor-pointer hover:opacity-90 transition-opacity"
-            title="View Company Profile"
+            title="View MTS ERP Company Profile"
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-600 to-purple-600 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-cyan-500/20">
-              MTS
-            </div>
+            <img 
+              src="/assets/aistudio/Untitled_design_4a7e39e2.png" 
+              alt="MTS ERP FUTURE SOLUTIONS" 
+              className="h-9 w-auto object-contain drop-shadow-md" 
+            />
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-bold text-slate-100 tracking-wide text-sm">MTS-ERP-SAP</span>
+                <span className="font-bold text-slate-100 tracking-wide text-sm">MTS-ERP</span>
                 <span className="text-[10px] px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 font-semibold border border-cyan-500/30">
                   v4.8 Enterprise
                 </span>
               </div>
-              <p className="text-[10px] text-slate-400 font-medium">Hybrid Cloud & Offline PWA</p>
+              <p className="text-[10px] text-slate-400 font-medium">Future Solutions • FBR Compliant</p>
             </div>
           </div>
 
-          {/* Master vs Client Portal Toggle Pill (Master Admin Only) */}
+          {/* Master vs Client Portal Toggle Pill (Strictly Master Admin Only) */}
           {currentUser.isMaster && (
             <div className="hidden lg:flex items-center bg-slate-800/90 rounded-lg p-1 border border-slate-700">
               <button
@@ -113,7 +118,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewCompanyModal, onSelectT
               </button>
               <button
                 onClick={() => {
-                  switchTenantBySlug(allCompanies[0].slug);
+                  switchTenantBySlug(allCompanies[0]?.slug || 'albarka');
                   onSelectTab('dashboard');
                 }}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition-all ${
@@ -128,12 +133,12 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewCompanyModal, onSelectT
             </div>
           )}
 
-          {/* Active Company Selector Dropdown */}
+          {/* Active Company Selector Dropdown (No Create Company for Client Users) */}
           {!isMasterPortal && (
             <div className="relative">
               <button
                 onClick={() => setShowCompanyMenu(!showCompanyMenu)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/90 border border-slate-700 hover:border-slate-600 text-slate-200 text-xs font-medium transition-all"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/90 border border-slate-700 hover:border-slate-600 text-slate-200 text-xs font-medium transition-all cursor-pointer"
               >
                 <Building2 className="w-4 h-4 text-cyan-400" />
                 <div className="text-left">
@@ -141,16 +146,16 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewCompanyModal, onSelectT
                     {currentCompany.name}
                   </div>
                   <div className="text-[10px] text-cyan-400 font-mono">
-                    mts-sap.vercel.app?company={currentCompany.slug}
+                    {currentCompany.code || currentCompany.slug} • FBR NTN: {currentCompany.ntn}
                   </div>
                 </div>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400 ml-1" />
               </button>
 
               {showCompanyMenu && (
-                <div className="absolute left-0 mt-2 w-72 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-2 z-50">
+                <div className="absolute left-0 mt-2 w-72 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-2 z-50 animate-in fade-in">
                   <div className="px-3 py-1.5 text-[11px] font-semibold text-slate-400 border-b border-slate-800 uppercase tracking-wider">
-                    Select Enterprise Tenant
+                    Assigned Enterprise Company
                   </div>
                   <div className="py-1 max-h-60 overflow-y-auto space-y-1">
                     {allCompanies.map((comp) => (
@@ -161,7 +166,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewCompanyModal, onSelectT
                           setShowCompanyMenu(false);
                           onSelectTab('dashboard');
                         }}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition-all ${
+                        className={`w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition-all cursor-pointer ${
                           comp.id === currentCompany.id
                             ? 'bg-cyan-600/20 border border-cyan-500/40 text-cyan-200'
                             : 'hover:bg-slate-800 text-slate-300'
@@ -178,18 +183,21 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewCompanyModal, onSelectT
                     ))}
                   </div>
 
-                  <div className="pt-2 mt-1 border-t border-slate-800">
-                    <button
-                      onClick={() => {
-                        setShowCompanyMenu(false);
-                        if (onOpenNewCompanyModal) onOpenNewCompanyModal();
-                      }}
-                      className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-cyan-600/30 hover:bg-cyan-600/50 text-cyan-200 text-xs font-medium border border-cyan-500/30 transition-all"
-                    >
-                      <PlusCircle className="w-3.5 h-3.5" />
-                      Register New Client Company
-                    </button>
-                  </div>
+                  {/* NOTE: Client users MUST NOT have create company option. Only Master Admin can create companies */}
+                  {currentUser.isMaster && (
+                    <div className="pt-2 mt-1 border-t border-slate-800">
+                      <button
+                        onClick={() => {
+                          setShowCompanyMenu(false);
+                          if (onOpenNewCompanyModal) onOpenNewCompanyModal();
+                        }}
+                        className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 text-xs font-medium border border-purple-500/30 transition-all cursor-pointer"
+                      >
+                        <PlusCircle className="w-3.5 h-3.5" />
+                        Register New Client Company
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -315,14 +323,29 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewCompanyModal, onSelectT
             )}
           </div>
 
-          {/* Login Portal Trigger Button */}
-          <button
-            onClick={() => setShowLoginModal(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 text-xs font-semibold transition-all cursor-pointer"
-            title="Master / Tenant Login Portal"
+          {/* Real-Time Security Inactivity Badge (5-Minute Auto-Lock) */}
+          <div 
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-mono transition-all ${
+              secondsRemaining < 45
+                ? 'bg-rose-950/80 text-rose-300 border-rose-500 animate-pulse'
+                : 'bg-slate-800/80 text-slate-300 border-slate-700'
+            }`}
+            title={`Session Auto-Locks after 5 minutes of inactivity: ${secondsRemaining}s remaining`}
           >
-            <LogIn className="w-3.5 h-3.5 text-purple-300" />
-            <span className="hidden sm:inline">Login Portal</span>
+            <Lock className={`w-3.5 h-3.5 ${secondsRemaining < 45 ? 'text-rose-400' : 'text-amber-400'}`} />
+            <span className="hidden sm:inline font-bold">
+              {Math.floor(secondsRemaining / 60)}:{(secondsRemaining % 60).toString().padStart(2, '0')}
+            </span>
+          </div>
+
+          {/* Quick Lock / Sign Out Button */}
+          <button
+            onClick={() => logout('Session locked by user.')}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-950/50 text-slate-300 hover:text-rose-300 border border-slate-700 hover:border-rose-700/50 text-xs font-semibold transition-all cursor-pointer"
+            title="Lock Enterprise Session"
+          >
+            <LogOut className="w-3.5 h-3.5 text-slate-400" />
+            <span className="hidden md:inline">Lock Session</span>
           </button>
 
           {/* User Profile Pill */}
