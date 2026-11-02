@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, Shield, Palette, Type, Save, Database, Download } from 'lucide-react';
+import { Settings, Shield, Palette, Type, Save, Database, Download, Eye, EyeOff } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { BrandingConfigurator } from '../common/BrandingConfigurator';
 import { ReportConfigManager } from './ReportConfigManager';
@@ -7,6 +7,7 @@ import { ReportConfigManager } from './ReportConfigManager';
 export const MasterSettingsDashboard: React.FC = () => {
   const { allCompanies } = useAuthTenant();
   const [securityPassword, setSecurityPassword] = useState('MtsAdmin@2026!');
+  const [showSecurityPassword, setShowSecurityPassword] = useState(false);
   const [theme, setTheme] = useState('corporate-blue');
   const [fontFamily, setFontFamily] = useState('sans');
 
@@ -44,12 +45,21 @@ export const MasterSettingsDashboard: React.FC = () => {
           </h2>
           <div className="grid gap-2">
             <label className="text-xs text-slate-400">Master Admin Password</label>
-            <input 
-              type="password"
-              value={securityPassword}
-              onChange={(e) => setSecurityPassword(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white"
-            />
+            <div className="relative">
+              <input 
+                type={showSecurityPassword ? 'text' : 'password'}
+                value={securityPassword}
+                onChange={(e) => setSecurityPassword(e.target.value)}
+                className="w-full px-3 py-2 pr-10 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white font-mono"
+              />
+              <button
+                type="button"
+                onClick={() => setShowSecurityPassword(!showSecurityPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+              >
+                {showSecurityPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
         </section>
 
