@@ -102,6 +102,10 @@ export interface ResolvedTenant {
   company: ClientCompany | null;
 }
 
+export function generateLoginUrl(tenantSlug: string): string {
+  return `https://app.mts-erp.pk/${tenantSlug}/login`;
+}
+
 export function resolveCurrentTenant(): ResolvedTenant {
   if (typeof window === 'undefined') {
     return { isMasterPortal: true, tenantSlug: null, company: null };
