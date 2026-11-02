@@ -20,12 +20,14 @@ interface MasterDashboardProps {
   onNavigateRegister: () => void;
   onNavigateCompanies: () => void;
   onNavigateApiAudit?: () => void;
+  onNavigateAuditInsights?: () => void;
 }
 
 export const MasterDashboard: React.FC<MasterDashboardProps> = ({
   onNavigateRegister,
   onNavigateCompanies,
-  onNavigateApiAudit
+  onNavigateApiAudit,
+  onNavigateAuditInsights
 }) => {
   const { allCompanies } = useAuthTenant();
 
@@ -52,6 +54,15 @@ export const MasterDashboard: React.FC<MasterDashboardProps> = ({
 
         <div className="flex flex-wrap items-center gap-3">
           <TTSButton text={dashboardSpeech} label="Listen Briefing" size="lg" />
+          {onNavigateAuditInsights && (
+            <button
+              onClick={onNavigateAuditInsights}
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 font-bold text-xs border border-purple-500/40 shadow-lg shadow-purple-950/40 transition-all"
+            >
+              <TrendingUp className="w-4 h-4 text-purple-400" />
+              Audit Insights (D3)
+            </button>
+          )}
           {onNavigateApiAudit && (
             <button
               onClick={onNavigateApiAudit}

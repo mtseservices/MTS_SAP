@@ -15,6 +15,7 @@ import { RateLimitManager } from './components/master/RateLimitManager';
 import { MasterSettingsDashboard } from './components/master/MasterSettingsDashboard';
 import { UserCreationManager } from './components/master/UserCreationManager';
 import { SystemApiAuditViewer } from './components/master/SystemApiAuditViewer';
+import { AuditInsightsDashboard } from './components/master/AuditInsightsDashboard';
 
 // Client Tenant ERP Views
 import { ClientDashboard } from './components/client/ClientDashboard';
@@ -51,7 +52,7 @@ function MainLayout() {
       'production', 'hr', 'formBuilder', 'reports', 'approvals',
       'aiAssistant', 'auditLogs', 'companySettings', 'crm', 'performanceMetrics', 'masterDashboard',
       'masterCompanies', 'masterSubdomains', 'masterRegister',
-      'masterSubscriptions', 'masterAudit', 'masterApiAudit', 'masterSystemHealth', 'masterRateLimits',
+      'masterSubscriptions', 'masterAudit', 'masterApiAudit', 'masterAuditInsights', 'masterSystemHealth', 'masterRateLimits',
       'masterSettings', 'masterUserCreation'
     ];
 
@@ -114,6 +115,7 @@ function MainLayout() {
               onNavigateRegister={() => setActiveTab('masterRegister')}
               onNavigateCompanies={() => setActiveTab('masterCompanies')}
               onNavigateApiAudit={() => setActiveTab('masterApiAudit')}
+              onNavigateAuditInsights={() => setActiveTab('masterAuditInsights')}
             />
           )}
 
@@ -134,7 +136,14 @@ function MainLayout() {
           )}
 
           {isMasterPortal && activeTab === 'masterApiAudit' && (
-            <SystemApiAuditViewer />
+            <SystemApiAuditViewer onNavigateAuditInsights={() => setActiveTab('masterAuditInsights')} />
+          )}
+
+          {isMasterPortal && activeTab === 'masterAuditInsights' && (
+            <AuditInsightsDashboard
+              onNavigateRateLimits={() => setActiveTab('masterRateLimits')}
+              onNavigateApiAudit={() => setActiveTab('masterApiAudit')}
+            />
           )}
 
           {isMasterPortal && activeTab === 'masterSystemHealth' && (

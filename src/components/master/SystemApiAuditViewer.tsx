@@ -21,6 +21,7 @@ import {
   Cpu,
   BarChart2,
   SlidersHorizontal,
+  TrendingUp,
   X
 } from 'lucide-react';
 import {
@@ -38,7 +39,11 @@ import { apiAuditService, ApiAuditFilter, ApiObservabilityMetrics } from '../../
 import { ApiAuditLogEntry, ApiCategory, ApiDirection, HttpMethod } from '../../types/erp';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 
-export const SystemApiAuditViewer: React.FC = () => {
+interface SystemApiAuditViewerProps {
+  onNavigateAuditInsights?: () => void;
+}
+
+export const SystemApiAuditViewer: React.FC<SystemApiAuditViewerProps> = ({ onNavigateAuditInsights }) => {
   const { allCompanies } = useAuthTenant();
 
   const [logs, setLogs] = useState<ApiAuditLogEntry[]>([]);
@@ -136,6 +141,16 @@ export const SystemApiAuditViewer: React.FC = () => {
             <RefreshCw className={`w-3.5 h-3.5 ${isLivePolling ? 'animate-spin' : ''}`} />
             {isLivePolling ? 'Live Polling: 5s' : 'Polling: Paused'}
           </button>
+
+          {onNavigateAuditInsights && (
+            <button
+              onClick={onNavigateAuditInsights}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 font-bold text-xs border border-purple-500/40 shadow-lg shadow-purple-950/40 transition-all"
+            >
+              <TrendingUp className="w-4 h-4 text-purple-400" />
+              D3 Audit Insights
+            </button>
+          )}
 
           <button
             onClick={handleRunSyntheticProbe}
