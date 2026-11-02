@@ -1,0 +1,1564 @@
+# MASTER DEVELOPMENT PROMPT
+# MTS ERP FUTURE SOLUTIONS
+## CLIENT TENANT LOGIN, SELF-SERVICE SIGNUP, COMPANY BRANDING, SUBSCRIPTION & BILLING MANAGEMENT
+### Existing ERP SaaS Architecture Upgrade – Google AI Studio Build
+
+---
+
+## 1. YOUR ROLE AND DEVELOPMENT OBJECTIVE
+
+Act as a senior SaaS architect, full-stack developer, Firebase security engineer, UI/UX designer, subscription billing specialist and enterprise ERP software engineer.
+
+I already have an existing ERP application deployed on Vercel:
+
+**Application:** MTS ERP FUTURE SOLUTIONS  
+**Hosting:** Vercel  
+**Existing Architecture:** React / TypeScript / Firebase-based application  
+**Existing ERP Modules:** Finance & Accounts, Procurement, Inventory, Sales, Production, HR, Reporting, Administration and other enterprise modules.
+
+I am NOT asking you to create a new ERP from scratch.
+
+I want you to upgrade and modify my EXISTING ERP application into a professional multi-tenant SaaS platform.
+
+Preserve all existing working ERP modules, forms, reports, company data, navigation, dashboard features, and existing business logic.
+
+Do not delete, replace, simplify or redesign existing ERP functionality unnecessarily.
+
+Your primary task is to implement a professional client onboarding, branded tenant login, subscription, trial, billing and user licensing architecture.
+
+Before modifying the project:
+1. Inspect the existing codebase.
+2. Identify existing authentication.
+3. Identify existing company and tenant records.
+4. Identify the current login flow.
+5. Identify existing Firebase collections.
+6. Identify current URL and company resolution logic.
+7. Identify existing Master Admin functionality.
+8. Identify existing subscription or payment functionality, if any.
+
+Reuse existing working components and migrate carefully where required.
+
+Do not create duplicate authentication systems or duplicate company records.
+
+---
+
+# 2. MOST IMPORTANT REQUIREMENT – CLIENT LOGIN MUST NOT SHOW MASTER ADMIN
+
+The current client login page has two options:
+
+- Client Tenant Login.
+- Master Admin Login.
+
+Remove the Master Admin Login option completely from the client-facing login page.
+
+The client must NEVER see:
+
+- Master Admin Login switch.
+- Master User Login option.
+- Master Admin credentials.
+- Platform owner credentials.
+- Master Admin dashboard links.
+- Master Admin navigation.
+- Master Admin registration.
+- Platform-level company switching.
+
+The client login must be simple and professional.
+
+## Required client login screen
+
+Display only:
+
+- Selected Company Logo.
+- Company Name.
+- Company-specific background image.
+- Username / Work Email.
+- Password.
+- Show / Hide Password.
+- Remember Me.
+- Forgot Password.
+- Sign In button.
+- Optional Google Sign-In, only when enabled by the platform administrator.
+
+Remove the following from the client login screen:
+
+- Company selection dropdown.
+- Authorized User Role selection dropdown.
+- Master Admin switch.
+- Any other company's name.
+- Any other company's login credentials.
+
+The login identity and company context must be determined securely from the tenant URL and authenticated user membership.
+
+**Important:** Do not expose a role selector at login. Roles must be assigned by the Company Admin and verified by the backend.
+
+## Single company login example
+
+If the company is Albarka Food Industries, show:
+
+**ALBARKA FOOD INDUSTRIES (PVT) LTD**
+
+Username / Work Email  
+Password  
+Remember Me  
+Sign In
+
+No company selection.
+
+No role selection.
+
+No Master Admin option.
+
+No other tenant's company name.
+
+## Multiple company example
+
+If the company is Zakria Courier House, its login must show:
+
+**ZAKRIA COURIER HOUSE**
+
+The login page must not show Albarka Food Industries or any other company.
+
+---
+
+# 3. SEPARATE MASTER ADMIN CONTROL PANEL
+
+Master Admin functionality must remain available to the platform owner, but completely separate from the client application.
+
+Create a private platform administration area.
+
+Suggested route:
+
+`/platform-control`
+
+This route must:
+- Require a pre-provisioned Master Admin account.
+- Require strong authentication.
+- Require MFA where configured.
+- Enforce server-side platform-level authorization.
+- Never be accessible to normal client users.
+- Never expose a Master Admin switch on client pages.
+
+Do not rely on hiding a button for security.
+
+All platform-level APIs must verify Master Admin privileges server-side.
+
+Master Admin must be provisioned securely through a trusted administrative process.
+
+No public user can register as Master Admin.
+
+## Master Admin capabilities
+
+Master Admin can manage:
+
+1. All registered companies.
+2. All client subscriptions.
+3. Trial packages.
+4. Subscription plans.
+5. User licensing limits.
+6. Business categories.
+7. Category-wise pricing.
+8. Package-wise pricing.
+9. Payment gateways.
+10. Payment records.
+11. Renewals.
+12. Upgrades.
+13. Downgrades.
+14. Subscription expiry.
+15. Company suspension.
+16. Company activation.
+17. Tenant URLs.
+18. Branding permissions.
+19. Theme permissions.
+20. Storage limits.
+21. Company limits.
+22. User limits.
+23. Module access.
+24. Feature access.
+25. Billing reports.
+26. Revenue reports.
+27. Payment reconciliation.
+28. Platform audit logs.
+
+Create a dedicated Master Admin dashboard with complete financial and subscription analytics.
+
+---
+
+# 4. SELF-SERVICE CLIENT SIGNUP
+
+Create a public client registration page.
+
+The signup page must be accessible without Master Admin involvement.
+
+Suggested URL:
+
+`https://mtserp.vercel.app/signup`
+
+Client should be able to register independently.
+
+## Signup page design
+
+Display:
+
+- MTS ERP FUTURE SOLUTIONS logo.
+- Professional welcome message.
+- Create Your ERP Account heading.
+- Full Name.
+- Work Email.
+- Mobile Number.
+- Country.
+- Password.
+- Confirm Password.
+- Terms and Conditions.
+- Privacy Policy.
+- Create Account button.
+
+Optional:
+
+**Continue with Google**
+
+Google Sign-In must be configurable.
+
+If Google Sign-In is disabled or not configured, hide its button.
+
+Do not force users to use Google Sign-In.
+
+## Signup authentication
+
+Support:
+- Email/password registration.
+- Email verification.
+- Password strength validation.
+- Secure password hashing through Firebase Authentication.
+- Password reset.
+- Login rate limiting.
+- Duplicate email detection.
+- Session management.
+
+After successful signup, verify the email before activating the company registration process where email verification is required.
+
+---
+
+# 5. COMPANY REGISTRATION AFTER SIGNUP
+
+After successful signup, redirect the user to a professional onboarding wizard.
+
+The user must fill in their own company details.
+
+Master Admin access must NOT be required for this process.
+
+## Step 1 – Basic Company Details
+
+Fields:
+
+- Company Name.
+- Legal Company Name.
+- Company Short Name.
+- Company Registration Number.
+- Business Category.
+- Business Subcategory.
+- Business Type.
+- Country.
+- State / Province.
+- City.
+- Complete Address.
+- Postal Code.
+- Website.
+- Company Email.
+- Company Phone.
+- WhatsApp Number.
+- Time Zone.
+- Base Currency.
+- Financial Year Start.
+- Company Description.
+
+## Step 2 – Company Contact Details
+
+Fields:
+
+- Owner Name.
+- Primary Contact Person.
+- Designation.
+- Email.
+- Mobile Number.
+- WhatsApp Number.
+- Alternate Contact.
+- Billing Contact.
+- Billing Email.
+- Emergency Contact.
+
+## Step 3 – Company Branding
+
+Fields:
+
+- Upload Company Logo.
+- Upload Login Background Image.
+- Upload Dashboard Logo.
+- Upload Favicon.
+- Company Primary Color.
+- Company Secondary Color.
+- Company Accent Color.
+- Login Page Heading.
+- Login Page Welcome Text.
+- Footer Text.
+
+### Automatic favicon generation
+
+When the user uploads a company logo:
+
+1. Generate a square favicon version.
+2. Generate supported favicon sizes.
+3. Generate a browser tab icon.
+4. Generate an application icon where supported.
+5. Save generated files in Firebase Storage.
+6. Update the tenant-specific favicon dynamically.
+
+Support:
+- PNG.
+- JPG.
+- JPEG.
+- SVG where safely supported.
+- WebP.
+
+Validate file type and size.
+
+Do not use another company's logo or favicon.
+
+The uploaded logo must appear on:
+- Client login.
+- Client dashboard.
+- Application header.
+- Browser favicon.
+- Company profile.
+- Reports and documents where branding is enabled.
+
+## Step 4 – Business Category Configuration
+
+Allow users to select their company category.
+
+Examples:
+
+- Food & Beverage.
+- Manufacturing.
+- Solar & Electrical.
+- Textile.
+- Construction.
+- Wholesale.
+- Retail.
+- Supermarket.
+- Courier & Logistics.
+- Import & Export.
+- Agriculture.
+- Pharma.
+- Automotive.
+- Transport.
+- Education.
+- Healthcare.
+- Hotel & Restaurant.
+- Real Estate.
+- E-commerce.
+- Services.
+- Other.
+
+The category must be used to recommend relevant ERP modules, features and subscription pricing.
+
+The client must be able to request a category change, subject to the subscription and platform rules.
+
+## Step 5 – Subscription Trial Selection
+
+Show available free trial options:
+
+- 3 Days.
+- 7 Days.
+- 15 Days.
+
+The trial options must be configurable by Master Admin.
+
+Show:
+
+- Trial Name.
+- Trial Duration.
+- Included Modules.
+- User Limit.
+- Storage Limit.
+- Company Limit.
+- Feature Access.
+- Trial Start Date.
+- Trial Expiry Date.
+
+Allow the user to select one available trial.
+
+Do not allow users to repeatedly create new trial accounts to bypass trial restrictions.
+
+Implement duplicate detection using verified email, phone, company registration details and other appropriate signals, subject to privacy requirements.
+
+A trial must have an actual server-controlled expiry timestamp.
+
+At expiry:
+- Notify the client.
+- Display upgrade options.
+- Apply configured access restrictions.
+- Preserve company data.
+- Do not delete records automatically.
+
+## Step 6 – Final Review
+
+Show a complete summary:
+
+- Account Details.
+- Company Details.
+- Business Category.
+- Branding.
+- Selected Trial.
+- Included Features.
+- User Limit.
+- Trial Expiry.
+
+Button:
+
+**Create My ERP Company**
+
+After successful creation, generate the company's tenant identity and login URL.
+
+---
+
+# 6. TENANT-SPECIFIC COMPANY URL
+
+Every company must receive its own login URL.
+
+Example:
+
+Albarka Food Industries:
+
+`https://albarka.mtserp.vercel.app`
+
+Zakria Courier House:
+
+`https://zakria.mtserp.vercel.app`
+
+Other company:
+
+`https://companyname.mtserp.vercel.app`
+
+If wildcard subdomains are not configured, provide a secure fallback URL:
+
+`https://mtserp.vercel.app/?company=COMPANY_SLUG`
+
+The platform should support both modes.
+
+Use secure tenant resolution.
+
+The tenant identity must be verified server-side.
+
+Never trust a company ID or tenant ID supplied by the browser without checking the authenticated user's membership.
+
+## Tenant URL generation
+
+Generate a unique company slug.
+
+Example:
+
+- Albarka Food Industries → `albarka`
+- Zakria Courier House → `zakria`
+- ABC Solar Solutions → `abcsolar`
+
+Check duplicate slugs.
+
+If a slug is already used, suggest alternatives.
+
+Allow Master Admin to modify or reserve a slug.
+
+Allow custom domains as an optional future feature.
+
+## Company-specific login experience
+
+When a client opens its URL, automatically load:
+
+- Company Logo.
+- Company Name.
+- Company Favicon.
+- Login Background.
+- Brand Colors.
+- Welcome Text.
+- Login Configuration.
+
+Do not display another company's data.
+
+---
+
+# 7. SINGLE ADMIN AND MULTI-USER ACCOUNT SYSTEM
+
+This is a critical business requirement.
+
+Every company starts with a minimum of ONE user.
+
+The first registered account becomes the company's primary administrator.
+
+## Single-user company
+
+When a company has purchased or received a one-user plan:
+
+- Only one user account is allowed.
+- The primary administrator uses their own username/email and password.
+- No additional user creation is available.
+- No role selector appears at login.
+- The company operates with one administrator account.
+- The administrator can access the ERP modules permitted by the plan.
+
+Do not force a single-user company to create multiple users.
+
+## Multi-user company
+
+When a company purchases a package allowing multiple users, enable the user management module.
+
+The Company Admin can create additional users.
+
+Example:
+
+Company: Albarka Food Industries.
+
+Purchased User Limit: 5.
+
+Users:
+1. Admin.
+2. Accounts Manager.
+3. Inventory Officer.
+4. Procurement Officer.
+5. Sales Executive.
+
+## Company User Creation Form
+
+Fields:
+
+- Employee Name.
+- Username.
+- Work Email.
+- Mobile Number.
+- Designation.
+- Department.
+- Role.
+- Password / Secure Invitation.
+- Confirm Password where applicable.
+- User Status.
+- Access Start Date.
+- Access Expiry Date.
+- Permissions.
+
+Use secure Firebase Authentication account creation.
+
+The Company Admin must never receive or view another user's actual password after account creation.
+
+Prefer invitation links and password setup emails.
+
+## User limits
+
+The company must never exceed its purchased user limit.
+
+Example:
+
+- Package allows 1 user → 1 account only.
+- Package allows 5 users → maximum 5 accounts.
+- Package allows 10 users → maximum 10 accounts.
+- Package allows 25 users → maximum 25 accounts.
+- Custom package → Master Admin defines limit.
+
+When the limit is reached, show:
+
+"You have reached your subscribed user limit. Upgrade your package to add more users."
+
+Provide an Upgrade Plan link.
+
+## User licence management
+
+Track:
+
+- Total Allowed Users.
+- Active Users.
+- Pending Invitations.
+- Disabled Users.
+- Available User Slots.
+- User Licence Start Date.
+- User Licence Expiry Date.
+
+Do not count disabled or expired accounts as active unless the subscription policy explicitly defines otherwise.
+
+Use backend transactions to prevent simultaneous user creation from exceeding the purchased limit.
+
+---
+
+# 8. SUBSCRIPTION PLANS AND CATEGORY-WISE PRICING
+
+Create a complete subscription management engine.
+
+Master Admin must control all pricing.
+
+Clients must not be able to edit subscription prices or user limits themselves.
+
+## Pricing must be configurable by:
+
+1. Business Category.
+2. Business Subcategory.
+3. Subscription Plan.
+4. Number of Users.
+5. ERP Modules.
+6. Storage Limit.
+7. Number of Companies.
+8. Number of Branches.
+9. Additional Features.
+10. Billing Period.
+11. Country.
+12. Currency.
+
+## Example subscription packages
+
+These are sample structures only. Master Admin must be able to edit all prices and limits.
+
+### Starter
+
+- 1 User.
+- 1 Company.
+- Basic ERP Modules.
+- Limited Storage.
+- Standard Support.
+
+### Professional
+
+- 5 Users.
+- 1 Company.
+- Advanced ERP Modules.
+- Standard Reports.
+- Additional Storage.
+
+### Business
+
+- 10 Users.
+- Multiple Branches.
+- Advanced Reports.
+- Automation.
+- Additional Permissions.
+
+### Enterprise
+
+- 25+ Users.
+- Multiple Branches.
+- Advanced Modules.
+- Custom Reports.
+- Priority Support.
+- Custom Features.
+
+### Custom Package
+
+Master Admin can configure:
+
+- Unlimited or defined users.
+- Selected modules.
+- Custom storage.
+- Custom branches.
+- Custom company limits.
+- Special pricing.
+- Contract duration.
+
+## Category-wise pricing
+
+Master Admin can configure different prices for different business categories.
+
+Example:
+
+- Retail.
+- Manufacturing.
+- Food & Beverage.
+- Solar.
+- Textile.
+- Courier & Logistics.
+- Construction.
+- Services.
+
+Each category can have its own:
+- Base subscription price.
+- Included modules.
+- User pricing.
+- Storage pricing.
+- Additional feature charges.
+
+## User-wise pricing
+
+Support multiple pricing models:
+
+- Fixed package with included users.
+- Per additional user.
+- Per active user.
+- Per user per month.
+- Custom user bundle.
+
+Example:
+
+Base package includes 5 users.
+
+Additional user charges are configured by Master Admin.
+
+The system calculates the final subscription amount automatically.
+
+Do not hardcode prices in frontend components.
+
+All prices must come from the subscription configuration stored securely in the backend.
+
+---
+
+# 9. MASTER ADMIN SUBSCRIPTION MANAGEMENT
+
+Create a professional subscription control panel.
+
+Master Admin can:
+
+- Create Subscription Plans.
+- Edit Subscription Plans.
+- Disable Subscription Plans.
+- Create Custom Plans.
+- Set Trial Durations.
+- Set Category-wise Prices.
+- Set User-wise Prices.
+- Set Module-wise Prices.
+- Set Storage Limits.
+- Set Branch Limits.
+- Set Company Limits.
+- Configure Billing Periods.
+- Configure Grace Periods.
+- Configure Renewal Rules.
+- Configure Taxes.
+- Configure Discounts.
+- Configure Promotional Offers.
+
+Subscription statuses:
+
+- Trial.
+- Active.
+- Pending Payment.
+- Payment Failed.
+- Grace Period.
+- Expired.
+- Suspended.
+- Cancelled.
+- Archived.
+
+## Subscription upgrade
+
+Allow clients to request or purchase an upgrade.
+
+Examples:
+
+- Starter to Professional.
+- Professional to Business.
+- 1 User to 5 Users.
+- 5 Users to 10 Users.
+- Add Inventory Module.
+- Add Payroll Module.
+- Add Branch.
+- Add Storage.
+
+Calculate the difference in price.
+
+Support prorated billing where configured.
+
+Show a clear order summary before payment.
+
+## Subscription renewal
+
+Provide:
+
+- Renew Now.
+- Renewal Date.
+- Renewal Amount.
+- Payment Method.
+- Invoice.
+- Payment Status.
+- Renewal History.
+
+Send renewal reminders before expiry.
+
+## Subscription downgrade
+
+Allow downgrade requests.
+
+Before downgrading, check:
+- Active users.
+- Used storage.
+- Enabled modules.
+- Active branches.
+- Existing records.
+
+Do not delete data automatically during a downgrade.
+
+Require the client to resolve any limit conflicts or apply a clearly defined restricted-access policy.
+
+---
+
+# 10. PAYMENT AND BILLING SYSTEM
+
+Create a complete real-time payment and billing module.
+
+The system must support Pakistan and international clients.
+
+Payment gateway availability must be based on merchant eligibility and provider onboarding.
+
+Do not assume every payment provider is automatically available to every Pakistani company.
+
+## Pakistan payment methods
+
+Create configurable payment adapters for:
+
+- Safepay.
+- PayFast Pakistan.
+- JazzCash.
+- Easypaisa.
+- Bank Transfer.
+- Manual Payment Verification.
+
+## International payment methods
+
+Create configurable adapters for:
+
+- Stripe, where the merchant is eligible.
+- PayPal, where the merchant is eligible.
+- International Bank Transfer.
+- Other approved international payment providers.
+
+## Payment gateway configuration
+
+Master Admin can configure:
+
+- Provider Name.
+- Country.
+- Supported Currencies.
+- Public Key.
+- Secret Key.
+- Merchant ID.
+- API Endpoint.
+- Webhook Secret.
+- Test Mode.
+- Live Mode.
+- Enable / Disable.
+- Minimum Transaction.
+- Maximum Transaction.
+- Supported Payment Types.
+
+All secret credentials must be stored securely on the server.
+
+Never store secret keys in frontend code or public Firestore documents.
+
+## Client subscription payment page
+
+Create a professional payment checkout page.
+
+Display:
+
+- Company Name.
+- Selected Package.
+- Business Category.
+- User Limit.
+- Billing Period.
+- Base Subscription Price.
+- Additional User Charges.
+- Additional Module Charges.
+- Discounts.
+- Tax.
+- Total Amount.
+- Currency.
+- Due Date.
+- Payment Method.
+
+Payment actions:
+
+- Pay Now.
+- Confirm Bank Transfer.
+- Download Invoice.
+- Download Receipt.
+- View Payment History.
+
+## Payment processing
+
+Implement:
+
+1. Server-side payment session creation.
+2. Provider checkout.
+3. Payment gateway redirect.
+4. Verified provider webhook.
+5. Signature verification.
+6. Duplicate transaction prevention.
+7. Payment record creation.
+8. Subscription activation.
+9. Invoice generation.
+10. Receipt generation.
+11. Notification.
+12. Payment audit log.
+
+A browser redirect must never be treated as proof of successful payment.
+
+Only activate or extend a paid subscription after trusted server-side payment verification or authorized manual verification.
+
+## Manual bank payment
+
+Allow the client to submit:
+
+- Bank Name.
+- Account Title.
+- Transaction ID.
+- Payment Date.
+- Amount.
+- Currency.
+- Deposit Slip / Receipt Upload.
+
+Status:
+
+- Submitted.
+- Under Review.
+- Verified.
+- Rejected.
+
+Master Admin or authorized accounts staff can approve or reject the transaction.
+
+## Billing dashboard for client
+
+Display:
+
+- Current Plan.
+- Current User Limit.
+- Active Users.
+- Subscription Start Date.
+- Next Renewal Date.
+- Subscription Status.
+- Current Invoice.
+- Outstanding Balance.
+- Last Payment.
+- Payment Method.
+- Payment History.
+- Upgrade Plan.
+- Renew Plan.
+
+---
+
+# 11. COMPANY BRANDING AND LIVE THEME CUSTOMIZATION
+
+Create a professional Company Branding & Appearance module.
+
+The Company Admin should be able to customize the look of their own ERP interface, subject to plan permissions.
+
+## 11.1 Theme selection
+
+Provide a professional theme gallery.
+
+Include these theme options:
+
+1. Light.
+2. Gray.
+3. Dark Gray.
+4. Silver.
+5. Black.
+6. Brown.
+7. Navy Blue.
+8. Royal Blue.
+9. Emerald Green.
+10. Burgundy.
+11. Custom Brand Theme.
+
+Provide attractive theme preview cards.
+
+## 11.2 Live preview
+
+This feature is mandatory.
+
+When the user selects a theme:
+- Update the preview immediately.
+- Show sample dashboard cards.
+- Show sidebar.
+- Show top navigation.
+- Show table.
+- Show buttons.
+- Show form controls.
+- Show chart previews.
+
+Provide:
+
+- Apply Theme.
+- Save Theme.
+- Reset Theme.
+- Cancel.
+
+Do not require a page refresh for preview.
+
+Save the selected theme in the company's settings.
+
+When the company logs in again, load its saved theme automatically.
+
+## 11.3 Light and Dark modes
+
+Support:
+
+- Light Mode.
+- Dark Mode.
+- System Default.
+
+The theme must apply consistently across all ERP modules.
+
+## 11.4 Layout settings
+
+Allow configuration of:
+
+- Sidebar Width.
+- Collapsed Sidebar.
+- Header Style.
+- Dashboard Layout.
+- Card Style.
+- Table Density.
+- Font Size.
+- Border Radius.
+- Accent Colour.
+- Page Background.
+- Sidebar Background.
+
+Only offer settings that can be applied consistently to the existing application.
+
+---
+
+# 12. GOOGLE THEME AND IMAGE GALLERY
+
+Create a branding asset selection feature.
+
+Allow users to choose suitable login backgrounds and visual assets from a curated gallery.
+
+Provide:
+- Professional Business Themes.
+- Corporate Backgrounds.
+- Manufacturing Backgrounds.
+- Food Industry Backgrounds.
+- Retail Backgrounds.
+- Logistics Backgrounds.
+- Construction Backgrounds.
+- Technology Backgrounds.
+- Abstract Backgrounds.
+
+Allow users to:
+- Preview.
+- Select.
+- Apply.
+- Upload their own background.
+- Replace.
+- Remove.
+
+If Google image search is integrated, use an authorized image-search API and respect image licensing and usage restrictions.
+
+Do not scrape Google Images or download images without permission.
+
+A curated built-in gallery should work even if no external image API is connected.
+
+---
+
+# 13. COMPANY PROFILE AND SETTINGS
+
+Create a Company Settings module.
+
+Sections:
+
+1. Basic Details.
+2. Advanced Details.
+3. Contact Details.
+4. Legal Information.
+5. Tax Information.
+6. Branding.
+7. Login Settings.
+8. Dashboard Settings.
+9. Theme Settings.
+10. User Management.
+11. Subscription.
+12. Payment Methods.
+13. Security.
+14. Notifications.
+15. Data Export.
+16. Integration Settings.
+
+Only authorized company administrators can modify their own company details.
+
+Changes to important company identity fields should be logged.
+
+---
+
+# 14. SECURITY REQUIREMENTS
+
+Security is mandatory.
+
+Implement:
+
+- Firebase Authentication.
+- Email Verification.
+- Secure Password Reset.
+- Optional MFA.
+- Role-Based Access Control.
+- Tenant-Level Isolation.
+- Company-Level Isolation.
+- Server-Side Authorization.
+- Firestore Security Rules.
+- Firebase Storage Security Rules.
+- Secure Session Management.
+- Login Rate Limiting.
+- Brute Force Protection.
+- Audit Logging.
+- Input Validation.
+- File Upload Validation.
+- Secure Webhook Verification.
+
+Never store passwords as plain text.
+
+Never show default passwords on login pages.
+
+Remove all demo passwords and visible credentials from the current application.
+
+If demo accounts are required for development, keep them only in a controlled development environment and never expose their passwords in production.
+
+Do not use a browser-side flag to determine whether someone is a Master Admin.
+
+Do not trust company IDs or role values supplied by the frontend.
+
+Use server-verified membership and permissions.
+
+Prevent one tenant from reading another tenant's:
+- Company data.
+- Users.
+- Financial records.
+- Invoices.
+- Documents.
+- Settings.
+- Reports.
+- ERP transactions.
+
+---
+
+# 15. FIRESTORE DATABASE STRUCTURE
+
+Inspect the current database before creating collections.
+
+Reuse existing collections where possible.
+
+Create or extend these collections:
+
+- platformAdmins
+- tenants
+- companies
+- companyProfiles
+- companyBranding
+- tenantDomains
+- users
+- memberships
+- roles
+- permissions
+- subscriptionPlans
+- subscriptionPricing
+- subscriptions
+- subscriptionHistory
+- trialRecords
+- invoices
+- paymentTransactions
+- paymentGateways
+- paymentMethods
+- paymentReconciliation
+- usageRecords
+- userLicences
+- moduleEntitlements
+- companySettings
+- themeSettings
+- auditLogs
+- notifications
+
+Every tenant-owned record must have appropriate identifiers:
+
+- tenantId
+- companyId
+- createdAt
+- createdBy
+- updatedAt
+- updatedBy
+- status
+
+Use server timestamps.
+
+Use Firestore transactions for:
+- Subscription activation.
+- User limit enforcement.
+- Payment reconciliation.
+- Trial creation.
+- Renewal.
+- Upgrade.
+- Downgrade.
+
+Create the required Firestore indexes and security rules.
+
+---
+
+# 16. REAL-TIME SUBSCRIPTION AND ACCESS CONTROL
+
+The application must always check the company's current subscription entitlement.
+
+For each login and protected operation, verify:
+
+- Company status.
+- User status.
+- Subscription status.
+- Trial expiry.
+- Payment status.
+- User licence limit.
+- Module entitlement.
+
+If a subscription is active, allow the purchased features.
+
+If a trial is active, allow the trial features.
+
+If a subscription expires, display an appropriate renewal screen.
+
+Do not automatically erase company data.
+
+Do not allow expired accounts to create additional users or access paid-only modules unless the configured grace period permits it.
+
+Create a secure subscription entitlement service.
+
+All modules must use the same entitlement service instead of implementing separate inconsistent subscription checks.
+
+---
+
+# 17. CLIENT NOTIFICATIONS
+
+Send notifications for:
+
+- Signup successful.
+- Email verification.
+- Company created.
+- Trial started.
+- Trial expiry approaching.
+- Trial expired.
+- Subscription payment received.
+- Payment failed.
+- Invoice generated.
+- Renewal approaching.
+- Subscription expired.
+- Upgrade successful.
+- User limit reached.
+- New user invitation.
+- Password reset.
+
+Support:
+- In-app.
+- Email.
+- Optional WhatsApp notification where configured and permitted.
+
+---
+
+# 18. REQUIRED CLIENT-FACING PAGES
+
+Create these pages:
+
+1. Public Home / Product Landing Page.
+2. Client Signup.
+3. Email Verification.
+4. Company Onboarding.
+5. Company Branding Setup.
+6. Trial Selection.
+7. Final Registration Confirmation.
+8. Tenant-Specific Login.
+9. Forgot Password.
+10. Reset Password.
+11. Client Dashboard.
+12. User Management.
+13. Company Settings.
+14. Theme Gallery.
+15. Live Theme Preview.
+16. Subscription Dashboard.
+17. Upgrade Plan.
+18. Renew Plan.
+19. Payment Checkout.
+20. Invoice History.
+21. Payment History.
+22. Profile and Security.
+
+All pages must be responsive and professional.
+
+---
+
+# 19. MASTER ADMIN PAGES
+
+Create a separate protected administration application.
+
+Pages:
+
+1. Platform Dashboard.
+2. Tenant Management.
+3. Company Management.
+4. Subscription Plans.
+5. Trial Configuration.
+6. Category Pricing.
+7. User Pricing.
+8. Module Pricing.
+9. User Licence Management.
+10. Payment Gateway Configuration.
+11. Payment Transactions.
+12. Manual Payment Verification.
+13. Invoice Management.
+14. Renewal Management.
+15. Expired Accounts.
+16. Suspended Accounts.
+17. Company Branding Controls.
+18. Theme Controls.
+19. Feature Entitlements.
+20. Platform Reports.
+21. Revenue Reports.
+22. Audit Logs.
+23. Security Settings.
+
+Master Admin must be able to edit all pricing and limits.
+
+Clients must only see their own subscription and billing information.
+
+---
+
+# 20. URL AND FAVICON IMPLEMENTATION
+
+Implement dynamic tenant branding.
+
+When a company URL opens:
+
+1. Resolve the tenant.
+2. Load the company profile.
+3. Load the company logo.
+4. Load the company favicon.
+5. Load the login background.
+6. Load the brand colours.
+7. Load the theme.
+8. Display the correct company login page.
+
+Update the HTML document title dynamically.
+
+Example:
+
+`Albarka Food Industries | MTS ERP`
+
+Update favicon dynamically using the company's configured favicon URL.
+
+Ensure that favicon changes correctly when navigating between tenant domains.
+
+Do not allow a tenant to modify another tenant's favicon.
+
+---
+
+# 21. PAYMENT AND SUBSCRIPTION REPORTS
+
+Create these reports for Master Admin:
+
+- Total Registered Companies.
+- Active Companies.
+- Trial Companies.
+- Trial Expired Companies.
+- Active Subscriptions.
+- Expired Subscriptions.
+- Subscription Revenue.
+- Monthly Recurring Revenue.
+- Annual Recurring Revenue.
+- Category-wise Revenue.
+- Plan-wise Revenue.
+- User-wise Revenue.
+- Upgrade Revenue.
+- Renewal Revenue.
+- Outstanding Payments.
+- Failed Transactions.
+- Refunded Transactions.
+- Gateway-wise Collection.
+- Currency-wise Collection.
+
+Create client reports:
+
+- Current Subscription.
+- Payment History.
+- Invoice History.
+- Renewal History.
+- User Licence Usage.
+- Module Usage.
+- Outstanding Balance.
+
+All financial reports must be based on verified records.
+
+---
+
+# 22. MIGRATION AND EXISTING DATA PROTECTION
+
+This is an existing live ERP application.
+
+Do not destroy current production data.
+
+Before making changes:
+
+1. Inspect current Firebase schema.
+2. Identify existing tenant records.
+3. Identify existing company IDs.
+4. Identify existing users.
+5. Identify current login credentials and authentication method.
+6. Identify existing ERP data relationships.
+7. Create a migration plan.
+8. Preserve existing company records.
+9. Preserve existing ERP transactions.
+10. Preserve existing Master Admin access through the separate protected route.
+
+Do not create duplicate Albarka Food Industries or duplicate company records.
+
+Migrate the current existing companies into the new tenant architecture.
+
+Ensure that existing company login URLs continue working or are redirected safely.
+
+Remove the Master Admin switch from the client interface without deleting the actual platform administration capability.
+
+Do not expose any default demo passwords.
+
+---
+
+# 23. TESTING REQUIREMENTS
+
+Test the following scenarios:
+
+**Test 1 – Single User Company**
+
+- User signs up.
+- User creates company.
+- User selects 3-day trial.
+- Company receives its own URL.
+- Company logo and favicon load.
+- One admin account works.
+- No additional user can be created under a one-user limit.
+
+**Test 2 – Multi-User Company**
+
+- Company purchases 5-user package.
+- Admin creates additional users.
+- Exactly five active users are allowed.
+- Sixth user creation is blocked.
+- Upgrade option is displayed.
+
+**Test 3 – Company Isolation**
+
+- Albarka cannot access Zakria data.
+- Zakria cannot access Albarka data.
+- Tenant branding remains separate.
+- User permissions are respected.
+
+**Test 4 – Trial Expiry**
+
+- Trial expires based on server timestamp.
+- Client receives notification.
+- Upgrade page appears.
+- Company data remains intact.
+
+**Test 5 – Payment**
+
+- Client creates subscription checkout.
+- Payment gateway returns a verified result.
+- Webhook is processed once.
+- Invoice is generated.
+- Subscription becomes active.
+- Duplicate webhooks do not create duplicate payments.
+
+**Test 6 – Branding**
+
+- Company uploads logo.
+- Favicon is generated.
+- Login background is changed.
+- Theme is previewed live.
+- Theme is saved.
+- Login page displays the correct branding.
+
+**Test 7 – Master Admin Security**
+
+- Client cannot open platform-control.
+- Client cannot change their role to Master Admin.
+- Client cannot edit subscription pricing.
+- Client cannot access other companies.
+
+---
+
+# 24. FINAL DELIVERY REQUIREMENTS
+
+Deliver the following in the existing project:
+
+1. Updated client login screen.
+2. Removed Master Admin switch from client login.
+3. Secure separate Master Admin console.
+4. Public signup.
+5. Optional Google Sign-In.
+6. Company onboarding wizard.
+7. Company registration form.
+8. Company logo and favicon management.
+9. Company login background management.
+10. Tenant-specific login URLs.
+11. Single-user account functionality.
+12. Multi-user licensing.
+13. User creation and invitations.
+14. Trial options: 3, 7 and 15 days.
+15. Category-wise subscription pricing.
+16. Plan-wise pricing.
+17. User-wise pricing.
+18. Module-wise pricing.
+19. Subscription upgrade.
+20. Subscription renewal.
+21. Payment gateway configuration.
+22. Pakistan payment support adapters.
+23. International payment support adapters.
+24. Invoice generation.
+25. Payment history.
+26. Live theme gallery.
+27. Light / Gray / Dark Gray / Silver / Black / Brown themes.
+28. Custom branding.
+29. Live preview.
+30. Firebase security rules.
+31. Backend subscription entitlement service.
+32. Audit logs.
+33. Migration documentation.
+34. Vercel deployment configuration.
+35. Environment variable example.
+36. Testing checklist.
+
+---
+
+# 25. FINAL STRICT INSTRUCTIONS
+
+Do not rebuild the entire ERP from scratch.
+
+Do not remove existing working ERP modules.
+
+Do not replace existing forms and reports with placeholders.
+
+Do not change existing company data without a migration plan.
+
+Do not expose Master Admin on client login.
+
+Do not display a company selection dropdown on a tenant-specific login URL.
+
+Do not display a role selector on login.
+
+Do not force every company to create multiple users.
+
+Every company must start with at least one primary administrator.
+
+Additional users must depend on purchased subscription limits.
+
+Trial durations must be configurable and server-controlled.
+
+All subscription prices must be controlled by Master Admin.
+
+All payment confirmations must be verified server-side.
+
+All company data must remain tenant-isolated.
+
+Company branding must load dynamically from the correct tenant.
+
+Theme previews must update instantly.
+
+All buttons and forms must perform real actions.
+
+Do not claim that payment gateways or Google Sign-In are connected unless a real successful connection has been tested.
+
+If a required external credential is missing, create the integration setup interface and clearly display its connection status.
+
+**FINAL OBJECTIVE: Convert the existing MTS ERP FUTURE SOLUTIONS application into a professional, secure, self-service, multi-tenant SaaS ERP platform where every company can register independently, create its own company profile, select a free trial, receive its own branded login URL, operate with one administrator or purchase additional user licences, customize its interface and manage subscriptions, upgrades, renewals and payments — while the Master Admin controls the entire platform through a separate protected administration system.**
+
+Implement this inside the existing project without damaging its existing ERP functionality.

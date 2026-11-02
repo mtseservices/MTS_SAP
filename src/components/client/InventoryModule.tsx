@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import { Boxes, Plus, QrCode, ScanLine, CheckCircle2 } from 'lucide-react';
+import { Boxes, Plus, QrCode, ScanLine, CheckCircle2, Flame, Layers, AlertTriangle, ArrowUpDown } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { INITIAL_INVENTORY } from '../../services/mockData';
 import { InventoryItem } from '../../types/erp';
 import { DataTable } from '../common/DataTable';
 import { TTSButton } from '../common/TTSButton';
 import { QrScannerModal, ScannedItemPayload } from '../common/QrScannerModal';
+import { BatchExpirationHeatmap } from './BatchExpirationHeatmap';
 
 export const InventoryModule: React.FC = () => {
   const { currentCompany } = useAuthTenant();
   const [items, setItems] = useState<InventoryItem[]>(INITIAL_INVENTORY);
+  const [activeView, setActiveView] = useState<'heatmap' | 'items' | 'reorder'>('heatmap');
   const [showModal, setShowModal] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [scannedAlert, setScannedAlert] = useState<string | null>(null);
@@ -128,41 +130,118 @@ export const InventoryModule: React.FC = () => {
         </div>
       </div>
 
-      <DataTable
-        title="Master Item Catalog & Stock Balances"
-        data={items}
-        columns={[
-          { key: 'code', header: 'Item Code', accessor: (i) => <span className="font-mono font-bold text-purple-400">{i.code}</span>, sortable: true },
-          { key: 'name', header: 'Item Description', accessor: (i) => <span className="font-bold text-slate-100">{i.name}</span>, sortable: true },
-          { key: 'category', header: 'Category', accessor: (i) => <span className="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-cyan-300 font-semibold">{i.category}</span>, sortable: true },
-          { key: 'batchNumber', header: 'Batch / Lot No', accessor: (i) => <span className="font-mono text-cyan-300 text-xs">{i.batchNumber || 'N/A'}</span> },
-          { key: 'expiryDate', header: 'Expiry Date', accessor: (i) => {
-            if (!i.expiryDate) return <span className="text-slate-500 text-xs">N/A</span>;
-            const exp = new Date(i.expiryDate).getTime();
-            const now = new Date().getTime();
-            const diffDays = (exp - now) / (1000 * 60 * 60 * 24);
-            const isSoon = diffDays >= 0 && diffDays <= 30;
-            const isExp = diffDays < 0;
-            return (
-              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                isExp ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40' :
-                isSoon ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse' :
-                'bg-slate-800 text-slate-300'
-              }`}>
-                {i.expiryDate} {isSoon ? '(Expiring 30d)' : isExp ? '(Expired)' : ''}
-              </span>
-            );
-          }},
-          { key: 'uom', header: 'UOM', accessor: (i) => i.uom },
-          { key: 'currentStock', header: 'Available Stock', accessor: (i) => (
-            <span className={`font-mono font-bold ${i.currentStock <= i.reorderLevel ? 'text-rose-400 animate-pulse' : 'text-emerald-400'}`}>
-              {i.currentStock.toLocaleString()} {i.uom}
+      {/* View Switcher Tabs */}
+      <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+        <div className="flex items-center gap-2 p-1 rounded-2xl bg-slate-900 border border-slate-800">
+          <button
+            onClick={() => setActiveView('heatmap')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeView === 'heatmap'
+                ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-600/30'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Flame className="w-3.5 h-3.5 text-amber-400" />
+            <span>Batch Longevity & Expiry Heatmap</span>
+            <span className="text-[10px] px-1.5 py-0.2 rounded bg-rose-500/30 text-rose-300 font-mono border border-rose-500/40">
+              D3.js &bull; &le;30d Guard
             </span>
-          ), isNumeric: true, sortable: true },
-          { key: 'unitPrice', header: 'Sale Price (PKR)', accessor: (i) => <span className="font-mono text-slate-100">Rs. {i.unitPrice.toLocaleString()}</span>, isNumeric: true },
-          { key: 'warehouseName', header: 'Location Warehouse', accessor: (i) => <span className="text-slate-400 text-[11px]">{i.warehouseName}</span> }
-        ]}
-      />
+          </button>
+
+          <button
+            onClick={() => setActiveView('items')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeView === 'items'
+                ? 'bg-slate-800 text-slate-100 shadow-md'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Boxes className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Master Catalog &amp; Balances</span>
+            <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 font-mono">
+              {items.length}
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveView('reorder')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeView === 'reorder'
+                ? 'bg-slate-800 text-slate-100 shadow-md'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+            <span>Reorder Level Alerts</span>
+            <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-mono">
+              {items.filter(i => i.currentStock <= i.reorderLevel).length}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {/* View Content */}
+      {activeView === 'heatmap' && <BatchExpirationHeatmap />}
+
+      {activeView === 'items' && (
+        <DataTable
+          title="Master Item Catalog & Stock Balances"
+          data={items}
+          columns={[
+            { key: 'code', header: 'Item Code', accessor: (i) => <span className="font-mono font-bold text-purple-400">{i.code}</span>, sortable: true },
+            { key: 'name', header: 'Item Description', accessor: (i) => <span className="font-bold text-slate-100">{i.name}</span>, sortable: true },
+            { key: 'category', header: 'Category', accessor: (i) => <span className="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-cyan-300 font-semibold">{i.category}</span>, sortable: true },
+            { key: 'batchNumber', header: 'Batch / Lot No', accessor: (i) => <span className="font-mono text-cyan-300 text-xs">{i.batchNumber || 'N/A'}</span> },
+            { key: 'expiryDate', header: 'Expiry Date', accessor: (i) => {
+              if (!i.expiryDate) return <span className="text-slate-500 text-xs">N/A</span>;
+              const exp = new Date(i.expiryDate).getTime();
+              const now = new Date().getTime();
+              const diffDays = (exp - now) / (1000 * 60 * 60 * 24);
+              const isSoon = diffDays >= 0 && diffDays <= 30;
+              const isExp = diffDays < 0;
+              return (
+                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                  isExp ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40' :
+                  isSoon ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse' :
+                  'bg-slate-800 text-slate-300'
+                }`}>
+                  {i.expiryDate} {isSoon ? '(Expiring 30d)' : isExp ? '(Expired)' : ''}
+                </span>
+              );
+            }},
+            { key: 'uom', header: 'UOM', accessor: (i) => i.uom },
+            { key: 'currentStock', header: 'Available Stock', accessor: (i) => (
+              <span className={`font-mono font-bold ${i.currentStock <= i.reorderLevel ? 'text-rose-400 animate-pulse' : 'text-emerald-400'}`}>
+                {i.currentStock.toLocaleString()} {i.uom}
+              </span>
+            ), isNumeric: true, sortable: true },
+            { key: 'unitPrice', header: 'Sale Price (PKR)', accessor: (i) => <span className="font-mono text-slate-100">Rs. {i.unitPrice.toLocaleString()}</span>, isNumeric: true },
+            { key: 'warehouseName', header: 'Location Warehouse', accessor: (i) => <span className="text-slate-400 text-[11px]">{i.warehouseName}</span> }
+          ]}
+        />
+      )}
+
+      {activeView === 'reorder' && (
+        <DataTable
+          title="Critical Reorder Triggers & Low Stock Alert"
+          data={items.filter(i => i.currentStock <= i.reorderLevel)}
+          columns={[
+            { key: 'code', header: 'Item Code', accessor: (i) => <span className="font-mono font-bold text-rose-400">{i.code}</span>, sortable: true },
+            { key: 'name', header: 'Description', accessor: (i) => <span className="font-bold text-slate-100">{i.name}</span>, sortable: true },
+            { key: 'currentStock', header: 'Current Balance', accessor: (i) => <span className="font-mono text-rose-400 font-bold">{i.currentStock} {i.uom}</span>, isNumeric: true },
+            { key: 'reorderLevel', header: 'Reorder Level', accessor: (i) => <span className="font-mono text-amber-400">{i.reorderLevel} {i.uom}</span>, isNumeric: true },
+            { key: 'deficit', header: 'Shortage Deficit', accessor: (i) => <span className="font-mono text-rose-300 font-bold">{(i.reorderLevel - i.currentStock)} {i.uom}</span>, isNumeric: true },
+            { key: 'action', header: 'Action', accessor: (i) => (
+              <button
+                onClick={() => alert(`Generated PO requisition draft for ${i.name}`)}
+                className="px-2.5 py-1 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-[11px] font-bold cursor-pointer"
+              >
+                Create Purchase Requisition
+              </button>
+            )}
+          ]}
+        />
+      )}
 
       {showModal && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">

@@ -55,9 +55,33 @@
         "isRateLimited": { "type": "boolean" }
       },
       "required": ["companyId", "requestCount", "maxLimit", "windowStart"]
+    },
+    "MasterBankAccount": {
+      "title": "Master Software Receiving Bank Account",
+      "description": "Central receiving corporate bank accounts configured by Master Admin for subscription payments",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "bankName": { "type": "string" },
+        "accountTitle": { "type": "string" },
+        "accountNumber": { "type": "string" },
+        "iban": { "type": "string" },
+        "branchName": { "type": "string" },
+        "branchCode": { "type": "string" },
+        "swiftCode": { "type": "string" },
+        "raastId": { "type": "string" },
+        "isDefault": { "type": "boolean" },
+        "isActive": { "type": "boolean" },
+        "instructions": { "type": "string" }
+      },
+      "required": ["id", "bankName", "accountTitle", "accountNumber", "iban", "isActive"]
     }
   },
   "firestore": {
+    "/system/masterBankAccounts": {
+      "schema": "MasterBankAccount",
+      "description": "Master software corporate receiving accounts for subscription payments"
+    },
     "/system/globalSettings": {
       "schema": "ClientCompany",
       "description": "Global Master ERP configurations"

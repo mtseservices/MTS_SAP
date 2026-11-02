@@ -446,6 +446,22 @@ export interface InstallmentPlan {
   createdAt: string;
 }
 
+export interface MasterBankAccount {
+  id: string;
+  bankName: string;
+  accountTitle: string;
+  accountNumber: string;
+  iban: string;
+  branchName: string;
+  branchCode?: string;
+  swiftCode?: string;
+  raastId?: string;
+  isDefault?: boolean;
+  isActive: boolean;
+  instructions?: string;
+  createdAt?: string;
+}
+
 // --- CENTRALIZED NOTIFICATION SYSTEM TYPES ---
 
 export type NotificationType = 'APPROVAL' | 'LOW_STOCK' | 'PAYMENT_DUE' | 'SYSTEM';

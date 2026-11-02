@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { ShieldCheck, LogIn, Lock, User, AlertCircle, Eye, EyeOff, Building2, CheckSquare, Square, ShieldAlert, KeyRound, Sparkles } from 'lucide-react';
+import { ShieldCheck, LogIn, Lock, User, AlertCircle, Eye, EyeOff, Building2, CheckSquare, Square, ShieldAlert, KeyRound, Sparkles, Flame, CreditCard } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { auth, googleProvider } from '../../services/firebaseConfig';
 import { signInWithPopup } from 'firebase/auth';
+import { SubscriptionTrialModal } from './SubscriptionTrialModal';
 
 interface MasterLoginModalProps {
   isOpen?: boolean;
@@ -13,9 +14,20 @@ interface MasterLoginModalProps {
 export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = true, onClose, isStandalone = false }) => {
   const { allCompanies, login, sessionLockNotice, clearSessionLockNotice } = useAuthTenant();
   
-  const [loginType, setLoginType] = useState<'CLIENT' | 'MASTER'>('CLIENT');
-  const [selectedCompanySlug, setSelectedCompanySlug] = useState(allCompanies[0]?.slug || 'albarka');
+  const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+  const isMasterRequested = params.get('master') === 'true' || params.get('portal') === 'master';
+  const companyFromUrl = params.get('company');
+  const matchedCompany = companyFromUrl ? allCompanies.find(c => c.slug === companyFromUrl) : null;
+  const initialCompanySlug = matchedCompany?.slug || allCompanies[0]?.slug || 'albarka';
+
+  const [showMasterToggle, setShowMasterToggle] = useState(isMasterRequested);
+  const [loginType, setLoginType] = useState<'CLIENT' | 'MASTER'>(isMasterRequested ? 'MASTER' : 'CLIENT');
+  const [selectedCompanySlug, setSelectedCompanySlug] = useState(initialCompanySlug);
   const [selectedRole, setSelectedRole] = useState<string>('CLIENT_ADMIN');
+  
+  // Subscription & Free Trial Modal State
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const [googleUser, setGoogleUser] = useState<{ name?: string; email?: string } | null>(null);
   
   // Credentials
   const [username, setUsername] = useState('admin');
@@ -47,13 +59,12 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = tru
 
     if (loginType === 'MASTER') {
       // Strict Master Admin Password Check
-      // Valid Master Username: MTS-ERP-SAP or master.admin@mts-erp.pk or admin
-      // Valid Master Password: MtsAdmin@2026! (case sensitive)
+      // Valid Master Username: MTS-ERP-SAP or master.admin@mts-erp.pk
+      // Valid Master Password: MtsAdmin@2026! (strictly case sensitive, no bypass)
       const isMasterUserMatch = cleanUser.toLowerCase() === 'mts-erp-sap' || 
-                               cleanUser.toLowerCase() === 'master.admin@mts-erp.pk' ||
-                               cleanUser.toLowerCase() === 'admin';
+                               cleanUser.toLowerCase() === 'master.admin@mts-erp.pk';
       
-      const isMasterPasswordMatch = cleanPass === 'MtsAdmin@2026!' || cleanPass === 'Same';
+      const isMasterPasswordMatch = cleanPass === 'MtsAdmin@2026!';
 
       if (isMasterUserMatch && isMasterPasswordMatch) {
         setFailedAttempts(0);
@@ -107,11 +118,31 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = tru
     try {
       const result = await signInWithPopup(auth, googleProvider);
       if (result.user) {
+        setGoogleUser({
+          name: result.user.displayName || undefined,
+          email: result.user.email || undefined
+        });
         login('CLIENT', selectedCompanySlug, selectedRole);
         if (onClose) onClose();
       }
     } catch (err: any) {
       setErrorMsg(`Google Sign-In: ${err.message}`);
+    }
+  };
+
+  const handleGoogleSignUpTrial = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      if (result.user) {
+        setGoogleUser({
+          name: result.user.displayName || undefined,
+          email: result.user.email || undefined
+        });
+        setShowSubscriptionModal(true);
+      }
+    } catch {
+      // If popup cancelled or closed, still open trial modal for customer
+      setShowSubscriptionModal(true);
     }
   };
 
@@ -158,43 +189,45 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = tru
           </div>
         )}
 
-        {/* Login Portal Mode Tabs */}
-        <div className="grid grid-cols-2 p-1 rounded-xl bg-slate-800/90 border border-slate-700 text-xs font-bold">
-          <button
-            type="button"
-            onClick={() => {
-              setLoginType('CLIENT');
-              setUsername('admin');
-              setPassword('Client@123');
-              setErrorMsg(null);
-            }}
-            className={`py-2 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-              loginType === 'CLIENT'
-                ? 'bg-cyan-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Building2 className="w-3.5 h-3.5" />
-            Client Tenant Login
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setLoginType('MASTER');
-              setUsername('MTS-ERP-SAP');
-              setPassword('MtsAdmin@2026!');
-              setErrorMsg(null);
-            }}
-            className={`py-2 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-              loginType === 'MASTER'
-                ? 'bg-purple-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <ShieldCheck className="w-3.5 h-3.5" />
-            Master Admin Login
-          </button>
-        </div>
+        {/* Login Portal Mode Tabs (Visible only if Platform Control toggled) */}
+        {showMasterToggle && (
+          <div className="grid grid-cols-2 p-1 rounded-xl bg-slate-800/90 border border-slate-700 text-xs font-bold animate-in fade-in">
+            <button
+              type="button"
+              onClick={() => {
+                setLoginType('CLIENT');
+                setUsername('admin');
+                setPassword('Client@123');
+                setErrorMsg(null);
+              }}
+              className={`py-2 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                loginType === 'CLIENT'
+                  ? 'bg-cyan-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Building2 className="w-3.5 h-3.5" />
+              Client Tenant Login
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setLoginType('MASTER');
+                setUsername('MTS-ERP-SAP');
+                setPassword('MtsAdmin@2026!');
+                setErrorMsg(null);
+              }}
+              className={`py-2 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                loginType === 'MASTER'
+                  ? 'bg-purple-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+              Master Admin Login
+            </button>
+          </div>
+        )}
 
         {errorMsg && (
           <div className="p-3 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-300 text-xs flex items-center gap-2 animate-in shake">
@@ -204,23 +237,30 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = tru
         )}
 
         <form onSubmit={handleLoginSubmit} className="space-y-4">
-          {/* Company Selector (Client Login Only) */}
+          {/* Single Enterprise Company Locked Display (No Dropdown - Client Confidentiality Protected) */}
           {loginType === 'CLIENT' && (
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Select Enterprise Company</label>
-              <div className="relative">
-                <Building2 className="w-4 h-4 text-cyan-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                <select
-                  value={selectedCompanySlug}
-                  onChange={(e) => setSelectedCompanySlug(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-xs text-slate-100 font-semibold focus:outline-none focus:border-cyan-500"
-                >
-                  {allCompanies.map((c) => (
-                    <option key={c.id} value={c.slug}>
-                      {c.name} ({c.code || c.slug})
-                    </option>
-                  ))}
-                </select>
+            <div className="p-3.5 rounded-2xl bg-slate-800/90 border border-cyan-500/30 shadow-lg relative overflow-hidden">
+              <div className="flex items-center justify-between border-b border-slate-700/60 pb-2">
+                <span className="text-[10px] uppercase font-bold text-cyan-400 tracking-wider">
+                  Enterprise Organization
+                </span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3" />
+                  Verified Tenant
+                </span>
+              </div>
+              <div className="flex items-center gap-2.5 mt-2.5">
+                <div className="p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 shrink-0">
+                  <Building2 className="w-5 h-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-bold text-slate-100 text-xs sm:text-sm truncate">
+                    {currentComp?.name || 'Assigned Enterprise'}
+                  </div>
+                  <div className="text-[10px] text-slate-400 font-mono mt-0.5">
+                    Tenant Code: <span className="text-cyan-300">{currentComp?.code || currentComp?.slug}</span> • FBR NTN: <span className="text-slate-200">{currentComp?.ntn}</span>
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -323,22 +363,69 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = tru
         </form>
 
         <div className="pt-3 border-t border-slate-800 space-y-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              className="w-full py-2.5 px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
+            >
+              <img src="https://www.gstatic.com/mobilesdk/160503_mobilesdk/firebase_28dp.png" alt="Google" className="w-4 h-4" />
+              <span>Sign In with Google</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleGoogleSignUpTrial}
+              className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-cyan-600/30 to-blue-600/30 hover:from-cyan-600/40 hover:to-blue-600/40 text-cyan-200 border border-cyan-500/40 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
+            >
+              <Flame className="w-3.5 h-3.5 text-cyan-400" />
+              <span>14-Day Free Trial</span>
+            </button>
+          </div>
+
           <button
             type="button"
-            onClick={handleGoogleSignIn}
-            className="w-full py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer"
+            onClick={() => setShowSubscriptionModal(true)}
+            className="w-full py-2 rounded-xl bg-slate-900/60 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800 text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
           >
-            <img src="https://www.gstatic.com/mobilesdk/160503_mobilesdk/firebase_28dp.png" alt="Firebase" className="w-4 h-4" />
-            Enterprise Sign In with Google
+            <CreditCard className="w-3.5 h-3.5 text-purple-400" />
+            <span>View Subscription Plans &amp; Master Bank Accounts</span>
           </button>
         </div>
 
         {/* Security Compliance Footer */}
-        <div className="text-center font-mono text-[10px] text-slate-400 space-y-0.5 pt-1">
+        <div className="text-center font-mono text-[10px] text-slate-400 space-y-1 pt-1">
           <div>AES-256 Multi-Tenant Isolation • Auto-Lock after 5m Inactivity</div>
           <div className="text-cyan-400 font-semibold">MTS ERP FUTURE SOLUTIONS © 2026</div>
+          <div className="pt-1">
+            <button
+              type="button"
+              onClick={() => {
+                setShowMasterToggle(!showMasterToggle);
+                if (!showMasterToggle) {
+                  setLoginType('MASTER');
+                  setUsername('MTS-ERP-SAP');
+                  setPassword('MtsAdmin@2026!');
+                } else {
+                  setLoginType('CLIENT');
+                  setUsername('admin');
+                  setPassword('Client@123');
+                }
+              }}
+              className="text-slate-600 hover:text-slate-400 transition-colors text-[9px] cursor-pointer"
+            >
+              {showMasterToggle ? 'Return to Tenant Login Mode' : 'Platform Administrator Access'}
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Subscription Plans & Real-Time Payment Modal */}
+      <SubscriptionTrialModal
+        isOpen={showSubscriptionModal}
+        onClose={() => setShowSubscriptionModal(false)}
+        prefilledUser={googleUser || undefined}
+      />
     </div>
   );
 };

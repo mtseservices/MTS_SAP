@@ -14,7 +14,8 @@ import {
   LogOut,
   User,
   Globe,
-  Lock
+  Lock,
+  CreditCard
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -28,6 +29,7 @@ import { VoiceNavigationWidget } from './VoiceNavigationWidget';
 import { MasterLoginModal } from './MasterLoginModal';
 import { UserProfileModal } from './UserProfileModal';
 import { CompanyProfileDrawer } from './CompanyProfileDrawer';
+import { SubscriptionTrialModal } from './SubscriptionTrialModal';
 import { ThemePalette } from '../../types/erp';
 import { ActiveTab } from './Sidebar';
 
@@ -60,6 +62,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewCompanyModal, onSelectT
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
   const [showCompanyDrawer, setShowCompanyDrawer] = useState(false);
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
 
   const themes: { id: ThemePalette; label: string; color: string }[] = [
     { id: 'corporate-blue', label: 'Corporate Blue', color: 'bg-blue-600' },
@@ -245,6 +248,21 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewCompanyModal, onSelectT
           {/* Voice Navigation Widget */}
           <VoiceNavigationWidget onNavigateTab={onSelectTab} />
 
+          {/* Client Enterprise Subscription & Master Bank Accounts Watch Button */}
+          {!isMasterPortal && (
+            <button
+              onClick={() => setShowSubscriptionModal(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-purple-900/30 via-slate-800 to-cyan-900/30 hover:from-purple-900/50 hover:to-cyan-900/50 border border-cyan-500/40 text-xs font-bold text-cyan-200 transition-all cursor-pointer shadow-sm"
+              title="Watch Master Software Corporate Bank Accounts, Subscription Plans & Free Trial"
+            >
+              <CreditCard className="w-3.5 h-3.5 text-cyan-400" />
+              <span className="hidden lg:inline">Master Bank Accounts &amp; Plans</span>
+              <span className="text-[10px] bg-cyan-500/20 text-cyan-300 font-mono px-1.5 py-0.2 rounded border border-cyan-500/30">
+                14d Trial
+              </span>
+            </button>
+          )}
+
           {/* Theme Picker */}
           <div className="relative">
             <button
@@ -374,6 +392,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewCompanyModal, onSelectT
       <MasterLoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
       <UserProfileModal isOpen={showUserModal} onClose={() => setShowUserModal(false)} onOpenLogin={() => setShowLoginModal(true)} />
       <CompanyProfileDrawer isOpen={showCompanyDrawer} onClose={() => setShowCompanyDrawer(false)} />
+      <SubscriptionTrialModal isOpen={showSubscriptionModal} onClose={() => setShowSubscriptionModal(false)} />
     </>
   );
 };

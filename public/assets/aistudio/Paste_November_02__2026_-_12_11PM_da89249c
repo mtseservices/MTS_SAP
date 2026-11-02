@@ -1,0 +1,3309 @@
+# ENTERPRISE ERP / SAP / ODOO
+# COMPLETE DEPARTMENT MASTER CATALOGUE
+## General, Operational, Specialized & Industry-Specific Departments
+
+==================================================
+CATEGORY 01 – GENERAL / BASIC COMPANY DEPARTMENTS
+==================================================
+
+1) Accounts & Finance Department
+   - Department Head: CFO / Finance Manager
+   - Definition
+      - Chart of Accounts
+      - General Ledger
+      - Cash & Bank Management
+      - Accounts Payable
+      - Accounts Receivable
+      - Cost Center & Profit Center
+      - Fixed Assets
+      - Financial Year & Opening Balances
+      - Tax & Currency Setup
+   - Forms
+      - Chart of Accounts Form
+      - Journal Voucher Form
+      - Payment Voucher Form
+      - Receipt Voucher Form
+      - Contra Voucher Form
+      - Expense Voucher Form
+      - Bank Reconciliation Form
+      - Cheque Management Form
+      - Opening Balance Form
+      - Supplier Ledger Form
+      - Customer Ledger Form
+   - Reports
+      - Chart of Accounts Report
+      - General Ledger Report
+      - Trial Balance Report
+      - Balance Sheet
+      - Profit & Loss Statement
+      - Cash Book
+      - Bank Book
+      - Accounts Payable Report
+      - Accounts Receivable Report
+      - Supplier Ledger
+      - Customer Ledger
+      - Expense Summary
+      - Cost Center Report
+      - Bank Reconciliation Report
+      - Cash Flow Statement
+      - Financial Audit Report
+
+2) Inventory & Store Department
+   - Department Head: Inventory Manager / Store Manager
+   - Definition
+      - Item Master
+      - Item Categories
+      - Units of Measurement
+      - Warehouse & Store Locations
+      - Opening Stock
+      - Minimum / Maximum Stock
+      - Reorder Level
+      - Batch & Serial Number
+      - Expiry Management
+      - Inventory Valuation
+      - Stock Adjustment
+   - Forms
+      - Item Master Form
+      - Item Category Form
+      - Warehouse / Store Form
+      - Opening Stock Form
+      - Goods Receipt Note (GRN)
+      - Material Receipt Note (MRN)
+      - Material Issue Note (MIN)
+      - Stock Transfer Form
+      - Stock Adjustment Form
+      - Stock Return Form
+      - Physical Stock Count Form
+      - Batch & Expiry Form
+   - Reports
+      - Item Master Report
+      - Stock Summary Report
+      - Stock Ledger
+      - Item-wise Stock Report
+      - Warehouse-wise Stock Report
+      - Store Ledger
+      - Opening Stock Report
+      - GRN Report
+      - Material Issue Report
+      - Stock Transfer Report
+      - Stock Adjustment Report
+      - Reorder Level Report
+      - Low Stock Report
+      - Excess Stock Report
+      - Slow / Fast Moving Stock
+      - Dead Stock Report
+      - Expiry Alert Report
+      - Inventory Valuation Report
+
+3) Procurement / Purchase Department
+   - Department Head: Procurement Manager / Purchase Manager
+   - Definition
+      - Supplier Master
+      - Vendor Categories
+      - Purchase Categories
+      - Local & Import Purchase
+      - Service Procurement
+      - Payment Terms
+      - Delivery Schedule
+      - Purchase Terms & Conditions
+      - Supplier Evaluation
+      - Purchase Approval Levels
+   - Forms
+      - Purchase Requisition (PR)
+      - Request for Quotation (RFQ)
+      - Supplier Quotation Form
+      - Quotation Comparison Statement (CS)
+      - Purchase Order (PO)
+      - Purchase Contract Form
+      - Purchase Invoice Form
+      - Purchase Return Form
+      - Supplier Registration Form
+      - Supplier Evaluation Form
+      - Purchase Approval Form
+   - Reports
+      - Purchase Requisition Register
+      - RFQ Register
+      - Supplier Quotation Register
+      - Quotation Comparison Report
+      - Purchase Order Register
+      - Pending PO Report
+      - Purchase Register
+      - Supplier Ledger
+      - Supplier Outstanding Report
+      - Purchase Return Report
+      - Item-wise Purchase Report
+      - Supplier-wise Purchase Report
+      - Purchase Price Variance
+      - Supplier Performance Report
+      - Purchase Budget vs Actual
+
+4) Sales Department
+   - Department Head: Sales Manager / Sales Director
+   - Definition
+      - Customer Master
+      - Customer Categories
+      - Sales Territories
+      - Sales Representatives
+      - Price Lists
+      - Discount Policy
+      - Credit Limits
+      - Sales Targets
+      - Sales Commission
+   - Forms
+      - Customer Registration Form
+      - Sales Enquiry Form
+      - Sales Quotation Form
+      - Sales Order Form
+      - Delivery Challan Form
+      - Sales Invoice Form
+      - Sales Return Form
+      - Credit Note Form
+      - Sales Receipt Form
+      - Sales Target Form
+      - Discount Approval Form
+   - Reports
+      - Daily Sales Report
+      - Monthly Sales Report
+      - Customer-wise Sales
+      - Item-wise Sales
+      - Category-wise Sales
+      - Salesperson Performance
+      - Territory-wise Sales
+      - Sales Order Register
+      - Pending Sales Orders
+      - Sales Invoice Register
+      - Sales Return Report
+      - Customer Outstanding
+      - Sales Tax Report
+      - Gross Profit Report
+      - Target vs Achievement
+
+5) Human Resources (HR) Department
+   - Department Head: HR Manager / HR Director
+   - Definition
+      - Department & Section Master
+      - Designation Master
+      - Employee Master
+      - Recruitment
+      - Employee Onboarding
+      - Attendance & Leave
+      - Training & Development
+      - Performance Appraisal
+      - Employee Discipline
+      - Resignation & Termination
+   - Forms
+      - Employee Registration Form
+      - Employee Documents Form
+      - Job Application Form
+      - Interview Evaluation Form
+      - Appointment Letter Form
+      - Attendance Form
+      - Leave Application Form
+      - Employee Transfer Form
+      - Appraisal Form
+      - Training Registration Form
+      - Resignation Form
+      - Exit Clearance Form
+   - Reports
+      - Employee Master List
+      - Department-wise Employee Report
+      - Recruitment Report
+      - Attendance Summary
+      - Leave Register
+      - Employee Turnover Report
+      - Appraisal Report
+      - Training Report
+      - Resignation Report
+      - Employee Strength Report
+
+6) Payroll Department
+   - Department Head: Payroll Manager / Payroll Officer
+   - Definition
+      - Salary Structures
+      - Basic Salary & Allowances
+      - Overtime Rules
+      - Deductions
+      - Employee Advances & Loans
+      - Tax Deductions
+      - Bonuses & Incentives
+      - Final Settlement
+   - Forms
+      - Salary Structure Form
+      - Payroll Processing Form
+      - Time Sheet Form
+      - Overtime Form
+      - Advance & Loan Form
+      - Salary Slip Form
+      - Bonus & Incentive Form
+      - Final Settlement Form
+   - Reports
+      - Monthly Payroll Register
+      - Employee Salary Slip
+      - Department-wise Payroll
+      - Overtime Report
+      - Salary Advance Report
+      - Loan Recovery Report
+      - Deduction Report
+      - Payroll Tax Report
+      - Final Settlement Report
+
+7) Administration Department
+   - Department Head: Administration Manager / Admin Officer
+   - Definition
+      - Office Management
+      - Facility Management
+      - Office Supplies
+      - Stationery Management
+      - Vehicle Management
+      - Visitor Management
+      - Travel & Accommodation
+      - Utilities Management
+      - Housekeeping
+   - Forms
+      - Office Supplies Requisition
+      - Stationery Issue Form
+      - Vehicle Registration Form
+      - Vehicle Log Book
+      - Visitor Entry Form
+      - Inward Gate Pass
+      - Outward Gate Pass
+      - Maintenance Request
+      - Office Expense Form
+      - Travel Request Form
+   - Reports
+      - Office Asset Register
+      - Stationery Consumption
+      - Vehicle Utilization
+      - Fuel Consumption
+      - Visitor Register
+      - Inward Gate Pass Register
+      - Outward Gate Pass Register
+      - Maintenance Pending Report
+      - Utility Expense Report
+      - Travel Expense Report
+
+==================================================
+CATEGORY 02 – COMPANY OPERATIONAL DEPARTMENTS
+==================================================
+
+8) Supply Chain Management Department
+   - Department Head: Supply Chain Manager / CSCO
+   - Definition
+      - Demand Planning
+      - Supply Planning
+      - Material Requirement Planning (MRP)
+      - Supplier Coordination
+      - Inventory Planning
+      - Distribution Planning
+      - Supply Chain Cost Control
+   - Forms
+      - Demand Forecast Form
+      - Material Requirement Form
+      - Supply Plan Form
+      - Supplier Schedule Form
+      - Distribution Plan Form
+      - Supply Chain Approval Form
+   - Reports
+      - Demand Forecast Report
+      - Material Requirement Report
+      - Supply Planning Report
+      - Stock Availability Report
+      - Supply Chain Cost Report
+      - Supplier Delivery Performance
+
+9) Warehouse Management Department
+   - Department Head: Warehouse Manager
+   - Definition
+      - Main Warehouse
+      - Sub Warehouse
+      - Rack & Bin Management
+      - Receiving & Inspection
+      - Put Away
+      - Picking & Packing
+      - Dispatch
+      - Warehouse Transfers
+   - Forms
+      - Warehouse Setup Form
+      - Rack / Bin Form
+      - Put Away Form
+      - Picking List Form
+      - Packing Form
+      - Dispatch Form
+      - Warehouse Transfer Form
+   - Reports
+      - Warehouse Stock Report
+      - Rack / Bin Stock Report
+      - Receiving Report
+      - Picking & Packing Report
+      - Dispatch Report
+      - Warehouse Capacity Report
+      - Warehouse Performance Report
+
+10) Logistics & Transportation Department
+   - Department Head: Logistics Manager / Transport Manager
+   - Definition
+      - Inbound Logistics
+      - Outbound Logistics
+      - Fleet Management
+      - Delivery Planning
+      - Route Planning
+      - Freight Management
+      - Driver Management
+      - Shipment Tracking
+   - Forms
+      - Vehicle Registration Form
+      - Driver Registration Form
+      - Trip Sheet Form
+      - Fuel Entry Form
+      - Delivery Schedule Form
+      - Shipment Booking Form
+      - Proof of Delivery Form
+   - Reports
+      - Daily Dispatch Report
+      - Vehicle Utilization Report
+      - Fuel Consumption Report
+      - Driver Performance Report
+      - Freight Expense Report
+      - Delivery Status Report
+      - Route Performance Report
+
+11) Quality Assurance & Quality Control Department
+   - Department Head: QA/QC Manager
+   - Definition
+      - Quality Planning
+      - Incoming Material Inspection
+      - In-Process Inspection
+      - Final Inspection
+      - Quality Standards
+      - Testing & Sampling
+      - Non-Conformance Management
+      - Corrective & Preventive Action
+   - Forms
+      - Quality Inspection Form
+      - Incoming Inspection Form
+      - In-Process Inspection Form
+      - Final Inspection Form
+      - Sample Testing Form
+      - NCR Form
+      - CAPA Form
+      - Customer Complaint Form
+   - Reports
+      - Incoming Inspection Report
+      - In-Process Quality Report
+      - Final Inspection Report
+      - Rejection Report
+      - Defect Analysis Report
+      - NCR Register
+      - CAPA Status Report
+      - Quality Performance Report
+
+12) Maintenance & Engineering Department
+   - Department Head: Maintenance Manager / Chief Engineer
+   - Definition
+      - Building Maintenance
+      - Electrical Maintenance
+      - Mechanical Maintenance
+      - Machinery Maintenance
+      - Preventive Maintenance
+      - Breakdown Maintenance
+      - Spare Parts Management
+   - Forms
+      - Maintenance Request Form
+      - Work Order Form
+      - Preventive Maintenance Schedule
+      - Breakdown Report Form
+      - Spare Parts Requisition
+      - Maintenance Completion Form
+   - Reports
+      - Maintenance Register
+      - Pending Maintenance Report
+      - Machine Breakdown Report
+      - Preventive Maintenance Report
+      - Maintenance Cost Report
+      - Spare Parts Consumption
+
+13) Security & Safety Department
+   - Department Head: Security Manager / Safety Manager
+   - Definition
+      - Gate Security
+      - Employee Entry & Exit
+      - Visitor Security
+      - CCTV Monitoring
+      - Access Control
+      - Fire Safety
+      - Emergency Response
+      - Incident Management
+   - Forms
+      - Employee Gate Entry Form
+      - Visitor Security Form
+      - Vehicle Entry Form
+      - Material Gate Pass Form
+      - Security Incident Form
+      - Safety Inspection Form
+      - Emergency Report Form
+   - Reports
+      - Daily Security Register
+      - Visitor Security Report
+      - Gate Pass Register
+      - CCTV Incident Report
+      - Security Incident Register
+      - Safety Inspection Report
+      - Emergency Response Report
+
+14) Marketing Department
+   - Department Head: Marketing Manager / CMO
+   - Definition
+      - Market Research
+      - Brand Management
+      - Digital Marketing
+      - Advertising Campaigns
+      - Social Media Marketing
+      - Product Promotion
+      - Marketing Budget
+      - Competitor Analysis
+   - Forms
+      - Marketing Campaign Form
+      - Advertising Request Form
+      - Social Media Content Form
+      - Marketing Expense Form
+      - Promotion / Discount Form
+      - Market Survey Form
+   - Reports
+      - Marketing Campaign Report
+      - Marketing Expense Report
+      - Social Media Performance
+      - Advertising Spend Report
+      - Lead Generation Report
+      - Campaign ROI Report
+      - Competitor Analysis Report
+
+15) Customer Relationship Management (CRM) Department
+   - Department Head: CRM Manager / Customer Service Manager
+   - Definition
+      - Lead Management
+      - Customer Registration
+      - Customer Follow-ups
+      - Customer Communication
+      - Customer Complaints
+      - Customer Retention
+      - Customer Satisfaction
+   - Forms
+      - Lead Registration Form
+      - Customer Registration Form
+      - Follow-up Form
+      - Meeting Record Form
+      - Complaint Form
+      - Support Ticket Form
+      - Customer Feedback Form
+   - Reports
+      - Lead Register
+      - Lead Conversion Report
+      - Customer Follow-up Report
+      - Pending Follow-up Report
+      - Complaint Register
+      - Ticket Aging Report
+      - Customer Satisfaction Report
+
+16) IT & Information Systems Department
+   - Department Head: IT Manager / CIO
+   - Definition
+      - Hardware Management
+      - Software Management
+      - Network Management
+      - Server Management
+      - Database Management
+      - ERP Administration
+      - IT Support
+      - Data Backup
+   - Forms
+      - IT Asset Form
+      - IT Support Ticket Form
+      - Software Installation Request
+      - User Account Request
+      - Access Permission Form
+      - Backup Schedule Form
+   - Reports
+      - IT Asset Register
+      - IT Support Ticket Report
+      - Software License Report
+      - User Access Report
+      - Network Status Report
+      - Backup Status Report
+
+17) Project Management Department
+   - Department Head: Project Manager / PMO Head
+   - Definition
+      - Project Registration
+      - Project Planning
+      - Project Scheduling
+      - Resource Allocation
+      - Project Budgeting
+      - Project Execution
+      - Project Monitoring
+      - Project Closure
+   - Forms
+      - Project Registration Form
+      - Project Proposal Form
+      - Project Budget Form
+      - Project Schedule Form
+      - Resource Allocation Form
+      - Project Progress Form
+      - Project Closure Form
+   - Reports
+      - Project Register
+      - Project Progress Report
+      - Project Budget vs Actual
+      - Project Cost Report
+      - Project Resource Report
+      - Delayed Project Report
+      - Project Completion Report
+
+18) Document Control & Records Department
+   - Department Head: Documentation Manager / Document Controller
+   - Definition
+      - Document Registration
+      - Document Verification
+      - Document Approval
+      - Revision Control
+      - File Archiving
+      - Record Retention
+      - Official Correspondence
+   - Forms
+      - Document Registration Form
+      - Document Approval Form
+      - Document Revision Form
+      - File Movement Form
+      - Document Issue Form
+      - Document Archive Form
+   - Reports
+      - Document Register
+      - Pending Approval Report
+      - Document Revision History
+      - Expired Document Report
+      - File Movement Report
+      - Archive Register
+
+==================================================
+CATEGORY 03 – MANAGEMENT, CONTROL & GOVERNANCE
+==================================================
+
+19) Executive Management Department
+   - Department Head: CEO / Managing Director
+   - Definition
+      - Corporate Management
+      - Business Strategy
+      - Management Planning
+      - Department Coordination
+      - Executive Approvals
+      - Business Performance Review
+   - Forms
+      - Management Decision Form
+      - Executive Approval Form
+      - Management Meeting Form
+      - Business Plan Form
+   - Reports
+      - Company Performance Dashboard
+      - Department Performance Report
+      - Management Review Report
+      - Executive Approval Register
+
+20) Business Development Department
+   - Department Head: Business Development Manager
+   - Definition
+      - New Business Opportunities
+      - Market Expansion
+      - Partnership Development
+      - Client Acquisition
+      - Business Proposals
+      - Revenue Growth
+   - Forms
+      - Business Lead Form
+      - Partnership Form
+      - Business Proposal Form
+      - Opportunity Registration Form
+   - Reports
+      - Business Opportunity Register
+      - New Client Report
+      - Partnership Report
+      - Business Growth Report
+
+21) Planning & Budgeting Department
+   - Department Head: Planning Manager / Budget Manager
+   - Definition
+      - Annual Business Plan
+      - Department Budget
+      - Operating Expenditure (OPEX)
+      - Capital Expenditure (CAPEX)
+      - Budget Allocation
+      - Budget Monitoring
+   - Forms
+      - Annual Budget Form
+      - Department Budget Form
+      - CAPEX Request Form
+      - OPEX Request Form
+      - Budget Revision Form
+   - Reports
+      - Annual Budget Report
+      - Department-wise Budget
+      - Budget vs Actual Report
+      - CAPEX Report
+      - OPEX Report
+      - Budget Variance Report
+
+22) Costing & Cost Control Department
+   - Department Head: Costing Manager / Cost Accountant
+   - Definition
+      - Raw Material Costing
+      - Labour Costing
+      - Direct & Indirect Expenses
+      - Factory Overheads
+      - Product Costing
+      - Job Costing
+      - Project Costing
+      - Standard & Actual Cost
+      - Cost Variance Analysis
+   - Forms
+      - Product Costing Form
+      - Raw Material Cost Form
+      - Labour Cost Form
+      - Overhead Allocation Form
+      - Job Costing Form
+      - Project Costing Form
+      - Cost Revision Form
+   - Reports
+      - Product Cost Sheet
+      - Item-wise Cost Report
+      - Department Cost Report
+      - Job Costing Report
+      - Project Cost Report
+      - Standard vs Actual Cost
+      - Cost Variance Report
+      - Profitability Analysis
+
+23) Internal Audit Department
+   - Department Head: Internal Audit Manager / CAE
+   - Definition
+      - Financial Audit
+      - Inventory Audit
+      - Procurement Audit
+      - Sales Audit
+      - HR & Payroll Audit
+      - Operational Audit
+      - Compliance Audit
+      - Internal Controls
+   - Forms
+      - Audit Plan Form
+      - Audit Checklist Form
+      - Audit Observation Form
+      - Audit Finding Form
+      - Corrective Action Form
+   - Reports
+      - Annual Audit Plan
+      - Audit Observation Register
+      - Financial Audit Report
+      - Inventory Audit Report
+      - Procurement Audit Report
+      - Payroll Audit Report
+      - Audit Compliance Report
+
+24) Legal & Compliance Department
+   - Department Head: Legal Manager / Compliance Manager
+   - Definition
+      - Company Registration
+      - Legal Documentation
+      - Contracts & Agreements
+      - Licenses & Permits
+      - Regulatory Compliance
+      - Legal Notices
+      - Policy Compliance
+   - Forms
+      - Contract Registration Form
+      - Agreement Approval Form
+      - License Registration Form
+      - Legal Case Form
+      - Compliance Checklist
+   - Reports
+      - Contract Register
+      - License Expiry Report
+      - Legal Case Register
+      - Compliance Status Report
+      - Agreement Renewal Report
+
+25) Risk Management Department
+   - Department Head: Risk Manager / CRO
+   - Definition
+      - Financial Risk
+      - Operational Risk
+      - Credit Risk
+      - Supply Chain Risk
+      - Compliance Risk
+      - Business Continuity
+   - Forms
+      - Risk Assessment Form
+      - Risk Register Form
+      - Risk Mitigation Form
+      - Incident Reporting Form
+   - Reports
+      - Risk Register
+      - Risk Assessment Report
+      - High-Risk Activity Report
+      - Risk Mitigation Status
+      - Business Continuity Report
+
+26) Business Intelligence & MIS Department
+   - Department Head: BI Manager / MIS Manager
+   - Definition
+      - Data Analysis
+      - Management Information System
+      - KPI Monitoring
+      - Dashboard Management
+      - Business Forecasting
+      - Performance Analytics
+   - Forms
+      - KPI Setup Form
+      - Dashboard Configuration Form
+      - Report Request Form
+      - Data Correction Request Form
+   - Reports
+      - Executive Dashboard
+      - Department KPI Report
+      - Sales Analytics
+      - Financial Analytics
+      - Inventory Analytics
+      - Operational Analytics
+      - Performance Comparison
+
+==================================================
+CATEGORY 04 – FACTORY / INDUSTRIAL / MANUFACTURING-SPECIFIC
+==================================================
+
+27) Production Planning & Control Department (PPC)
+   - Department Head: PPC Manager
+   - Definition
+      - Production Planning
+      - Capacity Planning
+      - Production Scheduling
+      - Work Order Planning
+      - Material Requirement Planning
+      - Production Monitoring
+   - Forms
+      - Production Plan Form
+      - Work Order Form
+      - Capacity Planning Form
+      - Production Schedule Form
+      - Material Requirement Form
+   - Reports
+      - Production Plan Report
+      - Work Order Status
+      - Capacity Utilization
+      - Material Shortage Report
+      - Production Schedule Report
+
+28) Manufacturing Operations Department
+   - Department Head: Manufacturing Manager / Plant Manager
+   - Definition
+      - Manufacturing Processes
+      - Assembly Operations
+      - Machine Operations
+      - Work Centers
+      - Production Lines
+      - Work-in-Process (WIP)
+   - Forms
+      - Manufacturing Order Form
+      - Machine Operation Form
+      - Work Center Form
+      - Job Card Form
+      - WIP Entry Form
+   - Reports
+      - Manufacturing Order Register
+      - Machine-wise Production
+      - Work Center Performance
+      - WIP Report
+      - Manufacturing Efficiency
+
+29) Industrial Engineering Department
+   - Department Head: Industrial Engineering Manager
+   - Definition
+      - Process Engineering
+      - Work Study
+      - Time & Motion Study
+      - Line Balancing
+      - Capacity Optimization
+      - Productivity Improvement
+   - Forms
+      - Process Study Form
+      - Time Study Form
+      - Work Measurement Form
+      - Process Improvement Form
+   - Reports
+      - Standard Time Report
+      - Labour Productivity Report
+      - Line Efficiency Report
+      - Process Improvement Report
+
+30) Plant & Factory Management Department
+   - Department Head: Plant Manager / Factory Manager
+   - Definition
+      - Plant Operations
+      - Factory Administration
+      - Plant Utilities
+      - Machine Utilization
+      - Factory Workforce
+      - Plant Safety
+   - Forms
+      - Plant Registration Form
+      - Utility Consumption Form
+      - Shift Management Form
+      - Plant Inspection Form
+   - Reports
+      - Plant Performance Report
+      - Utility Consumption Report
+      - Machine Utilization Report
+      - Factory Expense Report
+
+31) Packaging Department
+   - Department Head: Packaging Manager
+   - Definition
+      - Packaging Planning
+      - Packaging Material
+      - Filling Operations
+      - Labelling
+      - Carton Packing
+      - Batch Coding
+   - Forms
+      - Packaging Plan Form
+      - Packaging Material Issue Form
+      - Filling Production Form
+      - Label Approval Form
+      - Packing Completion Form
+   - Reports
+      - Packaging Material Consumption
+      - Filling Production Report
+      - Packing Efficiency Report
+      - Packaging Rejection Report
+
+32) HSE / Environment Department
+   - Department Head: HSE Manager
+   - Definition
+      - Occupational Health & Safety
+      - Environmental Management
+      - Fire Prevention
+      - Waste Management
+      - Workplace Risk Assessment
+      - Emergency Management
+   - Forms
+      - Safety Inspection Form
+      - Accident / Incident Form
+      - Fire Drill Form
+      - Waste Disposal Form
+      - Safety Training Form
+   - Reports
+      - Safety Inspection Report
+      - Accident Register
+      - Incident Analysis
+      - Waste Management Report
+      - HSE Compliance Report
+
+==================================================
+CATEGORY 05 – FOOD & BEVERAGE / FMCG-SPECIFIC
+==================================================
+
+33) Food Production Department
+   - Department Head: Food Production Manager
+   - Definition
+      - Raw Material Preparation
+      - Ingredient Processing
+      - Mixing & Blending
+      - Cooking & Processing
+      - Filling Operations
+      - Packaging Operations
+      - Batch Production
+   - Forms
+      - Batch Production Form
+      - Recipe / Formula Form
+      - Ingredient Issue Form
+      - Mixing & Processing Form
+      - Filling Form
+      - Finished Goods Receipt Form
+   - Reports
+      - Daily Food Production Report
+      - Batch Production Register
+      - Ingredient Consumption
+      - Filling & Packing Report
+      - Production Yield Report
+      - Batch Cost Report
+
+34) Food Safety Department
+   - Department Head: Food Safety Manager
+   - Definition
+      - HACCP
+      - GMP
+      - GHP
+      - Hygiene Management
+      - Pest Control
+      - Food Traceability
+      - Product Recall
+   - Forms
+      - Hygiene Inspection Form
+      - HACCP Monitoring Form
+      - Pest Control Form
+      - Temperature Monitoring Form
+      - Product Recall Form
+   - Reports
+      - Food Safety Inspection
+      - HACCP Compliance
+      - Hygiene Monitoring
+      - Pest Control Report
+      - Product Traceability Report
+      - Recall Register
+
+35) Laboratory & Food Testing Department
+   - Department Head: Laboratory Manager / Food Technologist
+   - Definition
+      - Raw Material Testing
+      - Water Testing
+      - Chemical Testing
+      - Microbiological Testing
+      - Product Testing
+      - Shelf-Life Testing
+   - Forms
+      - Sample Registration Form
+      - Raw Material Testing Form
+      - Water Testing Form
+      - Finished Product Testing Form
+      - Shelf-Life Testing Form
+   - Reports
+      - Laboratory Test Report
+      - Raw Material Quality Report
+      - Water Quality Report
+      - Finished Product Test Report
+      - Shelf-Life Report
+
+36) Product Formulation & R&D Department
+   - Department Head: R&D Manager / Food Technologist
+   - Definition
+      - Product Research
+      - Recipe Development
+      - Ingredient Specifications
+      - Formula Standardization
+      - Product Trials
+      - Product Improvement
+   - Forms
+      - New Product Development Form
+      - Recipe Formulation Form
+      - Trial Batch Form
+      - Ingredient Specification Form
+      - Product Approval Form
+   - Reports
+      - Product Development Register
+      - Recipe Costing Report
+      - Trial Production Report
+      - Ingredient Usage Report
+      - Product Evaluation Report
+
+37) Cold Chain & Temperature Control Department
+   - Department Head: Cold Chain Manager
+   - Definition
+      - Cold Storage
+      - Refrigerated Transportation
+      - Temperature Monitoring
+      - Frozen Inventory
+      - Cold Chain Compliance
+   - Forms
+      - Temperature Log Form
+      - Cold Storage Entry Form
+      - Refrigerated Vehicle Form
+      - Temperature Excursion Form
+   - Reports
+      - Temperature Monitoring Report
+      - Cold Storage Stock Report
+      - Temperature Excursion Register
+      - Cold Chain Compliance Report
+
+==================================================
+CATEGORY 06 – SCHOOL / ACADEMY-SPECIFIC
+==================================================
+
+38) School Administration Department
+   - Department Head: Principal / School Administrator
+   - Definition
+      - School Management
+      - Staff Coordination
+      - Campus Administration
+      - School Policies
+      - Parent Communication
+   - Forms
+      - School Registration Form
+      - Staff Assignment Form
+      - Visitor Form
+      - School Event Form
+   - Reports
+      - School Administration Report
+      - Staff Strength Report
+      - Visitor Register
+      - School Activity Report
+
+39) Admissions Department
+   - Department Head: Admission Manager / Admission Officer
+   - Definition
+      - Admission Enquiries
+      - Student Registration
+      - Document Verification
+      - Entrance Test
+      - Admission Approval
+      - Student Enrollment
+   - Forms
+      - Admission Enquiry Form
+      - Student Admission Form
+      - Document Verification Form
+      - Admission Test Form
+      - Admission Approval Form
+   - Reports
+      - Admission Enquiry Register
+      - New Admission Report
+      - Class-wise Admission Report
+      - Pending Documents Report
+      - Admission Cancellation Report
+
+40) Academic Department
+   - Department Head: Academic Director / Academic Coordinator
+   - Definition
+      - Class Management
+      - Subject Management
+      - Curriculum
+      - Teacher Allocation
+      - Lesson Planning
+      - Academic Calendar
+   - Forms
+      - Class Setup Form
+      - Subject Setup Form
+      - Teacher Allocation Form
+      - Lesson Plan Form
+      - Timetable Form
+   - Reports
+      - Class-wise Student Report
+      - Teacher Workload Report
+      - Subject-wise Performance
+      - Timetable Report
+      - Academic Progress Report
+
+41) Examination Department
+   - Department Head: Examination Controller / Exam Coordinator
+   - Definition
+      - Exam Planning
+      - Date Sheet
+      - Question Papers
+      - Student Exam Registration
+      - Marks Entry
+      - Result Processing
+   - Forms
+      - Exam Setup Form
+      - Date Sheet Form
+      - Roll Number Slip Form
+      - Marks Entry Form
+      - Result Processing Form
+      - Report Card Form
+   - Reports
+      - Examination Schedule
+      - Student Attendance Sheet
+      - Marks Sheet
+      - Class Result Report
+      - Position Holders Report
+      - Fail / Pass Report
+      - Student Progress Report
+
+42) Student Affairs Department
+   - Department Head: Student Affairs Officer
+   - Definition
+      - Student Records
+      - Student Discipline
+      - Counselling
+      - Student Activities
+      - Parent Meetings
+   - Forms
+      - Student Complaint Form
+      - Disciplinary Action Form
+      - Counselling Form
+      - Parent Meeting Form
+      - Student Activity Form
+   - Reports
+      - Student Discipline Report
+      - Student Complaint Register
+      - Counselling Register
+      - Student Activity Report
+
+43) School Fee & Accounts Department
+   - Department Head: Fee Manager / Accounts Manager
+   - Definition
+      - Admission Fee
+      - Monthly Tuition Fee
+      - Annual Charges
+      - Examination Fee
+      - Transport Fee
+      - Scholarships & Discounts
+      - Fee Recovery
+   - Forms
+      - Fee Structure Form
+      - Fee Challan Form
+      - Fee Collection Form
+      - Fee Discount Form
+      - Scholarship Form
+      - Fee Refund Form
+   - Reports
+      - Monthly Fee Collection
+      - Class-wise Fee Report
+      - Outstanding Fee Report
+      - Fee Defaulter List
+      - Scholarship Report
+      - Fee Refund Report
+      - Daily Cash Collection
+
+44) School HR & Staff Department
+   - Department Head: HR Manager / School HR Officer
+   - Definition
+      - Teacher Recruitment
+      - Staff Recruitment
+      - Employee Records
+      - Staff Attendance
+      - Teacher Workload
+      - Staff Payroll
+   - Forms
+      - Teacher Registration Form
+      - Staff Registration Form
+      - Staff Attendance Form
+      - Teacher Evaluation Form
+      - Staff Leave Form
+   - Reports
+      - Teacher List
+      - Staff Attendance Report
+      - Teacher Workload Report
+      - Staff Salary Report
+      - Staff Performance Report
+
+45) School Library Department
+   - Department Head: Librarian
+   - Definition
+      - Book Registration
+      - Library Inventory
+      - Student Membership
+      - Book Issue & Return
+      - Fine Management
+   - Forms
+      - Book Registration Form
+      - Book Issue Form
+      - Book Return Form
+      - Library Membership Form
+      - Fine Collection Form
+   - Reports
+      - Library Stock Report
+      - Book Issue Register
+      - Overdue Books Report
+      - Fine Collection Report
+
+46) School Transport Department
+   - Department Head: Transport Manager / Transport Incharge
+   - Definition
+      - Vehicle Management
+      - Student Route Management
+      - Driver Management
+      - Pickup & Drop
+      - Fuel & Maintenance
+   - Forms
+      - Vehicle Registration Form
+      - Student Transport Form
+      - Route Setup Form
+      - Driver Registration Form
+      - Fuel Entry Form
+   - Reports
+      - Route-wise Student Report
+      - Vehicle Utilization Report
+      - Transport Fee Report
+      - Fuel Consumption Report
+      - Vehicle Maintenance Report
+
+==================================================
+CATEGORY 07 – COLLEGE / UNIVERSITY-SPECIFIC
+==================================================
+
+47) College / University Administration
+   - Department Head: Principal / Registrar / Director
+   - Definition
+      - Institutional Management
+      - Campus Administration
+      - Staff Coordination
+      - Official Correspondence
+      - Institutional Policies
+   - Forms
+      - Institutional Setup Form
+      - Campus Setup Form
+      - Department Setup Form
+      - Official Letter Form
+   - Reports
+      - Institutional Overview
+      - Campus-wise Report
+      - Department-wise Report
+      - Staff Strength Report
+
+48) Registrar Department
+   - Department Head: University Registrar
+   - Definition
+      - Student Registration
+      - Enrollment Management
+      - Academic Records
+      - Student Verification
+      - Degree & Transcript Records
+   - Forms
+      - Student Registration Form
+      - Enrollment Form
+      - Migration Form
+      - Transcript Request Form
+      - Degree Verification Form
+   - Reports
+      - Student Registration Register
+      - Enrollment Report
+      - Migration Register
+      - Transcript Register
+      - Degree Issuance Report
+
+49) Admissions & Enrollment Department
+   - Department Head: Director Admissions
+   - Definition
+      - Online Applications
+      - Eligibility Verification
+      - Entry Test
+      - Merit Lists
+      - Admission Approval
+      - Semester Enrollment
+   - Forms
+      - Online Admission Form
+      - Application Verification Form
+      - Entry Test Form
+      - Merit Approval Form
+      - Semester Enrollment Form
+   - Reports
+      - Application Register
+      - Program-wise Admission Report
+      - Merit List
+      - Pending Admission Report
+      - Enrollment Report
+
+50) Academic Affairs Department
+   - Department Head: Dean / Director Academics
+   - Definition
+      - Faculty Management
+      - Department Management
+      - Course Management
+      - Semester Planning
+      - Credit Hours
+      - Academic Calendar
+      - Timetable Management
+   - Forms
+      - Faculty Registration Form
+      - Course Setup Form
+      - Semester Setup Form
+      - Timetable Form
+      - Faculty Allocation Form
+   - Reports
+      - Course-wise Student Report
+      - Faculty Workload Report
+      - Semester Progress Report
+      - Academic Calendar
+      - Program Performance Report
+
+51) Controller of Examinations Department
+   - Department Head: Controller of Examinations
+   - Definition
+      - Examination Registration
+      - Date Sheet
+      - Roll Number Slips
+      - Examination Centers
+      - Marks Compilation
+      - Result Declaration
+      - DMC & Transcript Processing
+   - Forms
+      - Exam Registration Form
+      - Date Sheet Form
+      - Roll Number Slip Form
+      - Marks Entry Form
+      - Result Approval Form
+      - DMC Form
+      - Transcript Form
+   - Reports
+      - Examination Registration Report
+      - Roll Number Slip Register
+      - Attendance Sheet
+      - Marks Sheet
+      - Semester Result Report
+      - DMC Issuance Report
+      - Transcript Issuance Report
+      - Result Gazette
+
+52) Student Finance & Scholarships Department
+   - Department Head: Finance Controller / Scholarship Manager
+   - Definition
+      - Admission Fee
+      - Semester Fee
+      - Examination Fee
+      - Hostel Fee
+      - Transport Fee
+      - Scholarships
+      - Financial Aid
+      - Fee Refund
+   - Forms
+      - Semester Fee Form
+      - Scholarship Application Form
+      - Financial Aid Form
+      - Fee Refund Form
+      - Fee Adjustment Form
+   - Reports
+      - Semester Fee Collection
+      - Outstanding Dues
+      - Scholarship Beneficiary Report
+      - Fee Refund Register
+      - Financial Aid Report
+
+53) Research & Higher Education Department
+   - Department Head: Director Research / Research Dean
+   - Definition
+      - Research Projects
+      - Thesis Management
+      - Research Publications
+      - Faculty Research
+      - Research Grants
+      - Research Ethics
+   - Forms
+      - Research Proposal Form
+      - Thesis Registration Form
+      - Research Grant Form
+      - Publication Submission Form
+      - Research Approval Form
+   - Reports
+      - Research Project Register
+      - Thesis Status Report
+      - Research Grant Utilization
+      - Publication Report
+      - Research Progress Report
+
+54) Hostel & Campus Facilities Department
+   - Department Head: Hostel Warden / Campus Manager
+   - Definition
+      - Hostel Admissions
+      - Room Allocation
+      - Accommodation
+      - Mess Management
+      - Campus Maintenance
+      - Laboratory & Classroom Facilities
+   - Forms
+      - Hostel Admission Form
+      - Room Allocation Form
+      - Mess Registration Form
+      - Maintenance Request Form
+      - Campus Asset Form
+   - Reports
+      - Hostel Occupancy Report
+      - Room Availability
+      - Mess Expense Report
+      - Campus Maintenance Report
+      - Campus Asset Register
+
+==================================================
+CATEGORY 08 – HOSPITAL / HEALTHCARE-SPECIFIC
+==================================================
+
+55) Hospital Administration Department
+   - Department Head: Hospital Administrator / CEO
+   - Definition
+      - Hospital Operations
+      - Patient Administration
+      - Staff Coordination
+      - Facility Management
+      - Hospital Policies
+   - Forms
+      - Hospital Setup Form
+      - Department Setup Form
+      - Staff Duty Form
+      - Facility Request Form
+   - Reports
+      - Hospital Operations Report
+      - Department-wise Performance
+      - Staff Duty Report
+      - Facility Management Report
+
+56) OPD Department
+   - Department Head: OPD Manager
+   - Definition
+      - Patient Registration
+      - Doctor Appointments
+      - Consultation
+      - OPD Billing
+      - Patient Follow-ups
+   - Forms
+      - Patient Registration Form
+      - Appointment Form
+      - Doctor Consultation Form
+      - OPD Prescription Form
+      - OPD Billing Form
+   - Reports
+      - Daily OPD Register
+      - Doctor-wise Patient Report
+      - Appointment Report
+      - OPD Revenue Report
+      - Patient Follow-up Report
+
+57) Emergency Department
+   - Department Head: Emergency Manager / Medical Officer
+   - Definition
+      - Emergency Registration
+      - Triage Management
+      - Emergency Treatment
+      - Patient Transfer
+      - Emergency Billing
+   - Forms
+      - Emergency Patient Form
+      - Triage Assessment Form
+      - Emergency Treatment Form
+      - Patient Transfer Form
+   - Reports
+      - Emergency Patient Register
+      - Emergency Treatment Report
+      - Patient Transfer Report
+      - Emergency Billing Report
+
+58) Inpatient / IPD Department
+   - Department Head: IPD Manager / Nursing Superintendent
+   - Definition
+      - Patient Admission
+      - Bed Allocation
+      - Ward Management
+      - Nursing Records
+      - Patient Discharge
+   - Forms
+      - IPD Admission Form
+      - Bed Allocation Form
+      - Ward Transfer Form
+      - Nursing Notes Form
+      - Discharge Form
+   - Reports
+      - IPD Admission Register
+      - Bed Occupancy Report
+      - Ward-wise Patient Report
+      - Discharge Register
+      - Average Length of Stay
+
+59) Medical & Clinical Departments
+   - Department Head: Medical Director / Clinical Director
+   - Definition
+      - General Medicine
+      - Surgery
+      - Cardiology
+      - Neurology
+      - Orthopedics
+      - Pediatrics
+      - Gynecology
+      - Dermatology
+      - ENT
+      - Dental
+   - Forms
+      - Doctor Registration Form
+      - Clinical Assessment Form
+      - Consultation Form
+      - Procedure Record Form
+      - Clinical Referral Form
+   - Reports
+      - Doctor-wise Patient Report
+      - Specialty-wise Patient Report
+      - Clinical Procedure Report
+      - Referral Report
+
+60) Nursing Department
+   - Department Head: Nursing Superintendent / Chief Nursing Officer
+   - Definition
+      - Nursing Staff
+      - Duty Roster
+      - Patient Care
+      - Medication Administration
+      - Ward Coordination
+   - Forms
+      - Nursing Registration Form
+      - Duty Roster Form
+      - Patient Care Form
+      - Medication Administration Form
+   - Reports
+      - Nursing Duty Report
+      - Ward Nursing Report
+      - Medication Administration Report
+      - Nursing Staff Attendance
+
+61) Pharmacy Department
+   - Department Head: Chief Pharmacist / Pharmacy Manager
+   - Definition
+      - Medicine Master
+      - Medicine Procurement
+      - Medicine Inventory
+      - Prescription Management
+      - Dispensing
+      - Batch & Expiry Control
+   - Forms
+      - Medicine Master Form
+      - Pharmacy Purchase Form
+      - Prescription Form
+      - Medicine Issue Form
+      - Medicine Return Form
+   - Reports
+      - Medicine Stock Report
+      - Medicine Expiry Report
+      - Pharmacy Sales Report
+      - Prescription Register
+      - Medicine Consumption Report
+
+62) Laboratory Department
+   - Department Head: Laboratory Manager / Pathologist
+   - Definition
+      - Sample Collection
+      - Sample Registration
+      - Hematology
+      - Biochemistry
+      - Microbiology
+      - Laboratory Testing
+   - Forms
+      - Lab Test Request Form
+      - Sample Collection Form
+      - Test Result Form
+      - Lab Approval Form
+   - Reports
+      - Daily Lab Register
+      - Test-wise Report
+      - Pending Test Report
+      - Laboratory Revenue Report
+
+63) Radiology & Imaging Department
+   - Department Head: Radiology Manager / Radiologist
+   - Definition
+      - X-Ray
+      - Ultrasound
+      - CT Scan
+      - MRI
+      - Imaging Appointments
+      - Imaging Reports
+   - Forms
+      - Imaging Request Form
+      - Appointment Form
+      - Imaging Result Form
+      - Report Approval Form
+   - Reports
+      - Imaging Register
+      - Modality-wise Report
+      - Pending Imaging Report
+      - Radiology Revenue Report
+
+64) Hospital Billing & Insurance Department
+   - Department Head: Billing Manager / Revenue Cycle Manager
+   - Definition
+      - OPD Billing
+      - IPD Billing
+      - Surgery Billing
+      - Insurance Claims
+      - Corporate Panel Billing
+      - Payment Collection
+   - Forms
+      - Patient Invoice Form
+      - Insurance Claim Form
+      - Corporate Panel Form
+      - Payment Receipt Form
+      - Refund Form
+   - Reports
+      - OPD Revenue Report
+      - IPD Revenue Report
+      - Insurance Claim Register
+      - Outstanding Patient Bills
+      - Daily Collection Report
+
+65) Medical Records Department
+   - Department Head: Medical Records Manager / HIM Manager
+   - Definition
+      - Patient Medical History
+      - Electronic Medical Records
+      - Discharge Summaries
+      - Medical Certificates
+      - Record Archiving
+      - Confidentiality
+   - Forms
+      - Medical Record Form
+      - Discharge Summary Form
+      - Medical Certificate Form
+      - Record Request Form
+   - Reports
+      - Medical Record Register
+      - Discharge Summary Register
+      - Record Request Report
+      - Patient History Report
+
+==================================================
+CATEGORY 09 – DISTRIBUTION / WHOLESALE / RETAIL-SPECIFIC
+==================================================
+
+66) Distribution Management Department
+   - Department Head: Distribution Manager
+   - Definition
+      - Distributor Registration
+      - Dealer Management
+      - Territory Management
+      - Stock Allocation
+      - Distributor Orders
+      - Distributor Payments
+   - Forms
+      - Distributor Registration Form
+      - Dealer Registration Form
+      - Territory Allocation Form
+      - Distributor Order Form
+      - Stock Allocation Form
+   - Reports
+      - Distributor Register
+      - Territory-wise Sales
+      - Distributor Outstanding
+      - Distributor Stock Report
+      - Distributor Performance
+
+67) Retail Operations Department
+   - Department Head: Retail Operations Manager
+   - Definition
+      - Store Operations
+      - Point of Sale (POS)
+      - Cash Counter
+      - Retail Inventory
+      - Discounts & Promotions
+      - Daily Closing
+   - Forms
+      - POS Sales Form
+      - Cash Opening Form
+      - Cash Closing Form
+      - Sales Return Form
+      - Discount Form
+      - Store Transfer Form
+   - Reports
+      - Daily POS Sales
+      - Cashier-wise Sales
+      - Store-wise Sales
+      - Sales Return Report
+      - Daily Cash Closing
+      - Retail Stock Report
+
+68) Franchise Management Department
+   - Department Head: Franchise Manager
+   - Definition
+      - Franchise Registration
+      - Franchise Agreements
+      - Franchise Locations
+      - Franchise Inventory
+      - Royalty Management
+   - Forms
+      - Franchise Registration Form
+      - Franchise Agreement Form
+      - Franchise Stock Form
+      - Royalty Entry Form
+   - Reports
+      - Franchise Register
+      - Franchise Sales Report
+      - Royalty Collection
+      - Franchise Performance
+
+69) Merchandising Department
+   - Department Head: Merchandising Manager
+   - Definition
+      - Product Display
+      - Shelf Management
+      - Store Visits
+      - Promotional Displays
+      - Product Placement
+   - Forms
+      - Store Visit Form
+      - Display Inspection Form
+      - Merchandising Request Form
+      - Promotion Placement Form
+   - Reports
+      - Store Visit Report
+      - Product Display Report
+      - Merchandising Performance
+      - Promotion Execution Report
+
+70) E-Commerce Department
+   - Department Head: E-Commerce Manager
+   - Definition
+      - Online Store
+      - Product Catalogue
+      - Online Orders
+      - Online Payments
+      - Returns & Refunds
+      - Courier Integration
+   - Forms
+      - Online Product Form
+      - Online Order Form
+      - Payment Verification Form
+      - Return Request Form
+      - Refund Form
+   - Reports
+      - Online Sales Report
+      - Pending Online Orders
+      - Payment Reconciliation
+      - Returns & Refunds Report
+      - Product Performance
+
+==================================================
+CATEGORY 10 – CONSTRUCTION / REAL ESTATE-SPECIFIC
+==================================================
+
+71) Construction Project Department
+   - Department Head: Project Director / Construction Manager
+   - Definition
+      - Project Registration
+      - Site Planning
+      - Project Scheduling
+      - Site Execution
+      - Labour Management
+      - Project Monitoring
+   - Forms
+      - Project Registration Form
+      - Site Opening Form
+      - Work Order Form
+      - Site Progress Form
+      - Project Completion Form
+   - Reports
+      - Project Register
+      - Site Progress Report
+      - Project Cost Report
+      - Delayed Work Report
+      - Project Completion Report
+
+72) Civil Engineering Department
+   - Department Head: Chief Civil Engineer
+   - Definition
+      - Structural Design
+      - Site Engineering
+      - Surveying
+      - Earthwork
+      - Concrete Work
+      - Building Construction
+   - Forms
+      - Site Survey Form
+      - Engineering Drawing Form
+      - Inspection Form
+      - Work Completion Form
+   - Reports
+      - Site Survey Report
+      - Engineering Progress Report
+      - Civil Work Report
+      - Technical Inspection Report
+
+73) Quantity Surveying Department
+   - Department Head: Quantity Surveyor / QS Manager
+   - Definition
+      - Bill of Quantities (BOQ)
+      - Quantity Estimation
+      - Material Take-Off
+      - Rate Analysis
+      - Contractor Billing
+      - Variation Orders
+   - Forms
+      - BOQ Form
+      - Material Estimation Form
+      - Rate Analysis Form
+      - Contractor Bill Form
+      - Variation Order Form
+   - Reports
+      - BOQ Report
+      - Material Requirement Report
+      - Contractor Billing Report
+      - Project Quantity Variance
+      - Rate Analysis Report
+
+74) Real Estate Sales Department
+   - Department Head: Real Estate Sales Manager
+   - Definition
+      - Property Listings
+      - Plot / Unit Management
+      - Property Booking
+      - Customer Registration
+      - Installment Plans
+      - Property Transfers
+   - Forms
+      - Property Registration Form
+      - Customer Booking Form
+      - Plot Allocation Form
+      - Installment Plan Form
+      - Transfer Request Form
+   - Reports
+      - Property Inventory
+      - Booking Register
+      - Plot Availability Report
+      - Installment Recovery Report
+      - Property Transfer Register
+
+75) Site Procurement & Store Department
+   - Department Head: Site Store Manager / Site Procurement Manager
+   - Definition
+      - Construction Material Procurement
+      - Site Material Receiving
+      - Material Issuance
+      - Site Inventory
+      - Equipment Allocation
+      - Material Consumption
+   - Forms
+      - Site Purchase Requisition
+      - Site GRN
+      - Material Issue Form
+      - Equipment Allocation Form
+      - Site Stock Transfer
+   - Reports
+      - Site Stock Report
+      - Site Material Consumption
+      - Site Purchase Report
+      - Material Shortage Report
+      - Site-wise Cost Report
+
+==================================================
+CATEGORY 11 – SOLAR / ENERGY / EPC-SPECIFIC
+==================================================
+
+76) Solar Project Department
+   - Department Head: Solar Project Manager
+   - Definition
+      - Site Survey
+      - Project Feasibility
+      - Project Estimation
+      - Installation Planning
+      - Project Execution
+      - Commissioning & Handover
+   - Forms
+      - Customer Site Survey Form
+      - Project Feasibility Form
+      - Solar Quotation Form
+      - Project Registration Form
+      - Installation Checklist
+      - Project Handover Form
+   - Reports
+      - Solar Project Register
+      - Site Survey Report
+      - Project Cost Report
+      - Installation Progress Report
+      - Project Handover Report
+
+77) Solar Engineering Department
+   - Department Head: Engineering Manager / Electrical Design Engineer
+   - Definition
+      - Solar System Design
+      - Load Calculation
+      - Panel Sizing
+      - Inverter Sizing
+      - Battery Sizing
+      - Cable Sizing
+      - Electrical Drawings
+   - Forms
+      - Load Assessment Form
+      - System Design Form
+      - Panel Configuration Form
+      - Inverter Selection Form
+      - Technical Approval Form
+   - Reports
+      - Load Assessment Report
+      - Solar Design Report
+      - Material Specification Report
+      - Technical Feasibility Report
+
+78) Solar Procurement Department
+   - Department Head: Solar Procurement Manager
+   - Definition
+      - Solar Panel Procurement
+      - Inverter Procurement
+      - Battery Procurement
+      - Structure Procurement
+      - Cable & Accessories
+      - Supplier Evaluation
+   - Forms
+      - Solar PR Form
+      - Supplier Quotation Form
+      - Solar CS Form
+      - Solar PO Form
+      - Supplier Evaluation Form
+   - Reports
+      - Solar Purchase Register
+      - Supplier-wise Purchase
+      - Project-wise Material Purchase
+      - Solar Purchase Cost Report
+
+79) Solar Store & Inventory Department
+   - Department Head: Solar Store Manager
+   - Definition
+      - Solar Panel Inventory
+      - Inverter Inventory
+      - Battery Inventory
+      - Electrical Accessories
+      - Serial Number Tracking
+      - Project-wise Material Allocation
+   - Forms
+      - Solar Item Master
+      - Solar GRN
+      - Project Material Issue
+      - Serial Number Entry
+      - Material Return Form
+   - Reports
+      - Solar Stock Report
+      - Serial Number Register
+      - Project-wise Material Consumption
+      - Solar Stock Valuation
+      - Returned Material Report
+
+80) Solar Installation & Technical Department
+   - Department Head: Installation Manager / Technical Manager
+   - Definition
+      - Installation Team
+      - Electrical Installation
+      - Mechanical Installation
+      - Testing & Commissioning
+      - Troubleshooting
+      - Site Inspection
+   - Forms
+      - Installation Assignment Form
+      - Site Work Order
+      - Installation Checklist
+      - Testing Report Form
+      - Commissioning Form
+   - Reports
+      - Installation Progress
+      - Team-wise Performance
+      - Site Inspection Report
+      - Commissioning Report
+
+81) Solar After-Sales & Maintenance Department
+   - Department Head: Service Manager
+   - Definition
+      - Customer Complaints
+      - Warranty Management
+      - Preventive Maintenance
+      - Corrective Maintenance
+      - Service Visits
+      - Technical Support
+   - Forms
+      - Service Request Form
+      - Warranty Registration
+      - Maintenance Visit Form
+      - Repair Job Card
+      - Customer Feedback Form
+   - Reports
+      - Service Request Register
+      - Warranty Expiry Report
+      - Maintenance History
+      - Service Cost Report
+      - Customer Complaint Report
+
+==================================================
+CATEGORY 12 – ADVERTISING / MEDIA / DIGITAL AGENCY-SPECIFIC
+==================================================
+
+82) Agency Operations Department
+   - Department Head: Agency Director / Operations Manager
+   - Definition
+      - Client Management
+      - Agency Operations
+      - Campaign Planning
+      - Service Management
+      - Project Coordination
+   - Forms
+      - Client Registration Form
+      - Client Brief Form
+      - Project Registration Form
+      - Service Request Form
+      - Project Approval Form
+   - Reports
+      - Client Register
+      - Active Projects Report
+      - Agency Operations Report
+      - Project Completion Report
+
+83) Creative & Graphic Design Department
+   - Department Head: Creative Director / Design Manager
+   - Definition
+      - Logo Design
+      - Social Media Posts
+      - Banner Design
+      - Brochure Design
+      - Print Design
+      - Creative Approval
+   - Forms
+      - Design Request Form
+      - Creative Brief Form
+      - Design Assignment Form
+      - Design Approval Form
+      - Revision Request Form
+   - Reports
+      - Design Work Register
+      - Pending Design Report
+      - Designer Performance
+      - Revision History Report
+
+84) Digital Advertising Department
+   - Department Head: Digital Marketing Manager
+   - Definition
+      - Facebook Ads
+      - Instagram Ads
+      - WhatsApp Marketing
+      - Google Ads
+      - YouTube Ads
+      - Audience Targeting
+      - Campaign Optimization
+   - Forms
+      - Advertising Campaign Form
+      - Ad Budget Form
+      - Audience Setup Form
+      - Ad Approval Form
+      - Campaign Result Form
+   - Reports
+      - Campaign Performance
+      - Platform-wise Ad Spend
+      - Reach & Impressions
+      - Clicks & Leads Report
+      - Conversion Report
+      - Advertising ROI / ROAS
+
+85) Social Media Management Department
+   - Department Head: Social Media Manager
+   - Definition
+      - Facebook Page Management
+      - Instagram Account Management
+      - Content Calendar
+      - Post Scheduling
+      - Reels & Stories
+      - Comment & Message Management
+   - Forms
+      - Social Account Registration
+      - Content Calendar Form
+      - Post Creation Form
+      - Post Scheduling Form
+      - Content Approval Form
+   - Reports
+      - Page Performance
+      - Post Engagement Report
+      - Followers Growth
+      - Scheduled Post Report
+      - Message Response Report
+
+86) Video Production Department
+   - Department Head: Video Production Manager
+   - Definition
+      - Video Shooting
+      - Video Editing
+      - Animation
+      - Motion Graphics
+      - Voice-over
+      - Reels & Shorts
+   - Forms
+      - Video Request Form
+      - Video Production Brief
+      - Shooting Schedule Form
+      - Editing Assignment Form
+      - Video Approval Form
+   - Reports
+      - Video Production Register
+      - Pending Editing Report
+      - Video Delivery Report
+      - Video Performance Report
+
+87) Client Services Department
+   - Department Head: Client Services Manager / Account Manager
+   - Definition
+      - Client Registration
+      - Client Briefing
+      - Client Requirements
+      - Project Quotation
+      - Campaign Approval
+      - Client Feedback
+   - Forms
+      - Client Enquiry Form
+      - Client Brief Form
+      - Quotation Form
+      - Campaign Approval Form
+      - Client Feedback Form
+   - Reports
+      - Client Enquiry Register
+      - Client Follow-up Report
+      - Active Client Report
+      - Client Billing Report
+      - Client Satisfaction Report
+
+88) Advertising Billing & Finance Department
+   - Department Head: Finance Manager / Billing Manager
+   - Definition
+      - Client Invoices
+      - Campaign Budget
+      - Advertising Spend
+      - Platform Payments
+      - Agency Service Charges
+      - Client Receivables
+   - Forms
+      - Client Invoice Form
+      - Campaign Expense Form
+      - Platform Payment Form
+      - Service Charge Form
+      - Client Receipt Form
+   - Reports
+      - Client Billing Register
+      - Campaign-wise Expense
+      - Platform Payment Report
+      - Client Outstanding
+      - Campaign Profitability
+
+==================================================
+CATEGORY 13 – HOTEL / RESTAURANT / HOSPITALITY-SPECIFIC
+==================================================
+
+89) Hotel Operations Department
+   - Department Head: General Manager / Hotel Manager
+   - Definition
+      - Front Office
+      - Guest Relations
+      - Room Management
+      - Reservation Management
+      - Housekeeping
+      - Guest Billing
+   - Forms
+      - Guest Registration Form
+      - Room Booking Form
+      - Check-in Form
+      - Check-out Form
+      - Guest Complaint Form
+   - Reports
+      - Room Occupancy Report
+      - Daily Reservation Report
+      - Guest Register
+      - Check-in / Check-out Report
+      - Hotel Revenue Report
+
+90) Restaurant Operations Department
+   - Department Head: Restaurant Manager
+   - Definition
+      - Dining Operations
+      - Table Management
+      - Order Management
+      - POS Billing
+      - Takeaway Orders
+      - Home Delivery
+   - Forms
+      - Table Booking Form
+      - Customer Order Form
+      - POS Sales Form
+      - Takeaway Order Form
+      - Delivery Order Form
+   - Reports
+      - Daily Restaurant Sales
+      - Table Occupancy Report
+      - Order Register
+      - Food Sales Analysis
+      - Daily Cash Closing
+
+91) Kitchen & Food Preparation Department
+   - Department Head: Head Chef / Executive Chef
+   - Definition
+      - Menu Planning
+      - Recipe Management
+      - Food Preparation
+      - Kitchen Inventory
+      - Food Costing
+      - Kitchen Hygiene
+   - Forms
+      - Menu Setup Form
+      - Recipe Form
+      - Kitchen Requisition
+      - Food Preparation Form
+      - Kitchen Wastage Form
+   - Reports
+      - Menu-wise Sales
+      - Ingredient Consumption
+      - Food Cost Report
+      - Kitchen Wastage Report
+      - Kitchen Stock Report
+
+92) Banquet & Events Department
+   - Department Head: Events Manager / Banquet Manager
+   - Definition
+      - Event Booking
+      - Hall Reservation
+      - Event Planning
+      - Catering Management
+      - Event Billing
+   - Forms
+      - Event Booking Form
+      - Hall Reservation Form
+      - Catering Order Form
+      - Event Expense Form
+   - Reports
+      - Event Register
+      - Hall Booking Report
+      - Event Revenue Report
+      - Event Expense & Profit Report
+
+==================================================
+CATEGORY 14 – TEXTILE / GARMENTS-SPECIFIC
+==================================================
+
+93) Textile Production Department
+   - Department Head: Textile Production Manager
+   - Definition
+      - Spinning
+      - Weaving
+      - Knitting
+      - Dyeing
+      - Printing
+      - Finishing
+   - Forms
+      - Production Order Form
+      - Yarn Issue Form
+      - Fabric Production Form
+      - Dyeing Process Form
+      - Finishing Form
+   - Reports
+      - Spinning Production
+      - Weaving Production
+      - Dyeing Report
+      - Fabric Output Report
+      - Production Efficiency
+
+94) Garment Manufacturing Department
+   - Department Head: Garment Production Manager
+   - Definition
+      - Fabric Inspection
+      - Cutting
+      - Stitching
+      - Sewing Line
+      - Washing
+      - Finishing
+      - Packing
+   - Forms
+      - Cutting Order Form
+      - Fabric Issue Form
+      - Stitching Job Card
+      - Washing Form
+      - Final Packing Form
+   - Reports
+      - Cutting Report
+      - Stitching Production
+      - Line Efficiency
+      - Rejection Report
+      - Finished Garments Report
+
+95) Fabric & Yarn Store Department
+   - Department Head: Fabric Store Manager
+   - Definition
+      - Yarn Inventory
+      - Fabric Inventory
+      - Accessories Inventory
+      - Batch & Lot Management
+      - Fabric Issuance
+      - Fabric Consumption
+   - Forms
+      - Yarn GRN
+      - Fabric GRN
+      - Fabric Issue Form
+      - Lot Transfer Form
+      - Physical Stock Form
+   - Reports
+      - Yarn Stock Report
+      - Fabric Stock Report
+      - Lot-wise Inventory
+      - Fabric Consumption
+      - Stock Reconciliation
+
+96) Textile Quality Department
+   - Department Head: Textile Quality Manager
+   - Definition
+      - Fabric Inspection
+      - Yarn Testing
+      - Color Testing
+      - Shrinkage Testing
+      - Stitching Quality
+      - Final Inspection
+   - Forms
+      - Fabric Inspection Form
+      - Yarn Testing Form
+      - Color Test Form
+      - Shrinkage Test Form
+      - Final Quality Form
+   - Reports
+      - Fabric Quality Report
+      - Yarn Testing Report
+      - Defect Analysis
+      - Final Inspection Report
+
+==================================================
+CATEGORY 15 – AGRICULTURE / DAIRY / LIVESTOCK-SPECIFIC
+==================================================
+
+97) Agriculture Operations Department
+   - Department Head: Agriculture Manager / Farm Manager
+   - Definition
+      - Land Management
+      - Crop Planning
+      - Seed Management
+      - Fertilizer Management
+      - Irrigation Management
+      - Harvesting
+   - Forms
+      - Land Registration Form
+      - Crop Planning Form
+      - Seed Issue Form
+      - Fertilizer Issue Form
+      - Harvest Entry Form
+   - Reports
+      - Crop Production Report
+      - Land Utilization
+      - Fertilizer Consumption
+      - Harvest Report
+      - Farm Expense Report
+
+98) Dairy Farm Department
+   - Department Head: Dairy Farm Manager
+   - Definition
+      - Animal Registration
+      - Animal Health Records
+      - Milk Production
+      - Milk Collection
+      - Feed Management
+      - Veterinary Management
+   - Forms
+      - Animal Registration Form
+      - Milk Collection Form
+      - Feed Issue Form
+      - Vaccination Form
+      - Veterinary Treatment Form
+   - Reports
+      - Animal Register
+      - Daily Milk Production
+      - Animal Health Report
+      - Feed Consumption
+      - Milk Quality Report
+
+99) Livestock Management Department
+   - Department Head: Livestock Manager
+   - Definition
+      - Animal Inventory
+      - Animal Feeding
+      - Vaccination
+      - Breeding Management
+      - Veterinary Services
+      - Animal Sales
+   - Forms
+      - Animal Entry Form
+      - Feeding Record Form
+      - Vaccination Form
+      - Breeding Record Form
+      - Animal Sale Form
+   - Reports
+      - Animal Stock Report
+      - Feeding Report
+      - Vaccination Register
+      - Breeding Report
+      - Animal Mortality Report
+
+==================================================
+CATEGORY 16 – TRANSPORT / COURIER / FREIGHT-SPECIFIC
+==================================================
+
+100) Courier Operations Department
+   - Department Head: Courier Operations Manager
+   - Definition
+      - Shipment Booking
+      - Consignment Registration
+      - Parcel Sorting
+      - Route Allocation
+      - Shipment Tracking
+      - Delivery Management
+   - Forms
+      - Consignment Booking Form
+      - Shipment Label Form
+      - Parcel Receiving Form
+      - Route Allocation Form
+      - Delivery Confirmation Form
+   - Reports
+      - Shipment Register
+      - Daily Booking Report
+      - Delivery Status Report
+      - Undelivered Shipment Report
+      - Return Shipment Report
+
+101) Fleet & Vehicle Management Department
+   - Department Head: Fleet Manager
+   - Definition
+      - Vehicle Registration
+      - Vehicle Allocation
+      - Driver Management
+      - Fuel Consumption
+      - Vehicle Maintenance
+      - Insurance & Documents
+   - Forms
+      - Vehicle Registration Form
+      - Driver Registration Form
+      - Vehicle Allocation Form
+      - Fuel Entry Form
+      - Vehicle Maintenance Form
+   - Reports
+      - Vehicle Register
+      - Driver Register
+      - Fuel Consumption
+      - Vehicle Maintenance
+      - Vehicle Utilization
+
+102) Dispatch & Delivery Department
+   - Department Head: Dispatch Manager
+   - Definition
+      - Delivery Scheduling
+      - Order Dispatch
+      - Route Planning
+      - Delivery Assignment
+      - Delivery Confirmation
+      - Return Management
+   - Forms
+      - Dispatch Order Form
+      - Delivery Schedule Form
+      - Driver Assignment Form
+      - Delivery Confirmation Form
+      - Return Delivery Form
+   - Reports
+      - Daily Dispatch Report
+      - Pending Delivery Report
+      - Delivered Orders Report
+      - Failed Delivery Report
+      - Driver-wise Delivery Report
+
+103) Freight & Import / Export Department
+   - Department Head: Freight Manager / Import Export Manager
+   - Definition
+      - Import Documentation
+      - Export Documentation
+      - Customs Clearance
+      - Freight Booking
+      - Shipment Tracking
+      - Clearing Agent Management
+   - Forms
+      - Import Registration Form
+      - Export Order Form
+      - Shipping Document Form
+      - Customs Clearance Form
+      - Freight Invoice Form
+   - Reports
+      - Import Register
+      - Export Register
+      - Shipment Tracking Report
+      - Customs Expense Report
+      - Landed Cost Report
+
+==================================================
+CATEGORY 17 – BANKING / FINANCIAL SERVICES-SPECIFIC
+==================================================
+
+104) Banking Operations Department
+   - Department Head: Operations Manager
+   - Definition
+      - Account Opening
+      - Customer Verification
+      - Cash Management
+      - Deposits & Withdrawals
+      - Funds Transfer
+      - Branch Operations
+   - Forms
+      - Customer Account Form
+      - Deposit Form
+      - Withdrawal Form
+      - Funds Transfer Form
+      - Customer Verification Form
+   - Reports
+      - Account Register
+      - Daily Cash Report
+      - Deposit & Withdrawal Report
+      - Branch Operations Report
+
+105) Credit & Loan Department
+   - Department Head: Credit Manager
+   - Definition
+      - Loan Applications
+      - Credit Assessment
+      - Credit Approval
+      - Loan Disbursement
+      - Installment Management
+      - Loan Recovery
+   - Forms
+      - Loan Application Form
+      - Credit Assessment Form
+      - Loan Approval Form
+      - Loan Disbursement Form
+      - Installment Collection Form
+   - Reports
+      - Loan Register
+      - Pending Loan Applications
+      - Loan Recovery Report
+      - Outstanding Loan Report
+      - Installment Aging Report
+
+106) Compliance & AML Department
+   - Department Head: Compliance Officer / AML Manager
+   - Definition
+      - KYC Management
+      - Customer Due Diligence
+      - Transaction Monitoring
+      - Regulatory Reporting
+      - Suspicious Transaction Review
+   - Forms
+      - KYC Form
+      - Customer Due Diligence Form
+      - Compliance Review Form
+      - Suspicious Activity Form
+   - Reports
+      - KYC Register
+      - Compliance Review Report
+      - Transaction Monitoring Report
+      - Regulatory Compliance Report
+
+107) Treasury Department
+   - Department Head: Treasury Manager / Treasurer
+   - Definition
+      - Cash Flow Management
+      - Bank Account Management
+      - Liquidity Management
+      - Investment Management
+      - Foreign Exchange
+   - Forms
+      - Treasury Transaction Form
+      - Bank Transfer Form
+      - Investment Form
+      - Cash Forecast Form
+   - Reports
+      - Cash Position Report
+      - Bank Balance Report
+      - Liquidity Report
+      - Foreign Currency Exposure
+      - Treasury Transactions
+
+==================================================
+CATEGORY 18 – INSURANCE / TAKAFUL-SPECIFIC
+==================================================
+
+108) Insurance Operations Department
+   - Department Head: Insurance Operations Manager
+   - Definition
+      - Policy Registration
+      - Policy Issuance
+      - Policy Renewal
+      - Premium Collection
+      - Policy Amendments
+      - Policy Cancellation
+   - Forms
+      - Policy Application Form
+      - Policy Issuance Form
+      - Policy Renewal Form
+      - Policy Amendment Form
+      - Policy Cancellation Form
+   - Reports
+      - Policy Register
+      - Policy Renewal Report
+      - Premium Collection Report
+      - Policy Expiry Report
+
+109) Claims Management Department
+   - Department Head: Claims Manager
+   - Definition
+      - Claim Registration
+      - Claim Verification
+      - Claim Assessment
+      - Claim Approval
+      - Claim Settlement
+   - Forms
+      - Claim Application Form
+      - Claim Verification Form
+      - Claim Assessment Form
+      - Claim Approval Form
+      - Claim Settlement Form
+   - Reports
+      - Claims Register
+      - Pending Claims Report
+      - Approved Claims Report
+      - Claim Settlement Report
+      - Rejected Claims Report
+
+110) Underwriting Department
+   - Department Head: Underwriting Manager
+   - Definition
+      - Risk Evaluation
+      - Policy Assessment
+      - Premium Calculation
+      - Underwriting Approval
+      - Risk Classification
+   - Forms
+      - Risk Assessment Form
+      - Underwriting Form
+      - Premium Calculation Form
+      - Policy Approval Form
+   - Reports
+      - Underwriting Register
+      - Risk Assessment Report
+      - Premium Analysis
+      - Policy Approval Report
+
+==================================================
+CATEGORY 19 – NGO / CHARITY / WELFARE-SPECIFIC
+==================================================
+
+111) NGO Administration Department
+   - Department Head: Executive Director / Program Director
+   - Definition
+      - Organizational Management
+      - Staff Coordination
+      - Policy Management
+      - Institutional Reporting
+   - Forms
+      - Organization Setup Form
+      - Staff Registration Form
+      - Official Correspondence Form
+   - Reports
+      - Organization Profile
+      - Staff Strength Report
+      - Administration Expense Report
+
+112) Donation & Fundraising Department
+   - Department Head: Fundraising Manager
+   - Definition
+      - Donor Registration
+      - Donation Collection
+      - Fundraising Campaigns
+      - Donor Communication
+      - Donation Utilization
+   - Forms
+      - Donor Registration Form
+      - Donation Receipt Form
+      - Fundraising Campaign Form
+      - Donation Allocation Form
+   - Reports
+      - Donor Register
+      - Donation Collection Report
+      - Campaign-wise Donations
+      - Fund Utilization Report
+
+113) Welfare & Beneficiary Department
+   - Department Head: Welfare Manager
+   - Definition
+      - Beneficiary Registration
+      - Eligibility Verification
+      - Assistance Applications
+      - Aid Distribution
+      - Beneficiary Follow-up
+   - Forms
+      - Beneficiary Registration Form
+      - Assistance Application Form
+      - Eligibility Verification Form
+      - Aid Distribution Form
+   - Reports
+      - Beneficiary Register
+      - Assistance Distribution Report
+      - Pending Applications
+      - Beneficiary Support Report
+
+114) Project & Grant Management Department
+   - Department Head: Program Manager / Grant Manager
+   - Definition
+      - Grant Applications
+      - Project Planning
+      - Fund Allocation
+      - Project Execution
+      - Monitoring & Evaluation
+   - Forms
+      - Grant Application Form
+      - Project Proposal Form
+      - Fund Allocation Form
+      - Project Monitoring Form
+   - Reports
+      - Grant Register
+      - Project Progress Report
+      - Fund Utilization Report
+      - Monitoring & Evaluation Report
+
+==================================================
+CATEGORY 20 – IT SOFTWARE HOUSE / PROFESSIONAL SERVICES
+==================================================
+
+115) Software Development Department
+   - Department Head: CTO / Development Manager
+   - Definition
+      - Software Planning
+      - Frontend Development
+      - Backend Development
+      - Database Development
+      - API Integration
+      - Application Development
+   - Forms
+      - Software Project Form
+      - Development Task Form
+      - Code Review Form
+      - Release Request Form
+   - Reports
+      - Development Project Register
+      - Task Progress Report
+      - Developer Performance
+      - Release History
+
+116) UI / UX Design Department
+   - Department Head: UI/UX Design Manager
+   - Definition
+      - User Research
+      - Wireframing
+      - Prototyping
+      - Interface Design
+      - User Experience Testing
+   - Forms
+      - Design Brief Form
+      - Wireframe Approval Form
+      - Prototype Review Form
+      - Design Change Form
+   - Reports
+      - Design Project Register
+      - Pending Design Report
+      - Design Revision History
+
+117) Software Quality Assurance Department
+   - Department Head: QA Manager / Test Manager
+   - Definition
+      - Manual Testing
+      - Automation Testing
+      - Functional Testing
+      - Performance Testing
+      - Security Testing
+      - Bug Tracking
+   - Forms
+      - Test Plan Form
+      - Test Case Form
+      - Bug Report Form
+      - Test Approval Form
+   - Reports
+      - Test Execution Report
+      - Bug Register
+      - Pending Defect Report
+      - Release Quality Report
+
+118) Technical Support Department
+   - Department Head: Technical Support Manager
+   - Definition
+      - Customer Technical Support
+      - Issue Registration
+      - Ticket Management
+      - Troubleshooting
+      - Remote Support
+      - Service Level Management
+   - Forms
+      - Support Ticket Form
+      - Technical Issue Form
+      - Service Assignment Form
+      - Resolution Form
+   - Reports
+      - Support Ticket Register
+      - Pending Tickets
+      - Ticket Aging Report
+      - Resolution Time Report
+      - SLA Performance Report
+
+119) Consultancy & Professional Services Department
+   - Department Head: Consulting Manager / Services Director
+   - Definition
+      - Client Consultancy
+      - Business Analysis
+      - Requirements Gathering
+      - Professional Services
+      - Client Projects
+      - Service Billing
+   - Forms
+      - Client Consultancy Form
+      - Requirements Form
+      - Service Proposal Form
+      - Service Delivery Form
+   - Reports
+      - Consultancy Project Register
+      - Client Service Report
+      - Consultant Utilization
+      - Service Billing Report
+
+==================================================
+CATEGORY 21 – ADDITIONAL SPECIALIZED BUSINESS DEPARTMENTS
+==================================================
+
+120) Import & Export Department
+   - Department Head: Import Export Manager
+   - Definition
+      - Import Purchase Orders
+      - Export Sales Orders
+      - Shipping Documentation
+      - Customs Documentation
+      - Clearing & Forwarding
+      - Foreign Currency Transactions
+   - Forms
+      - Import Order Form
+      - Export Order Form
+      - Shipping Document Form
+      - Customs Declaration Form
+      - Import Expense Form
+   - Reports
+      - Import Register
+      - Export Register
+      - Import Costing Report
+      - Shipment Status Report
+      - Foreign Currency Report
+
+121) Tender & Contract Management Department
+   - Department Head: Tender Manager / Contracts Manager
+   - Definition
+      - Tender Registration
+      - Tender Documents
+      - Bid Preparation
+      - Bid Submission
+      - Contract Review
+      - Contract Renewal
+   - Forms
+      - Tender Registration Form
+      - Bid Preparation Form
+      - Tender Submission Form
+      - Contract Approval Form
+      - Contract Renewal Form
+   - Reports
+      - Tender Register
+      - Pending Tender Report
+      - Bid Status Report
+      - Contract Register
+      - Contract Expiry Report
+
+122) Call Centre & Customer Support Department
+   - Department Head: Call Centre Manager
+   - Definition
+      - Incoming Calls
+      - Outgoing Calls
+      - Customer Complaints
+      - Call Recording
+      - Ticket Management
+      - Customer Feedback
+   - Forms
+      - Call Registration Form
+      - Customer Complaint Form
+      - Call Follow-up Form
+      - Support Ticket Form
+   - Reports
+      - Daily Call Register
+      - Incoming / Outgoing Call Report
+      - Complaint Register
+      - Call Response Time
+      - Agent Performance Report
+
+123) Training & Development Department
+   - Department Head: Learning & Development Manager
+   - Definition
+      - Training Needs Assessment
+      - Employee Training
+      - Training Calendar
+      - Skill Development
+      - Training Evaluation
+   - Forms
+      - Training Request Form
+      - Training Registration Form
+      - Training Attendance Form
+      - Training Evaluation Form
+   - Reports
+      - Training Register
+      - Employee Training History
+      - Training Attendance Report
+      - Training Effectiveness Report
+
+124) Research, Statistics & Survey Department
+   - Department Head: Research Manager / Statistical Analyst
+   - Definition
+      - Data Collection
+      - Market Surveys
+      - Customer Surveys
+      - Statistical Analysis
+      - Business Forecasting
+   - Forms
+      - Survey Setup Form
+      - Survey Response Form
+      - Research Registration Form
+      - Data Collection Form
+   - Reports
+      - Survey Results
+      - Research Register
+      - Statistical Analysis Report
+      - Forecasting Report
+
+==================================================
+CATEGORY 22 – ERP SYSTEM / SOFTWARE CONTROL DEPARTMENTS
+==================================================
+
+125) ERP System Administration Department
+   - Department Head: ERP Manager / ERP Administrator
+   - Definition
+      - User Registration
+      - User Roles & Permissions
+      - Department Access
+      - Module Configuration
+      - System Settings
+      - Master Data Configuration
+      - User Activity Logs
+   - Forms
+      - User Registration Form
+      - Role Setup Form
+      - Permission Assignment Form
+      - Module Configuration Form
+      - System Settings Form
+   - Reports
+      - User Register
+      - User Login History
+      - Role & Permission Report
+      - User Activity Report
+      - Module Usage Report
+
+126) Workflow & Approval Management Department
+   - Department Head: Workflow Administrator / ERP Process Manager
+   - Definition
+      - Purchase Approval Workflow
+      - Sales Approval Workflow
+      - Payment Approval Workflow
+      - Leave Approval Workflow
+      - Expense Approval Workflow
+      - Document Approval
+   - Forms
+      - Workflow Setup Form
+      - Approval Level Form
+      - Approval Assignment Form
+      - Delegation Form
+   - Reports
+      - Pending Approval Report
+      - Approval History Report
+      - Rejected Transaction Report
+      - Approval Turnaround Report
+
+127) Data Governance Department
+   - Department Head: Data Governance Manager
+   - Definition
+      - Master Data Management
+      - Data Accuracy
+      - Data Validation
+      - Duplicate Record Control
+      - Data Ownership
+      - Data Quality
+   - Forms
+      - Master Data Request Form
+      - Data Correction Form
+      - Duplicate Record Form
+      - Data Approval Form
+   - Reports
+      - Master Data Register
+      - Duplicate Records Report
+      - Data Quality Report
+      - Data Correction History
+
+128) Cybersecurity & Information Security Department
+   - Department Head: CISO / Information Security Manager
+   - Definition
+      - User Authentication
+      - Access Security
+      - Password Policies
+      - Data Encryption
+      - Security Monitoring
+      - Vulnerability Management
+   - Forms
+      - Security Incident Form
+      - Access Request Form
+      - Security Review Form
+      - Password Policy Form
+   - Reports
+      - Security Incident Register
+      - User Access Audit
+      - Security Monitoring Report
+      - Vulnerability Report
+
+129) Backup & Disaster Recovery Department
+   - Department Head: IT Infrastructure Manager
+   - Definition
+      - Database Backup
+      - File Backup
+      - Cloud Backup
+      - Backup Scheduling
+      - Data Recovery
+      - Disaster Recovery Planning
+   - Forms
+      - Backup Schedule Form
+      - Backup Execution Form
+      - Recovery Request Form
+      - Disaster Recovery Test Form
+   - Reports
+      - Backup Status Report
+      - Failed Backup Report
+      - Data Recovery Register
+      - Disaster Recovery Test Report
+
+130) API & Third-Party Integration Department
+   - Department Head: Integration Manager / Technical Lead
+   - Definition
+      - Banking Integration
+      - Payment Gateway Integration
+      - SMS Integration
+      - WhatsApp Integration
+      - Email Integration
+      - E-Commerce Integration
+      - Government Portal Integration
+   - Forms
+      - API Configuration Form
+      - Integration Setup Form
+      - API Credential Setup Form
+      - Integration Testing Form
+   - Reports
+      - API Transaction Report
+      - Integration Error Report
+      - Payment Gateway Report
+      - SMS / WhatsApp Delivery Report
+      - Integration Status Report
+
+==================================================
+CATEGORY 23 – COMMON COMPANY HIERARCHY / DEPARTMENT HEADS
+==================================================
+
+- Board of Directors
+- Chairman
+- Chief Executive Officer (CEO)
+- Managing Director (MD)
+- Chief Operating Officer (COO)
+- Chief Financial Officer (CFO)
+- Chief Technology Officer (CTO)
+- Chief Information Officer (CIO)
+- Chief Human Resources Officer (CHRO)
+- Chief Marketing Officer (CMO)
+- Chief Supply Chain Officer (CSCO)
+- Chief Information Security Officer (CISO)
+- Chief Risk Officer (CRO)
+- Chief Audit Executive (CAE)
+- General Manager (GM)
+- Director
+- Head of Department (HOD)
+- Department Manager
+- Assistant Manager
+- Officer
+- Executive
+- Supervisor
+- Team Leader
+- Coordinator
+- Assistant
+- Clerk
+- Operator
+
+==================================================
+CATEGORY 24 – COMMON FORMS & REPORTS SYSTEM STRUCTURE
+==================================================
+
+1) Standard Form Structure
+   - Form Code
+   - Form Name
+   - Document Number
+   - Transaction Date
+   - Department
+   - Section
+   - Employee / User
+   - Customer / Supplier
+   - Item / Service Details
+   - Quantity
+   - Rate
+   - Discount
+   - Tax
+   - Net Amount
+   - Remarks
+   - Attachment
+   - Prepared By
+   - Checked By
+   - Approved By
+   - Transaction Status
+
+2) Standard Form Buttons
+   - New / Add
+   - Save
+   - Update
+   - Delete
+   - Search
+   - Clear
+   - Print
+   - Preview
+   - Attach Document
+   - Submit for Approval
+   - Approve
+   - Reject
+   - Close
+
+3) Standard Report Structure
+   - Company Name & Logo
+   - Report Title
+   - Report Code
+   - Report Date
+   - Date From / Date To
+   - Department Filter
+   - Section Filter
+   - Category Filter
+   - Employee / User Filter
+   - Customer / Supplier Filter
+   - Item / Product Filter
+   - Document Number
+   - Status Filter
+   - Search Field
+   - Data Table
+   - Subtotal
+   - Grand Total
+   - Prepared By
+   - Printed By
+   - Page Number
+
+4) Standard Report Buttons
+   - View Report
+   - Refresh
+   - Search
+   - Filter
+   - Sort
+   - Group
+   - Print Preview
+   - Print
+   - Export PDF
+   - Export Excel
+   - Close
+
+5) Standard Popup Form Requirements
+   - Each Form opens in a separate Popup / UserForm.
+   - Each Report opens in a separate Report Viewer Popup.
+   - Forms support Add, Save, Update, Delete and Search.
+   - Reports support Filter, Preview, Print and Export.
+   - Each document has a unique auto-generated number.
+   - Mandatory fields must be validated.
+   - User permissions must control access.
+   - Transactions must maintain an audit trail.
+   - Approval status must be visible.
+   - Forms and Reports must follow a consistent professional layout.
+
+==================================================
+CATEGORY 25 – STANDARD ERP BUSINESS WORKFLOWS
+==================================================
+
+1) Purchase to Pay (P2P)
+   - Purchase Requisition
+   - Approval
+   - RFQ
+   - Supplier Quotation
+   - Comparison Statement
+   - Purchase Order
+   - Goods Receipt
+   - Quality Inspection
+   - Purchase Invoice
+   - Supplier Payment
+   - Accounts Posting
+
+2) Order to Cash (O2C)
+   - Customer Enquiry
+   - Quotation
+   - Sales Order
+   - Stock Availability
+   - Picking & Packing
+   - Delivery Challan
+   - Sales Invoice
+   - Customer Receipt
+   - Accounts Posting
+
+3) Plan to Produce
+   - Demand Forecast
+   - Production Planning
+   - BOM / Recipe
+   - Material Requirement
+   - Material Issue
+   - Production Work Order
+   - Production Entry
+   - Quality Inspection
+   - Finished Goods Receipt
+   - Production Costing
+
+4) Hire to Retire
+   - Recruitment
+   - Interview
+   - Employee Registration
+   - Appointment
+   - Attendance
+   - Leave
+   - Payroll
+   - Appraisal
+   - Resignation
+   - Final Settlement
+
+5) Record to Report (R2R)
+   - Transaction Posting
+   - General Ledger
+   - Trial Balance
+   - Adjustments
+   - Bank Reconciliation
+   - Financial Statements
+   - Management Reports
+   - Financial Closing
+
+6) Service to Resolution
+   - Customer Complaint
+   - Service Request
+   - Ticket Registration
+   - Assignment
+   - Technical Work
+   - Resolution
+   - Customer Feedback
+   - Service Closure
+
+==================================================
+CATEGORY 26 – ERP DEPARTMENT CONFIGURATION & CLASSIFICATION
+==================================================
+
+1) Department Master
+   - Department Code
+   - Department Name
+   - Department Category
+   - Department Head
+   - Reporting Department
+   - Parent Department
+   - Branch / Location
+   - Cost Center
+   - Department Status
+
+2) Section Master
+   - Section Code
+   - Section Name
+   - Parent Department
+   - Section Incharge
+   - Employee Allocation
+   - Status
+
+3) Designation Master
+   - Designation Code
+   - Designation Name
+   - Department
+   - Reporting Designation
+   - Job Grade
+   - Approval Authority
+
+4) Department Access Setup
+   - User Name
+   - Department
+   - Section
+   - Module Access
+   - Form Access
+   - Report Access
+   - Add / Edit / Delete Permission
+   - Approval Permission
+
+5) Department KPI Setup
+   - KPI Code
+   - KPI Name
+   - Department
+   - Measurement Unit
+   - Target
+   - Actual
+   - Achievement Percentage
+   - Reporting Period
+
+==================================================
+END OF COMPLETE ERP DEPARTMENT MASTER CATALOGUE
+==================================================

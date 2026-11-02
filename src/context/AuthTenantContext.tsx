@@ -5,6 +5,30 @@ import { INITIAL_BRANCHES } from '../services/mockData';
 import { doc, deleteDoc, setDoc } from 'firebase/firestore';
 import { db } from '../services/firebaseConfig';
 
+// Global Security Inactivity Middleware Constants
+export const INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; // Exactly 5 minutes (300,000 ms)
+export const INACTIVITY_CHECK_INTERVAL_MS = 1000; // 1-second check interval
+export const STORAGE_AUTH_KEY = 'mts_auth';
+export const STORAGE_LAST_ACTIVITY_KEY = 'mts_last_activity';
+export const STORAGE_LOCK_NOTICE_KEY = 'mts_session_lock_notice';
+
+export const USER_INTERACTION_EVENTS = [
+  'mousemove',
+  'mousedown',
+  'mouseup',
+  'click',
+  'keydown',
+  'keyup',
+  'touchstart',
+  'touchend',
+  'touchmove',
+  'scroll',
+  'wheel',
+  'pointerdown',
+  'pointermove',
+  'focus'
+] as const;
+
 interface AuthTenantContextType {
   isAuthenticated: boolean;
   setIsAuthenticated: (val: boolean) => void;
@@ -29,6 +53,7 @@ interface AuthTenantContextType {
   sessionLockNotice: string | null;
   clearSessionLockNotice: () => void;
   secondsRemaining: number;
+  resetInactivityTimer: () => void;
 }
 
 const MASTER_USER: UserProfile = {
@@ -106,46 +131,130 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [theme, setTheme] = useState<ThemePalette>('corporate-blue');
 
   // Security Inactivity Tracker (5 minutes = 300,000 ms)
-  const [sessionLockNotice, setSessionLockNotice] = useState<string | null>(null);
-  const [secondsRemaining, setSecondsRemaining] = useState<number>(300);
-  const lastActivityRef = useRef<number>(Date.now());
+  const [sessionLockNotice, setSessionLockNotice] = useState<string | null>(() => {
+    return sessionStorage.getItem(STORAGE_LOCK_NOTICE_KEY) || null;
+  });
+  const [secondsRemaining, setSecondsRemaining] = useState<number>(() => {
+    if (sessionStorage.getItem(STORAGE_AUTH_KEY) !== 'true') return 300;
+    const storedLast = localStorage.getItem(STORAGE_LAST_ACTIVITY_KEY);
+    if (storedLast) {
+      const elapsed = Date.now() - parseInt(storedLast, 10);
+      return Math.max(0, Math.ceil((INACTIVITY_TIMEOUT_MS - elapsed) / 1000));
+    }
+    return 300;
+  });
 
+  const lastActivityRef = useRef<number>(Date.now());
+  const lastThrottleRef = useRef<number>(Date.now());
+
+  // Programmatic timer reset helper
+  const resetInactivityTimer = () => {
+    lastActivityRef.current = Date.now();
+    setSecondsRemaining(300);
+    try {
+      localStorage.setItem(STORAGE_LAST_ACTIVITY_KEY, Date.now().toString());
+    } catch {
+      // Ignore quota issues
+    }
+  };
+
+  // GLOBAL 5-MINUTE INACTIVITY TIMER MIDDLEWARE
   useEffect(() => {
-    const handleActivity = () => {
-      lastActivityRef.current = Date.now();
+    // If not authenticated, ensure timer is reset
+    if (!isAuthenticated) {
       setSecondsRemaining(300);
+      return;
+    }
+
+    // Interaction listener handler with 1-second throttling to optimize rendering performance
+    const handleUserInteraction = () => {
+      const now = Date.now();
+      lastActivityRef.current = now;
+
+      // Throttle localStorage writes and state updates to at most once per second
+      if (now - lastThrottleRef.current > 1000) {
+        lastThrottleRef.current = now;
+        setSecondsRemaining(300);
+        try {
+          localStorage.setItem(STORAGE_LAST_ACTIVITY_KEY, now.toString());
+        } catch {
+          // Ignore quota issues
+        }
+      }
     };
 
-    window.addEventListener('mousemove', handleActivity, { passive: true });
-    window.addEventListener('mousedown', handleActivity, { passive: true });
-    window.addEventListener('keydown', handleActivity, { passive: true });
-    window.addEventListener('touchstart', handleActivity, { passive: true });
-    window.addEventListener('scroll', handleActivity, { passive: true });
+    // Attach all interaction event listeners to the global window
+    USER_INTERACTION_EVENTS.forEach((eventName) => {
+      window.addEventListener(eventName, handleUserInteraction, { passive: true });
+    });
 
-    const interval = setInterval(() => {
-      if (sessionStorage.getItem('mts_auth') !== 'true') return;
+    // Cross-tab synchronization via localStorage storage event
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === STORAGE_LAST_ACTIVITY_KEY && e.newValue) {
+        const remoteTime = parseInt(e.newValue, 10);
+        if (!isNaN(remoteTime)) {
+          lastActivityRef.current = remoteTime;
+          const elapsed = Date.now() - remoteTime;
+          const left = Math.max(0, Math.ceil((INACTIVITY_TIMEOUT_MS - elapsed) / 1000));
+          setSecondsRemaining(left);
+        }
+      } else if (e.key === STORAGE_AUTH_KEY && e.newValue !== 'true') {
+        // Another browser tab triggered logout
+        setIsAuthenticated(false);
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+
+    // Initial check on mount: If user was already inactive for > 5 min, auto-lock immediately
+    const storedLast = localStorage.getItem(STORAGE_LAST_ACTIVITY_KEY);
+    if (storedLast) {
+      const elapsedOnMount = Date.now() - parseInt(storedLast, 10);
+      if (elapsedOnMount >= INACTIVITY_TIMEOUT_MS) {
+        const lockMsg =
+          '🔒 Security Auto-Lock: Your session was automatically terminated and redirected to the login screen after 5 minutes of inactivity to protect confidential ERP data.';
+        sessionStorage.removeItem(STORAGE_AUTH_KEY);
+        sessionStorage.setItem(STORAGE_LOCK_NOTICE_KEY, lockMsg);
+        setIsAuthenticated(false);
+        setSessionLockNotice(lockMsg);
+        setSecondsRemaining(0);
+        return;
+      }
+    }
+
+    // 1-Second Heartbeat Interval
+    const timerInterval = setInterval(() => {
+      if (sessionStorage.getItem(STORAGE_AUTH_KEY) !== 'true') {
+        return;
+      }
 
       const elapsed = Date.now() - lastActivityRef.current;
-      const left = Math.max(0, Math.ceil((300000 - elapsed) / 1000));
+      const left = Math.max(0, Math.ceil((INACTIVITY_TIMEOUT_MS - elapsed) / 1000));
       setSecondsRemaining(left);
 
-      // Auto-lock when inactive for 5 minutes (300 seconds)
-      if (elapsed >= 300000) {
-        sessionStorage.removeItem('mts_auth');
+      // Inactivity threshold reached (5 minutes / 300,000 ms)
+      if (elapsed >= INACTIVITY_TIMEOUT_MS) {
+        const timeoutNotice =
+          '🔒 Security Auto-Lock: Your session was automatically terminated and redirected to the login screen after 5 minutes of inactivity to protect confidential ERP data.';
+
+        // Clear session authentication immediately
+        sessionStorage.removeItem(STORAGE_AUTH_KEY);
+        sessionStorage.setItem(STORAGE_LOCK_NOTICE_KEY, timeoutNotice);
+
+        // Update state to immediately redirect user to the login screen
         setIsAuthenticated(false);
-        setSessionLockNotice('🔒 Security Auto-Lock: Your session was locked after 5 minutes of inactivity to protect sensitive financial records.');
+        setSessionLockNotice(timeoutNotice);
+        setSecondsRemaining(0);
       }
-    }, 1000);
+    }, INACTIVITY_CHECK_INTERVAL_MS);
 
     return () => {
-      window.removeEventListener('mousemove', handleActivity);
-      window.removeEventListener('mousedown', handleActivity);
-      window.removeEventListener('keydown', handleActivity);
-      window.removeEventListener('touchstart', handleActivity);
-      window.removeEventListener('scroll', handleActivity);
-      clearInterval(interval);
+      USER_INTERACTION_EVENTS.forEach((eventName) => {
+        window.removeEventListener(eventName, handleUserInteraction);
+      });
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(timerInterval);
     };
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     const resolved = resolveCurrentTenant();
@@ -161,9 +270,16 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const login = (type: 'MASTER' | 'CLIENT' = 'CLIENT', companySlug?: string, role?: string) => {
     setIsAuthenticated(true);
-    sessionStorage.setItem('mts_auth', 'true');
+    sessionStorage.setItem(STORAGE_AUTH_KEY, 'true');
+    sessionStorage.removeItem(STORAGE_LOCK_NOTICE_KEY);
+    try {
+      localStorage.setItem(STORAGE_LAST_ACTIVITY_KEY, Date.now().toString());
+    } catch {
+      // Ignore quota issues
+    }
     setSessionLockNotice(null);
     lastActivityRef.current = Date.now();
+    lastThrottleRef.current = Date.now();
     setSecondsRemaining(300);
 
     if (type === 'MASTER') {
@@ -192,13 +308,19 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const logout = (reason?: string) => {
     setIsAuthenticated(false);
-    sessionStorage.removeItem('mts_auth');
+    sessionStorage.removeItem(STORAGE_AUTH_KEY);
     if (reason) {
+      sessionStorage.setItem(STORAGE_LOCK_NOTICE_KEY, reason);
       setSessionLockNotice(reason);
+    } else {
+      sessionStorage.removeItem(STORAGE_LOCK_NOTICE_KEY);
+      setSessionLockNotice(null);
     }
+    setSecondsRemaining(300);
   };
 
   const clearSessionLockNotice = () => {
+    sessionStorage.removeItem(STORAGE_LOCK_NOTICE_KEY);
     setSessionLockNotice(null);
   };
 
@@ -340,7 +462,8 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         logout,
         sessionLockNotice,
         clearSessionLockNotice,
-        secondsRemaining
+        secondsRemaining,
+        resetInactivityTimer
       }}
     >
       <div className={`theme-${theme} min-h-screen text-slate-100`}>
