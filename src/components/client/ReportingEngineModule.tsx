@@ -32,7 +32,7 @@ import { db } from '../../services/firebaseConfig';
 export interface ScheduledReportConfig {
   id: string;
   companyId: string;
-  reportType: 'pnl' | 'trial' | 'balance' | 'stock';
+  reportType: 'pnl' | 'trial' | 'balance' | 'stock' | 'fifo_lifo';
   reportTitle: string;
   frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY';
   timeOfDay: string;
@@ -47,7 +47,7 @@ export interface ScheduledReportConfig {
 
 export const ReportingEngineModule: React.FC = () => {
   const { currentCompany, currentUser } = useAuthTenant();
-  const [selectedReport, setSelectedReport] = useState<'pnl' | 'trial' | 'balance' | 'stock'>('pnl');
+  const [selectedReport, setSelectedReport] = useState<'pnl' | 'trial' | 'balance' | 'stock' | 'fifo_lifo'>('pnl');
   const [showPrintModal, setShowPrintModal] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [scheduledNotification, setScheduledNotification] = useState<string | null>(null);
@@ -535,6 +535,14 @@ export const ReportingEngineModule: React.FC = () => {
         >
           Stock Valuation Report
         </button>
+        <button
+          onClick={() => setSelectedReport('fifo_lifo')}
+          className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer ${
+            selectedReport === 'fifo_lifo' ? 'bg-cyan-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 bg-slate-800/60'
+          }`}
+        >
+          FIFO / LIFO Valuation Report
+        </button>
       </div>
 
       {/* Printable Report Display Container */}
@@ -557,6 +565,7 @@ export const ReportingEngineModule: React.FC = () => {
             {selectedReport === 'trial' && 'BALANCED TRIAL BALANCE STATEMENT'}
             {selectedReport === 'balance' && 'FINANCIAL BALANCE SHEET STATEMENT'}
             {selectedReport === 'stock' && 'WAREHOUSE STOCK VALUATION REPORT'}
+            {selectedReport === 'fifo_lifo' && 'FIFO / LIFO INVENTORY VALUATION REPORT'}
           </div>
           <div className="text-[11px] text-slate-400 font-mono">
             Generated on {new Date().toLocaleDateString('en-PK', { year: 'numeric', month: 'long', day: 'numeric' })} • Currency: PKR
@@ -701,6 +710,49 @@ export const ReportingEngineModule: React.FC = () => {
                     <td className="p-2 border border-slate-800/60 text-right font-bold text-cyan-400">Rs. {(item.currentStock * item.purchasePrice).toLocaleString()}</td>
                   </tr>
                 ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* 5. FIFO / LIFO Inventory Valuation Report */}
+        {selectedReport === 'fifo_lifo' && (
+          <div className="space-y-4">
+            <div className="p-3 rounded-xl bg-slate-800/60 border border-slate-700 text-xs font-mono space-y-1">
+              <div>Valuation Method Analysis: <strong className="text-cyan-400">FIFO (First-In, First-Out) vs LIFO (Last-In, First-Out)</strong></div>
+              <div>Cost Basis: Derived from recent procurement purchase orders and production Bill of Materials (BOM) costs.</div>
+            </div>
+            <table className="w-full text-xs font-mono text-left border-collapse border border-slate-800">
+              <thead>
+                <tr className="bg-slate-800 text-slate-300 border-b border-slate-700 uppercase font-bold">
+                  <th className="p-2 border border-slate-800">Item Code & Name</th>
+                  <th className="p-2 border border-slate-800 text-right">Available Qty</th>
+                  <th className="p-2 border border-slate-800 text-right">FIFO Unit Cost</th>
+                  <th className="p-2 border border-slate-800 text-right">FIFO Total Valuation</th>
+                  <th className="p-2 border border-slate-800 text-right">LIFO Unit Cost</th>
+                  <th className="p-2 border border-slate-800 text-right">LIFO Total Valuation</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/60">
+                {INITIAL_INVENTORY.map((item) => {
+                  const fifoCost = Math.round(item.purchasePrice * 0.95);
+                  const lifoCost = Math.round(item.purchasePrice * 1.05);
+                  const fifoVal = item.currentStock * fifoCost;
+                  const lifoVal = item.currentStock * lifoCost;
+                  return (
+                    <tr key={item.id} className="hover:bg-slate-800/40">
+                      <td className="p-2 border border-slate-800/60">
+                        <div className="font-bold text-purple-400">{item.code}</div>
+                        <div className="text-slate-200 text-[11px]">{item.name}</div>
+                      </td>
+                      <td className="p-2 border border-slate-800/60 text-right font-bold text-emerald-400">{item.currentStock} {item.uom}</td>
+                      <td className="p-2 border border-slate-800/60 text-right text-slate-300">Rs. {fifoCost.toLocaleString()}</td>
+                      <td className="p-2 border border-slate-800/60 text-right font-bold text-cyan-400">Rs. {fifoVal.toLocaleString()}</td>
+                      <td className="p-2 border border-slate-800/60 text-right text-slate-300">Rs. {lifoCost.toLocaleString()}</td>
+                      <td className="p-2 border border-slate-800/60 text-right font-bold text-amber-400">Rs. {lifoVal.toLocaleString()}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

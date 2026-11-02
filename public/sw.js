@@ -31,6 +31,22 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+// Background Sync event listener for offline queue reconciliation
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-offline-queue') {
+    event.waitUntil(
+      self.clients.matchAll({ includeUncontrolled: true, type: 'window' }).then((clients) => {
+        clients.forEach((client) => {
+          client.postMessage({
+            type: 'TRIGGER_OFFLINE_SYNC',
+            timestamp: Date.now()
+          });
+        });
+      })
+    );
+  }
+});
+
 self.addEventListener('fetch', (event) => {
   // Skip non-GET and API calls
   if (event.request.method !== 'GET' || event.request.url.includes('/api/')) {

@@ -23,7 +23,8 @@ import {
   FolderTree,
   FileText,
   PieChart,
-  Activity
+  Activity,
+  ShieldAlert
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -42,6 +43,7 @@ export type ActiveTab =
   | 'aiAssistant'
   | 'companySettings'
   | 'auditLogs'
+  | 'crm'
   // Master Admin Tabs
   | 'masterDashboard'
   | 'masterCompanies'
@@ -49,7 +51,8 @@ export type ActiveTab =
   | 'masterSubdomains'
   | 'masterSubscriptions'
   | 'masterAudit'
-  | 'masterSystemHealth';
+  | 'masterSystemHealth'
+  | 'masterRateLimits';
 
 interface SidebarProps {
   activeTab: ActiveTab;
@@ -82,6 +85,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
     { id: 'masterSubscriptions' as ActiveTab, label: 'Subscription & Billing', icon: CreditCard },
     { id: 'masterAudit' as ActiveTab, label: 'Global Audit Logs', icon: History },
     { id: 'masterSystemHealth' as ActiveTab, label: 'System Health & Ping', icon: Activity },
+    { id: 'masterRateLimits' as ActiveTab, label: 'API Rate Limits & Quotas', icon: ShieldAlert },
   ];
 
   // Detailed Department Menu Hierarchy
@@ -207,6 +211,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
 
   // Helper utility items
   const utilityItems = [
+    { id: 'crm' as ActiveTab, label: 'CRM & Sales Pipeline', icon: Users },
     { id: 'formBuilder' as ActiveTab, label: t('formBuilder'), icon: FileCheck2 },
     { id: 'reports' as ActiveTab, label: t('reports'), icon: BarChart3 },
     { id: 'approvals' as ActiveTab, label: t('approvals'), icon: ShieldCheck },

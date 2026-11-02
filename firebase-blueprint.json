@@ -41,6 +41,20 @@
         "tenantId": { "type": "string" }
       },
       "required": ["invoiceNo", "customerName", "grandTotal", "tenantId"]
+    },
+    "TenantRateLimit": {
+      "title": "Tenant Rate Limit Record",
+      "description": "API rate limit tracking and enforcement record per tenant",
+      "type": "object",
+      "properties": {
+        "companyId": { "type": "string" },
+        "companyName": { "type": "string" },
+        "requestCount": { "type": "number" },
+        "maxLimit": { "type": "number" },
+        "windowStart": { "type": "string" },
+        "isRateLimited": { "type": "boolean" }
+      },
+      "required": ["companyId", "requestCount", "maxLimit", "windowStart"]
     }
   },
   "firestore": {
@@ -59,6 +73,10 @@
     "/tenants/{tenantId}/invoices/{invoiceId}": {
       "schema": "SalesInvoice",
       "description": "Sales invoices for a tenant"
+    },
+    "/tenant_rate_limits/{companyId}": {
+      "schema": "TenantRateLimit",
+      "description": "API rate limiting records per tenant company"
     }
   }
 }

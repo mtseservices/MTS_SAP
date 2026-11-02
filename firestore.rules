@@ -26,5 +26,10 @@ service cloud.firestore {
     match /companies/{companyId}/{document=**} {
       allow read, write: if true;
     }
+
+    // Tenant API Rate Limits Collection
+    match /tenant_rate_limits/{companyId} {
+      allow read, write: if true;
+    }
   }
 }

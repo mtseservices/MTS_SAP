@@ -11,6 +11,7 @@ import { CompanyRegistrationWizard } from './components/master/CompanyRegistrati
 import { TenantManagement } from './components/master/TenantManagement';
 import { SubscriptionBillingManager } from './components/master/SubscriptionBillingManager';
 import { SystemHealthWidget } from './components/master/SystemHealthWidget';
+import { RateLimitManager } from './components/master/RateLimitManager';
 
 // Client Tenant ERP Views
 import { ClientDashboard } from './components/client/ClientDashboard';
@@ -25,9 +26,11 @@ import { ReportingEngineModule } from './components/client/ReportingEngineModule
 import { ApprovalWorkflowModule } from './components/client/ApprovalWorkflowModule';
 import { AiAssistantModule } from './components/client/AiAssistantModule';
 import { CompanySettingsModule } from './components/client/CompanySettingsModule';
+import { CrmModule } from './components/client/CrmModule';
 
 import { LanguageProvider } from './context/LanguageContext';
 import { MasterLoginModal } from './components/common/MasterLoginModal';
+import { initOfflineSyncListener } from './services/offlineSyncService';
 
 function MainLayout() {
   const { isMasterPortal, switchTenantBySlug } = useAuthTenant();
@@ -41,9 +44,9 @@ function MainLayout() {
     const validTabs: ActiveTab[] = [
       'dashboard', 'finance', 'procurement', 'inventory', 'sales',
       'production', 'hr', 'formBuilder', 'reports', 'approvals',
-      'aiAssistant', 'auditLogs', 'companySettings', 'masterDashboard',
+      'aiAssistant', 'auditLogs', 'companySettings', 'crm', 'masterDashboard',
       'masterCompanies', 'masterSubdomains', 'masterRegister',
-      'masterSubscriptions', 'masterAudit', 'masterSystemHealth'
+      'masterSubscriptions', 'masterAudit', 'masterSystemHealth', 'masterRateLimits'
     ];
 
     const targetTab = (moduleParam && validTabs.includes(moduleParam))
@@ -60,6 +63,10 @@ function MainLayout() {
     if (initialState.companySlug) {
       switchTenantBySlug(initialState.companySlug);
     }
+    // Initialize background sync and offline reconciliation
+    initOfflineSyncListener((res) => {
+      console.log(`Successfully reconciled ${res.successCount} offline queue items with Firestore.`);
+    });
   }, []);
 
   const handleSelectTab = (tab: ActiveTab, subcategory?: string, subtab?: string) => {
@@ -125,6 +132,10 @@ function MainLayout() {
             </div>
           )}
 
+          {isMasterPortal && activeTab === 'masterRateLimits' && (
+            <RateLimitManager />
+          )}
+
           {/* Client Tenant ERP Views */}
           {!isMasterPortal && activeTab === 'dashboard' && (
             <ClientDashboard onNavigateTab={(tab) => setActiveTab(tab)} />
@@ -142,6 +153,7 @@ function MainLayout() {
           {!isMasterPortal && activeTab === 'aiAssistant' && <AiAssistantModule />}
           {!isMasterPortal && activeTab === 'auditLogs' && <AuditLogViewer />}
           {!isMasterPortal && activeTab === 'companySettings' && <CompanySettingsModule />}
+          {!isMasterPortal && activeTab === 'crm' && <CrmModule />}
         </main>
       </div>
 
