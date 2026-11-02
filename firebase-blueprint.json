@@ -12,7 +12,13 @@
         "industry": { "type": "string" },
         "ntn": { "type": "string" },
         "strn": { "type": "string" },
-        "status": { "type": "string" }
+        "status": { "type": "string" },
+        "subscriptionPlan": { "type": "string" },
+        "subscriptionExpiresAt": { "type": "string" },
+        "trialDaysRemaining": { "type": "number" },
+        "lastPaymentMethod": { "type": "string" },
+        "lastPaymentAmount": { "type": "number" },
+        "lastPaymentTxnId": { "type": "string" }
       },
       "required": ["tenantId", "name", "slug"]
     },

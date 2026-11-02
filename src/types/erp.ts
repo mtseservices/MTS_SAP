@@ -84,6 +84,13 @@ export interface ClientCompany {
   createdAt: string;
   adminName: string;
   adminEmail: string;
+  subscriptionExpiresAt?: string;
+  trialDaysRemaining?: number;
+  subscriptionCycle?: string;
+  lastPaymentMethod?: string;
+  lastPaymentAmount?: number;
+  lastPaymentTxnId?: string;
+  lastPaymentDate?: string;
   theme: ThemePalette;
   tablePattern?: string;
   tableLayoutPattern?: string;

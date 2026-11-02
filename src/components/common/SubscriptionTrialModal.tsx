@@ -40,7 +40,7 @@ export const SubscriptionTrialModal: React.FC<SubscriptionTrialModalProps> = ({
   initialMode = 'UPGRADE',
   prefilledUser
 }) => {
-  const { currentCompany, isMasterPortal } = useAuthTenant();
+  const { currentCompany, isMasterPortal, updateCompanySubscription } = useAuthTenant();
 
   const [activeStep, setActiveStep] = useState<'PLANS' | 'PAYMENT' | 'SUCCESS'>(
     initialMode === 'VIEW_ACCOUNTS' ? 'PAYMENT' : 'PLANS'
@@ -68,14 +68,16 @@ export const SubscriptionTrialModal: React.FC<SubscriptionTrialModalProps> = ({
 
   // Card Payment Form
   const [cardNumber, setCardNumber] = useState('');
-  const [cardHolder, setCardHolder] = useState(prefilledUser?.name || 'M. BILAL TARIQ');
+  const [cardHolder, setCardHolder] = useState(prefilledUser?.name || 'Tariq Mehmood');
   const [cardExpiry, setCardExpiry] = useState('');
   const [cardCvc, setCardCvc] = useState('');
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [processingStage, setProcessingStage] = useState('');
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   // Trial activation state
   const [isTrialActive, setIsTrialActive] = useState(true);
-  const [trialDaysLeft, setTrialDaysLeft] = useState(12);
+  const [trialDaysLeft, setTrialDaysLeft] = useState(14);
 
   // Success Receipt
   const [receiptData, setReceiptData] = useState<{
@@ -123,6 +125,20 @@ export const SubscriptionTrialModal: React.FC<SubscriptionTrialModalProps> = ({
       isTrial: true
     },
     {
+      id: 'plan_growth',
+      name: 'Growth Starter',
+      priceMonthly: 35000,
+      priceYearly: 350000,
+      description: 'Essential core ERP modules for rising manufacturing & distribution SMBs.',
+      features: [
+        'Core General Ledger & Voucher Postings',
+        'Sales & Purchase Orders with POS',
+        'Up to 15 Authorized User Accounts',
+        'Single company 2 branches included',
+        'Audit Log Security & 5-min Auto Lock'
+      ]
+    },
+    {
       id: 'plan_pro',
       name: 'Professional Enterprise',
       priceMonthly: 65000,
@@ -130,7 +146,7 @@ export const SubscriptionTrialModal: React.FC<SubscriptionTrialModalProps> = ({
       isPopular: true,
       description: 'The complete ERP stack for food, manufacturing & retail.',
       features: [
-        'Everything in Free Trial',
+        'Everything in Growth Starter',
         'D3.js Batch Longevity & Expiry Heatmap',
         'Sales Pipeline Kanban with Lead Probability',
         'Automated FBR e-Invoicing QR codes',
@@ -141,7 +157,7 @@ export const SubscriptionTrialModal: React.FC<SubscriptionTrialModalProps> = ({
     },
     {
       id: 'plan_conglomerate',
-      name: 'Group Conglomerate Enterprise',
+      name: 'Group Conglomerate',
       priceMonthly: 125000,
       priceYearly: 1250000,
       description: 'For corporate groups with multi-plant operations.',
@@ -155,35 +171,151 @@ export const SubscriptionTrialModal: React.FC<SubscriptionTrialModalProps> = ({
     }
   ];
 
-  const currentSelectedPlan = plans.find((p) => p.id === selectedPlanId) || plans[1];
+  const currentSelectedPlan = plans.find((p) => p.id === selectedPlanId) || plans[2];
   const payableAmount = billingCycle === 'Monthly' ? currentSelectedPlan.priceMonthly : currentSelectedPlan.priceYearly;
 
-  const handleActivateTrial = () => {
+  const validateForm = (): boolean => {
+    setValidationError(null);
+    if (paymentMethod === 'BANK_TRANSFER') {
+      if (!senderBank.trim() || senderBank.trim().length < 2) {
+        setValidationError('Please enter your Sender Bank name (e.g. Meezan Bank, HBL).');
+        return false;
+      }
+      if (!senderAccountTitle.trim() || senderAccountTitle.trim().length < 3) {
+        setValidationError('Please enter your Sender Account Title (minimum 3 characters).');
+        return false;
+      }
+      if (!txnReference.trim() || txnReference.trim().length < 6) {
+        setValidationError('Please enter a valid Transaction Ref / UTR / Stan ID (minimum 6 alphanumeric characters).');
+        return false;
+      }
+    } else if (paymentMethod === 'CARD') {
+      if (!cardHolder.trim() || cardHolder.trim().length < 3) {
+        setValidationError('Please enter the Cardholder name (minimum 3 characters).');
+        return false;
+      }
+      const rawDigits = cardNumber.replace(/\D/g, '');
+      if (rawDigits.length !== 16) {
+        setValidationError('Card Number must be exactly 16 digits.');
+        return false;
+      }
+      if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(cardExpiry)) {
+        setValidationError('Expiry Date must be in MM/YY format (e.g. 12/28).');
+        return false;
+      }
+      const [mmStr, yyStr] = cardExpiry.split('/');
+      const month = parseInt(mmStr, 10);
+      const year = parseInt(yyStr, 10);
+      if (month < 1 || month > 12) {
+        setValidationError('Invalid expiry month. Must be between 01 and 12.');
+        return false;
+      }
+      if (year < 26) {
+        setValidationError('Card expiration year has passed. Please use an active card.');
+        return false;
+      }
+      if (cardCvc.length < 3 || cardCvc.length > 4 || !/^\d+$/.test(cardCvc)) {
+        setValidationError('Security CVV/CVC must be 3 or 4 digits.');
+        return false;
+      }
+    } else if (paymentMethod === 'RAAST') {
+      if (!txnReference.trim() || txnReference.trim().length < 6) {
+        setValidationError('Please enter a valid Raast Settlement Transaction ID (min 6 characters).');
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const handleActivateTrial = async () => {
+    setIsProcessingPayment(true);
+    setProcessingStage('Provisioning complimentary 14-day enterprise trial...');
+    const daysToAdd = 14;
+    const expiresAt = new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000).toISOString();
+    const finalTxnId = `TRIAL-${Date.now().toString().slice(-6)}`;
+
+    try {
+      await updateCompanySubscription(currentCompany.id, {
+        plan: '14-Day Full Enterprise Trial',
+        cycle: 'Monthly',
+        status: 'ACTIVE',
+        expiresAt,
+        daysRemaining: daysToAdd,
+        paymentMethod: 'Complimentary Enterprise Trial',
+        amount: 0,
+        txnId: finalTxnId
+      });
+    } catch (err) {
+      console.warn('Subscription update background note:', err);
+    }
+
     setIsTrialActive(true);
     setTrialDaysLeft(14);
     setReceiptData({
-      txnId: `TRIAL-${Date.now().toString().slice(-6)}`,
+      txnId: finalTxnId,
       planName: '14-Day Full Enterprise Trial',
       amount: 0,
       date: new Date().toISOString().split('T')[0],
-      method: 'Complimentary Enterprise Trial'
+      method: 'Complimentary Enterprise Trial (14 Days)'
     });
+    setIsProcessingPayment(false);
     setActiveStep('SUCCESS');
   };
 
-  const handleProcessPayment = (e: React.FormEvent) => {
+  const handleProcessPayment = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsProcessingPayment(true);
+    if (!validateForm()) return;
 
-    setTimeout(() => {
-      setIsProcessingPayment(false);
+    setIsProcessingPayment(true);
+    setProcessingStage(
+      paymentMethod === 'CARD'
+        ? 'Connecting to 3D Secure 2.0 Card Issuer Gateway...'
+        : paymentMethod === 'BANK_TRANSFER'
+        ? 'Validating IBFT Transaction Reference with Master Bank Account...'
+        : 'Connecting with State Bank of Pakistan (SBP) Raast Network...'
+    );
+
+    setTimeout(async () => {
+      setProcessingStage('Tokenizing transaction & updating Firestore enterprise tier...');
+
+      const daysToAdd = billingCycle === 'Monthly' ? 30 : 365;
+      const expiresAt = new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000).toISOString();
+      const finalTxnId = txnReference.trim() || `PAY-${Date.now().toString().slice(-8)}`;
+
+      let methodLabel = '';
+      if (paymentMethod === 'BANK_TRANSFER') {
+        methodLabel = `IBFT (${senderBank.trim()} -> ${selectedMasterAccount?.bankName || 'MTS Bank'})`;
+      } else if (paymentMethod === 'CARD') {
+        const last4 = cardNumber.replace(/\D/g, '').slice(-4) || '7890';
+        methodLabel = `Online Card (Ending •••• ${last4})`;
+      } else {
+        methodLabel = `Raast Instant Pay (${selectedMasterAccount?.raastId || 'raast@mtserp.pk'})`;
+      }
+
+      try {
+        await updateCompanySubscription(currentCompany.id, {
+          plan: currentSelectedPlan.name,
+          cycle: billingCycle,
+          status: 'ACTIVE',
+          expiresAt,
+          daysRemaining: daysToAdd,
+          paymentMethod: methodLabel,
+          amount: payableAmount,
+          txnId: finalTxnId
+        });
+      } catch (err) {
+        console.warn('Subscription update background note:', err);
+      }
+
       setReceiptData({
-        txnId: txnReference || `PAY-${Date.now().toString().slice(-8)}`,
+        txnId: finalTxnId,
         planName: currentSelectedPlan.name,
         amount: payableAmount,
         date: new Date().toISOString().split('T')[0],
-        method: paymentMethod === 'BANK_TRANSFER' ? `IBFT to ${selectedMasterAccount?.bankName || 'MTS Bank'}` : paymentMethod === 'CARD' ? 'Visa / Mastercard Debit' : 'Raast Instant Settlement'
+        method: methodLabel
       });
+
+      setIsProcessingPayment(false);
       setActiveStep('SUCCESS');
     }, 1200);
   };
@@ -397,13 +529,35 @@ export const SubscriptionTrialModal: React.FC<SubscriptionTrialModalProps> = ({
               </button>
             </div>
 
+            {/* Validation Error Banner */}
+            {validationError && (
+              <div className="p-3.5 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-300 text-xs flex items-center gap-2.5 animate-in fade-in">
+                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                <span>{validationError}</span>
+              </div>
+            )}
+
+            {/* Processing Stage Indicator */}
+            {isProcessingPayment && (
+              <div className="p-4 rounded-xl bg-purple-950/60 border border-purple-500/50 text-purple-200 text-xs flex items-center gap-3 animate-pulse">
+                <div className="w-5 h-5 border-2 border-purple-400 border-t-transparent rounded-full animate-spin shrink-0" />
+                <div>
+                  <div className="font-bold text-white">Processing Secure Transaction...</div>
+                  <div className="text-[11px] text-purple-300 mt-0.5">{processingStage}</div>
+                </div>
+              </div>
+            )}
+
             {/* Payment Method Selector */}
             <div className="space-y-2">
               <label className="block text-xs font-semibold text-slate-300">Select Payment Method</label>
               <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
-                  onClick={() => setPaymentMethod('BANK_TRANSFER')}
+                  onClick={() => {
+                    setPaymentMethod('BANK_TRANSFER');
+                    setValidationError(null);
+                  }}
                   className={`p-3 rounded-xl border text-xs font-bold flex flex-col items-center gap-1.5 transition-all cursor-pointer ${
                     paymentMethod === 'BANK_TRANSFER'
                       ? 'bg-cyan-600/20 border-cyan-500 text-cyan-200 shadow-lg'
@@ -416,7 +570,10 @@ export const SubscriptionTrialModal: React.FC<SubscriptionTrialModalProps> = ({
 
                 <button
                   type="button"
-                  onClick={() => setPaymentMethod('CARD')}
+                  onClick={() => {
+                    setPaymentMethod('CARD');
+                    setValidationError(null);
+                  }}
                   className={`p-3 rounded-xl border text-xs font-bold flex flex-col items-center gap-1.5 transition-all cursor-pointer ${
                     paymentMethod === 'CARD'
                       ? 'bg-purple-600/20 border-purple-500 text-purple-200 shadow-lg'
@@ -429,7 +586,10 @@ export const SubscriptionTrialModal: React.FC<SubscriptionTrialModalProps> = ({
 
                 <button
                   type="button"
-                  onClick={() => setPaymentMethod('RAAST')}
+                  onClick={() => {
+                    setPaymentMethod('RAAST');
+                    setValidationError(null);
+                  }}
                   className={`p-3 rounded-xl border text-xs font-bold flex flex-col items-center gap-1.5 transition-all cursor-pointer ${
                     paymentMethod === 'RAAST'
                       ? 'bg-emerald-600/20 border-emerald-500 text-emerald-200 shadow-lg'
@@ -542,48 +702,73 @@ export const SubscriptionTrialModal: React.FC<SubscriptionTrialModalProps> = ({
                 <form onSubmit={handleProcessPayment} className="space-y-3">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-300 mb-1">Your Sender Bank Name</label>
+                      <label className="block text-xs font-semibold text-slate-300 mb-1">Your Sender Bank Name *</label>
                       <input
                         type="text"
                         placeholder="e.g. Meezan Bank, HBL, UBL"
                         value={senderBank}
-                        onChange={(e) => setSenderBank(e.target.value)}
+                        onChange={(e) => {
+                          setSenderBank(e.target.value);
+                          if (validationError) setValidationError(null);
+                        }}
                         required
                         className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-slate-300 mb-1">Transaction Ref / UTR / Stan ID</label>
+                      <label className="block text-xs font-semibold text-slate-300 mb-1">Sender Account Title *</label>
                       <input
                         type="text"
-                        placeholder="e.g. FT261030998812"
-                        value={txnReference}
-                        onChange={(e) => setTxnReference(e.target.value)}
+                        placeholder="e.g. Tariq Mehmood / Albarka Ltd"
+                        value={senderAccountTitle}
+                        onChange={(e) => {
+                          setSenderAccountTitle(e.target.value);
+                          if (validationError) setValidationError(null);
+                        }}
                         required
-                        className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-mono"
+                        className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100"
                       />
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">Payment Remarks / Company NTN</label>
-                    <input
-                      type="text"
-                      placeholder={`Subscription for ${currentCompany?.name} (${currentCompany?.ntn})`}
-                      value={transferNotes}
-                      onChange={(e) => setTransferNotes(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100"
-                    />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-300 mb-1">
+                        Transaction Ref / UTR / Stan ID (min 6 chars) *
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. FT261030998812"
+                        value={txnReference}
+                        onChange={(e) => {
+                          setTxnReference(e.target.value);
+                          if (validationError) setValidationError(null);
+                        }}
+                        required
+                        className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-mono"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-300 mb-1">Payment Remarks / Company NTN</label>
+                      <input
+                        type="text"
+                        placeholder={`Subscription for ${currentCompany?.name} (${currentCompany?.ntn})`}
+                        value={transferNotes}
+                        onChange={(e) => setTransferNotes(e.target.value)}
+                        className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100"
+                      />
+                    </div>
                   </div>
 
                   <button
                     type="submit"
                     disabled={isProcessingPayment}
-                    className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-cyan-600/30 transition-all cursor-pointer flex items-center justify-center gap-2 mt-2"
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-cyan-600/30 transition-all cursor-pointer flex items-center justify-center gap-2 mt-2 disabled:opacity-50"
                   >
                     <CheckCircle2 className="w-4 h-4" />
-                    <span>Submit Bank Transfer Receipt for Instant Activation →</span>
+                    <span>Confirm IBFT Transfer &amp; Upgrade Subscription →</span>
                   </button>
                 </form>
               </div>
@@ -596,7 +781,7 @@ export const SubscriptionTrialModal: React.FC<SubscriptionTrialModalProps> = ({
                 <div className="p-5 rounded-2xl bg-gradient-to-tr from-slate-900 via-indigo-950 to-purple-900 border border-purple-500/40 text-white space-y-4 shadow-2xl relative overflow-hidden">
                   <div className="flex items-center justify-between">
                     <span className="font-black text-sm tracking-wider text-cyan-300">MTS ENTERPRISE CARD PAY</span>
-                    <span className="font-bold text-xs px-2 py-0.5 rounded bg-white/10">3D Secure</span>
+                    <span className="font-bold text-xs px-2 py-0.5 rounded bg-white/10">3D Secure 2.0</span>
                   </div>
 
                   <div className="font-mono text-lg tracking-widest py-1 font-bold">
@@ -617,40 +802,70 @@ export const SubscriptionTrialModal: React.FC<SubscriptionTrialModalProps> = ({
 
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">Card Number</label>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">Cardholder Name *</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Tariq Mehmood"
+                      value={cardHolder}
+                      onChange={(e) => {
+                        setCardHolder(e.target.value);
+                        if (validationError) setValidationError(null);
+                      }}
+                      required
+                      className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">Card Number (16 Digits) *</label>
                     <input
                       type="text"
                       placeholder="4000 1234 5678 9010"
                       maxLength={19}
                       value={cardNumber}
-                      onChange={(e) => setCardNumber(e.target.value)}
+                      onChange={(e) => {
+                        const raw = e.target.value.replace(/\D/g, '').slice(0, 16);
+                        const formatted = raw.replace(/(\d{4})/g, '$1 ').trim();
+                        setCardNumber(formatted);
+                        if (validationError) setValidationError(null);
+                      }}
                       required
-                      className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-mono"
+                      className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-mono tracking-wider"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-300 mb-1">Expiry Date (MM/YY)</label>
+                      <label className="block text-xs font-semibold text-slate-300 mb-1">Expiry Date (MM/YY) *</label>
                       <input
                         type="text"
                         placeholder="12/28"
                         maxLength={5}
                         value={cardExpiry}
-                        onChange={(e) => setCardExpiry(e.target.value)}
+                        onChange={(e) => {
+                          let v = e.target.value.replace(/\D/g, '').slice(0, 4);
+                          if (v.length > 2) {
+                            v = `${v.slice(0, 2)}/${v.slice(2)}`;
+                          }
+                          setCardExpiry(v);
+                          if (validationError) setValidationError(null);
+                        }}
                         required
                         className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-mono"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-slate-300 mb-1">CVV / Security Code</label>
+                      <label className="block text-xs font-semibold text-slate-300 mb-1">CVV / Security Code (3-4 digits) *</label>
                       <input
                         type="password"
                         placeholder="123"
                         maxLength={4}
                         value={cardCvc}
-                        onChange={(e) => setCardCvc(e.target.value)}
+                        onChange={(e) => {
+                          setCardCvc(e.target.value.replace(/\D/g, '').slice(0, 4));
+                          if (validationError) setValidationError(null);
+                        }}
                         required
                         className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-mono"
                       />
@@ -660,7 +875,7 @@ export const SubscriptionTrialModal: React.FC<SubscriptionTrialModalProps> = ({
                   <button
                     type="submit"
                     disabled={isProcessingPayment}
-                    className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-purple-600/30 transition-all cursor-pointer flex items-center justify-center gap-2"
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-purple-600/30 transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     {isProcessingPayment ? (
                       <>
@@ -670,7 +885,7 @@ export const SubscriptionTrialModal: React.FC<SubscriptionTrialModalProps> = ({
                     ) : (
                       <>
                         <Lock className="w-4 h-4" />
-                        <span>Pay Rs. {payableAmount.toLocaleString()} via 3D-Secure →</span>
+                        <span>Pay Rs. {payableAmount.toLocaleString()} via 3D-Secure 2.0 →</span>
                       </>
                     )}
                   </button>

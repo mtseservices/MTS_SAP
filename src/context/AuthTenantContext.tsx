@@ -48,6 +48,19 @@ interface AuthTenantContextType {
   switchTenantBySlug: (slug: string) => void;
   registerNewCompany: (newCompData: Partial<ClientCompany>) => ClientCompany;
   permanentDeleteCompany: (companyId: string) => Promise<void>;
+  updateCompanySubscription: (
+    companyId: string,
+    data: {
+      plan: string;
+      cycle: string;
+      status: 'ACTIVE' | 'SUSPENDED' | 'INACTIVE';
+      expiresAt: string;
+      daysRemaining: number;
+      paymentMethod: string;
+      amount: number;
+      txnId: string;
+    }
+  ) => Promise<void>;
   login: (type?: 'MASTER' | 'CLIENT', companySlug?: string, role?: string) => void;
   logout: (reason?: string) => void;
   sessionLockNotice: string | null;
@@ -106,12 +119,34 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   };
 
+  const applySubOverride = (c: ClientCompany): ClientCompany => {
+    try {
+      const subData = localStorage.getItem(`mts_sub_${c.id}`);
+      if (subData) {
+        const parsed = JSON.parse(subData);
+        return {
+          ...c,
+          subscriptionPlan: parsed.plan || c.subscriptionPlan,
+          subscriptionCycle: parsed.cycle || c.subscriptionCycle,
+          status: parsed.status || c.status,
+          subscriptionExpiresAt: parsed.expiresAt || c.subscriptionExpiresAt,
+          trialDaysRemaining: parsed.daysRemaining !== undefined ? parsed.daysRemaining : c.trialDaysRemaining,
+          lastPaymentMethod: parsed.paymentMethod || c.lastPaymentMethod,
+          lastPaymentAmount: parsed.amount !== undefined ? parsed.amount : c.lastPaymentAmount,
+          lastPaymentTxnId: parsed.txnId || c.lastPaymentTxnId,
+          lastPaymentDate: parsed.lastPaymentDate || c.lastPaymentDate
+        };
+      }
+    } catch {}
+    return c;
+  };
+
   // Initial Companies filtered by permanent deletion list
   const [allCompanies, setAllCompanies] = useState<ClientCompany[]>(() => {
     const deletedIds = getDeletedCompanyIds();
     const customComps = getCustomCompanies();
     const combined = [...customComps, ...INITIAL_CLIENT_COMPANIES];
-    return combined.filter(c => !deletedIds.includes(c.id));
+    return combined.filter(c => !deletedIds.includes(c.id)).map(applySubOverride);
   });
 
   // Strict initial authentication: First time open MUST require login!
@@ -123,7 +158,7 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [currentCompany, setCurrentCompany] = useState<ClientCompany>(() => {
     const deletedIds = getDeletedCompanyIds();
     const available = INITIAL_CLIENT_COMPANIES.filter(c => !deletedIds.includes(c.id));
-    return available[0] || INITIAL_CLIENT_COMPANIES[0];
+    return applySubOverride(available[0] || INITIAL_CLIENT_COMPANIES[0]);
   });
 
   const [currentUser, setCurrentUser] = useState<UserProfile>(DEFAULT_CLIENT_USER);
@@ -437,6 +472,120 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     });
   };
 
+  const updateCompanySubscription = async (
+    companyId: string,
+    data: {
+      plan: string;
+      cycle: string;
+      status: 'ACTIVE' | 'SUSPENDED' | 'INACTIVE';
+      expiresAt: string;
+      daysRemaining: number;
+      paymentMethod: string;
+      amount: number;
+      txnId: string;
+    }
+  ): Promise<void> => {
+    // 1. Update in Firestore
+    try {
+      const companyDocRef = doc(db, 'companies', companyId);
+      await setDoc(
+        companyDocRef,
+        {
+          subscriptionPlan: data.plan,
+          subscriptionCycle: data.cycle,
+          status: data.status,
+          subscriptionExpiresAt: data.expiresAt,
+          trialDaysRemaining: data.daysRemaining,
+          lastPaymentMethod: data.paymentMethod,
+          lastPaymentAmount: data.amount,
+          lastPaymentTxnId: data.txnId,
+          lastPaymentDate: new Date().toISOString()
+        },
+        { merge: true }
+      );
+
+      if (currentCompany.tenantId) {
+        const tenantCompRef = doc(db, 'tenants', currentCompany.tenantId, 'companies', companyId);
+        await setDoc(
+          tenantCompRef,
+          {
+            subscriptionPlan: data.plan,
+            subscriptionCycle: data.cycle,
+            status: data.status,
+            subscriptionExpiresAt: data.expiresAt,
+            trialDaysRemaining: data.daysRemaining,
+            lastPaymentMethod: data.paymentMethod,
+            lastPaymentAmount: data.amount,
+            lastPaymentTxnId: data.txnId,
+            lastPaymentDate: new Date().toISOString()
+          },
+          { merge: true }
+        );
+      }
+    } catch (e) {
+      console.warn('Firestore subscription update notice:', e);
+    }
+
+    // 2. Persist to localStorage override
+    try {
+      localStorage.setItem(`mts_sub_${companyId}`, JSON.stringify(data));
+      const custom = getCustomCompanies();
+      const idx = custom.findIndex(c => c.id === companyId);
+      if (idx !== -1) {
+        custom[idx] = {
+          ...custom[idx],
+          subscriptionPlan: data.plan,
+          subscriptionCycle: data.cycle,
+          status: data.status,
+          subscriptionExpiresAt: data.expiresAt,
+          trialDaysRemaining: data.daysRemaining,
+          lastPaymentMethod: data.paymentMethod,
+          lastPaymentAmount: data.amount,
+          lastPaymentTxnId: data.txnId,
+          lastPaymentDate: new Date().toISOString()
+        };
+        localStorage.setItem('mts_custom_companies', JSON.stringify(custom));
+      }
+    } catch (e) {
+      console.warn('Storage subscription update notice:', e);
+    }
+
+    // 3. Update memory state
+    setAllCompanies(prev =>
+      prev.map(c =>
+        c.id === companyId
+          ? {
+              ...c,
+              subscriptionPlan: data.plan,
+              subscriptionCycle: data.cycle,
+              status: data.status,
+              subscriptionExpiresAt: data.expiresAt,
+              trialDaysRemaining: data.daysRemaining,
+              lastPaymentMethod: data.paymentMethod,
+              lastPaymentAmount: data.amount,
+              lastPaymentTxnId: data.txnId,
+              lastPaymentDate: new Date().toISOString()
+            }
+          : c
+      )
+    );
+
+    if (currentCompany.id === companyId) {
+      setCurrentCompany(prev => ({
+        ...prev,
+        subscriptionPlan: data.plan,
+        subscriptionCycle: data.cycle,
+        status: data.status,
+        subscriptionExpiresAt: data.expiresAt,
+        trialDaysRemaining: data.daysRemaining,
+        lastPaymentMethod: data.paymentMethod,
+        lastPaymentAmount: data.amount,
+        lastPaymentTxnId: data.txnId,
+        lastPaymentDate: new Date().toISOString()
+      }));
+    }
+  };
+
   return (
     <AuthTenantContext.Provider
       value={{
@@ -458,6 +607,7 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         switchTenantBySlug,
         registerNewCompany,
         permanentDeleteCompany,
+        updateCompanySubscription,
         login,
         logout,
         sessionLockNotice,

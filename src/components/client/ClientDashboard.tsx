@@ -29,7 +29,8 @@ import {
   GripVertical,
   BarChart3,
   Trash2,
-  Database
+  Database,
+  CreditCard
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -50,6 +51,7 @@ import { ActiveTab } from '../common/Sidebar';
 import { JournalVoucher } from '../../types/erp';
 import { subscribeCompanyVouchers } from '../../services/firebaseAccounting';
 import { QrScannerModal, ScannedItemPayload } from '../common/QrScannerModal';
+import { SubscriptionTrialModal } from '../common/SubscriptionTrialModal';
 import { INITIAL_INVENTORY, INITIAL_ACCOUNTS } from '../../services/mockData';
 
 interface ClientDashboardProps {
@@ -72,6 +74,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ onNavigateTab 
   const [showQuickActionsMenu, setShowQuickActionsMenu] = useState(false);
   const [showQrScannerModal, setShowQrScannerModal] = useState(false);
   const [scannedItem, setScannedItem] = useState<ScannedItemPayload | null>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   // Custom Reporting Widgets State (SQL queries from ReportingEngineModule)
   const [showAddWidgetModal, setShowAddWidgetModal] = useState(false);
@@ -189,26 +192,33 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ onNavigateTab 
     saveWidgetOrder(updatedOrder);
   };
 
-  // Live Trial & Subscription Countdown Timer state (e.g. 14 Days 18 Hrs 22 Mins 45 Secs)
-  const [timeLeft, setTimeLeft] = useState({ days: 14, hours: 18, minutes: 22, seconds: 45 });
+  // Dynamic Live Trial & Subscription Countdown Timer state (calculated from Firestore subscription / trial days)
+  const calculateRemainingTime = () => {
+    let targetMs: number;
+    if (currentCompany.subscriptionExpiresAt) {
+      targetMs = new Date(currentCompany.subscriptionExpiresAt).getTime();
+    } else if (currentCompany.trialDaysRemaining != null) {
+      targetMs = Date.now() + currentCompany.trialDaysRemaining * 24 * 60 * 60 * 1000;
+    } else {
+      targetMs = Date.now() + 14 * 24 * 60 * 60 * 1000;
+    }
+    const diff = Math.max(0, targetMs - Date.now());
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+    return { days, hours, minutes, seconds };
+  };
+
+  const [timeLeft, setTimeLeft] = useState(calculateRemainingTime);
 
   useEffect(() => {
+    setTimeLeft(calculateRemainingTime());
     const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev.seconds > 0) {
-          return { ...prev, seconds: prev.seconds - 1 };
-        } else if (prev.minutes > 0) {
-          return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
-        } else if (prev.hours > 0) {
-          return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        } else if (prev.days > 0) {
-          return { ...prev, days: prev.days - 1, hours: 23, minutes: 59, seconds: 59 };
-        }
-        return prev;
-      });
+      setTimeLeft(calculateRemainingTime());
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [currentCompany.subscriptionExpiresAt, currentCompany.trialDaysRemaining]);
 
   // Real-time Firebase Subscription for General Ledger & Voucher Transactions
   useEffect(() => {
@@ -445,6 +455,13 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ onNavigateTab 
               <div className="flex items-center gap-3">
                 <TTSButton text={formattedSpeech} label="Executive Audio Summary" size="lg" />
                 <button
+                  onClick={() => setShowUpgradeModal(true)}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-purple-600/30 hover:bg-purple-600/40 text-purple-200 border border-purple-500/50 font-bold text-xs shadow-lg transition-all cursor-pointer"
+                >
+                  <CreditCard className="w-4 h-4 text-purple-400" />
+                  <span>Upgrade Subscription</span>
+                </button>
+                <button
                   onClick={() => onNavigateTab('aiAssistant')}
                   className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-cyan-600/30 transition-all cursor-pointer"
                 >
@@ -457,46 +474,63 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ onNavigateTab 
 
         case 'countdownBanner':
           return (
-            <div className="bg-gradient-to-r from-purple-900/60 via-slate-900 to-indigo-950/60 border border-purple-500/40 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
+            <div className="bg-gradient-to-r from-purple-900/60 via-slate-900 to-indigo-950/60 border border-purple-500/40 rounded-2xl p-4 flex flex-col lg:flex-row items-center justify-between gap-4 shadow-xl">
               <div className="flex items-center gap-3">
                 <div className="p-3 rounded-2xl bg-purple-500/20 text-purple-300 border border-purple-500/30">
                   <Clock className="w-6 h-6 animate-spin" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500 text-slate-950 uppercase">
                       {currentCompany.subscriptionPlan || 'Trial Plan'}
                     </span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase">
+                      Status: {currentCompany.status || 'ACTIVE'}
+                    </span>
                     <h3 className="text-xs font-bold text-slate-100 uppercase tracking-wider">
-                      Enterprise Subscription & Trial Countdown Timer
+                      Enterprise Subscription &amp; Trial Countdown Timer
                     </h3>
                   </div>
                   <p className="text-[11px] text-slate-400 mt-0.5">
-                    Automated renewal active • Contact Master Admin for custom trial extensions (7/15 days).
+                    {currentCompany.lastPaymentMethod ? (
+                      <span>Active Tier: <strong className="text-cyan-300">{currentCompany.subscriptionPlan}</strong> • Last Payment: {currentCompany.lastPaymentMethod}</span>
+                    ) : (
+                      <span>Automated renewal active • Contact Master Admin or upgrade directly via Online Card / Master Bank IBFT.</span>
+                    )}
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 font-mono text-xs font-bold">
-                <div className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-center">
-                  <div className="text-base text-purple-400">{timeLeft.days}</div>
-                  <div className="text-[9px] text-slate-400 uppercase">Days</div>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-2 font-mono text-xs font-bold">
+                  <div className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-center">
+                    <div className="text-base text-purple-400">{timeLeft.days}</div>
+                    <div className="text-[9px] text-slate-400 uppercase">Days</div>
+                  </div>
+                  <span className="text-purple-400">:</span>
+                  <div className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-center">
+                    <div className="text-base text-cyan-400">{timeLeft.hours}</div>
+                    <div className="text-[9px] text-slate-400 uppercase">Hours</div>
+                  </div>
+                  <span className="text-cyan-400">:</span>
+                  <div className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-center">
+                    <div className="text-base text-emerald-400">{timeLeft.minutes}</div>
+                    <div className="text-[9px] text-slate-400 uppercase">Mins</div>
+                  </div>
+                  <span className="text-emerald-400">:</span>
+                  <div className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-center">
+                    <div className="text-base text-amber-400">{timeLeft.seconds}</div>
+                    <div className="text-[9px] text-slate-400 uppercase">Secs</div>
+                  </div>
                 </div>
-                <span className="text-purple-400">:</span>
-                <div className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-center">
-                  <div className="text-base text-cyan-400">{timeLeft.hours}</div>
-                  <div className="text-[9px] text-slate-400 uppercase">Hours</div>
-                </div>
-                <span className="text-cyan-400">:</span>
-                <div className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-center">
-                  <div className="text-base text-emerald-400">{timeLeft.minutes}</div>
-                  <div className="text-[9px] text-slate-400 uppercase">Mins</div>
-                </div>
-                <span className="text-emerald-400">:</span>
-                <div className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-center">
-                  <div className="text-base text-amber-400">{timeLeft.seconds}</div>
-                  <div className="text-[9px] text-slate-400 uppercase">Secs</div>
-                </div>
+
+                <button
+                  onClick={() => setShowUpgradeModal(true)}
+                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white font-extrabold text-xs shadow-lg shadow-purple-600/30 transition-all cursor-pointer flex items-center gap-2 shrink-0 border border-purple-400/30 hover:scale-[1.02]"
+                >
+                  <Sparkles className="w-4 h-4 text-cyan-300 animate-pulse" />
+                  <span>Upgrade Subscription / Pay Now</span>
+                </button>
               </div>
             </div>
           );
@@ -1146,6 +1180,13 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ onNavigateTab 
           </div>
         </div>
       )}
+
+      {/* Enterprise Upgrade Subscription & Mock Payment Gateway Modal */}
+      <SubscriptionTrialModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        initialMode="UPGRADE"
+      />
     </div>
   );
 };
