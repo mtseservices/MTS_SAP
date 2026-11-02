@@ -141,10 +141,10 @@ export const INITIAL_BATCHES: BatchItem[] = [
   // 16 - 30 Days (Critical 30-Day Threshold)
   {
     id: 'b_05',
-    batchNumber: 'LOT-2026-FG-BIS-102',
-    itemCode: 'FG-BISCUIT-BOX',
-    itemName: 'Albarka Energy Biscuits (Promo Pack)',
-    category: 'Finished Goods',
+    batchNumber: 'LOT-2026-FG-TXT-102',
+    itemCode: 'DYE-REACTIVE-BLU',
+    itemName: 'Reactive Dye Navy Blue D-35 (Batch Expire)',
+    category: 'Raw Materials',
     zoneId: 'zone_fg',
     zoneName: 'Finished Goods Hub',
     zoneTemperature: 'Ambient (20°C)',

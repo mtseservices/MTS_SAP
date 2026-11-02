@@ -50,7 +50,7 @@ export const AuditInsightsDashboard: React.FC<AuditInsightsDashboardProps> = ({
   const [timeWindow, setTimeWindow] = useState<TimeWindow>('1h');
   const [metricMode, setMetricMode] = useState<LatencyMetricMode>('avg');
   const [selectedTenant, setSelectedTenant] = useState<string>('ALL');
-  const [selectedBottleneckId, setSelectedBottleneckId] = useState<string | null>('bn_solartech_meezan');
+  const [selectedBottleneckId, setSelectedBottleneckId] = useState<string | null>('bn_crest_ocr');
   const [isLivePolling, setIsLivePolling] = useState(true);
   const [isRunningProbe, setIsRunningProbe] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
@@ -92,8 +92,8 @@ export const AuditInsightsDashboard: React.FC<AuditInsightsDashboardProps> = ({
   const handleRunDiagnosticProbe = async () => {
     setIsRunningProbe(true);
     try {
-      await apiAuditService.runSyntheticProbe('solartech', 'https://api.meezanbank.com/h2h/v2/corporate/disbursement', 'OUTGOING');
-      await apiAuditService.runSyntheticProbe('albarka', '/api/v1/finance/vouchers/post', 'INCOMING');
+      await apiAuditService.runSyntheticProbe('crest', 'https://api.meezanbank.com/h2h/v2/corporate/disbursement', 'OUTGOING');
+      await apiAuditService.runSyntheticProbe('crest', '/api/v1/finance/vouchers/post', 'INCOMING');
       showToast('Synthetic diagnostic probes executed successfully. Live telemetry updated.');
       loadData();
     } catch {
@@ -312,7 +312,7 @@ export const AuditInsightsDashboard: React.FC<AuditInsightsDashboardProps> = ({
             </span>
           </div>
           <div className="text-[11px] text-slate-400 truncate">
-            Affected: SolarTech (Meezan H2H), Crest (OCR)
+            Affected: Crest Textile (OCR & Meezan H2H)
           </div>
         </div>
 

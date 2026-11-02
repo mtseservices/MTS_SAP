@@ -24,8 +24,12 @@ import {
   COMPLETE_DEPARTMENTS_CATALOGUE,
   DepartmentCatalogItem
 } from '../../services/departmentCatalogueData';
+import { getCompanyAssignedDepartments } from '../../services/departmentCategoryMapper';
 import { DepartmentPopupForm } from '../common/DepartmentPopupForm';
 import { DepartmentReportViewer } from '../common/DepartmentReportViewer';
+import { StandardDocumentGridForm, FormConfigTarget } from '../common/StandardDocumentGridForm';
+import { DepartmentDefinitionModal, DefinitionConfigTarget } from '../common/DepartmentDefinitionModal';
+import { ReportParameterModal, ReportConfigTarget } from '../common/ReportParameterModal';
 
 export const DepartmentMasterModule: React.FC = () => {
   const { currentCompany } = useAuthTenant();
@@ -33,12 +37,65 @@ export const DepartmentMasterModule: React.FC = () => {
   // Active view: 'catalogue' | 'kpis' | 'designations' | 'access'
   const [activeView, setActiveView] = useState<'catalogue' | 'kpis' | 'designations' | 'access'>('catalogue');
 
+  // Company category assigned departments
+  const assignedDepts = React.useMemo(() => {
+    return getCompanyAssignedDepartments(currentCompany);
+  }, [currentCompany]);
+
+  // Scope filter: 'COMPANY' defaults to active company's category departments
+  const [scopeFilter, setScopeFilter] = useState<'COMPANY' | 'ALL'>('COMPANY');
+
   // Search & Filter
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
-  const [expandedDeptId, setExpandedDeptId] = useState<string | null>('dept_1');
+  const [expandedDeptId, setExpandedDeptId] = useState<string | null>(() => {
+    return assignedDepts.length > 0 ? assignedDepts[0].id : 'dept_1';
+  });
 
-  // Popup Form and Report State
+  // Target states for verified comprehensive modals
+  const [selectedDefinitionTarget, setSelectedDefinitionTarget] = useState<DefinitionConfigTarget | null>(null);
+  const [selectedFormTarget, setSelectedFormTarget] = useState<FormConfigTarget | null>(null);
+  const [selectedReportTarget, setSelectedReportTarget] = useState<ReportConfigTarget | null>(null);
+
+  const handleDefinitionClick = (dept: DepartmentCatalogItem, defName: string) => {
+    const code = `${defName.toUpperCase().replace(/[^A-Z0-9]/g, '_')}_DEF`;
+    setSelectedDefinitionTarget({
+      id: defName,
+      code,
+      title: defName,
+      departmentId: dept.id,
+      departmentLabel: dept.name
+    });
+  };
+
+  const handleFormClick = (dept: DepartmentCatalogItem, f: { code: string; name: string }) => {
+    let formCode = f.code.toUpperCase();
+    if (!formCode.endsWith('_FORM') && !formCode.endsWith('_DOC')) {
+      formCode = `${formCode}_FORM`;
+    }
+    setSelectedFormTarget({
+      id: f.code,
+      code: formCode,
+      title: f.name,
+      departmentId: dept.id,
+      departmentLabel: dept.name
+    });
+  };
+
+  const handleReportClick = (dept: DepartmentCatalogItem, r: { code: string; name: string }) => {
+    let repCode = r.code.toUpperCase();
+    if (!repCode.endsWith('_REP')) {
+      repCode = `${repCode}_REP`;
+    }
+    setSelectedReportTarget({
+      id: r.code,
+      code: repCode,
+      title: r.name,
+      category: dept.name
+    });
+  };
+
+  // Popup Form and Report State (fallback)
   const [activeFormTarget, setActiveFormTarget] = useState<{
     code: string;
     name: string;
@@ -68,7 +125,9 @@ export const DepartmentMasterModule: React.FC = () => {
     'Governance, Security & IT'
   ];
 
-  const filteredDepts = COMPLETE_DEPARTMENTS_CATALOGUE.filter((dept) => {
+  const baseList = scopeFilter === 'COMPANY' ? assignedDepts : COMPLETE_DEPARTMENTS_CATALOGUE;
+
+  const filteredDepts = baseList.filter((dept) => {
     const matchCat = selectedCategory === 'ALL' || dept.category === selectedCategory;
     const matchSearch =
       dept.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -89,23 +148,55 @@ export const DepartmentMasterModule: React.FC = () => {
               <FolderTree className="w-6 h-6" />
             </span>
             <h1 className="text-xl sm:text-2xl font-black text-slate-100 uppercase tracking-tight">
-              Enterprise Department Master Catalogue (130 Departments)
+              {scopeFilter === 'COMPANY'
+                ? `${currentCompany.name} Assigned Departments`
+                : 'Enterprise Department Master Catalogue (130 Departments)'}
             </h1>
           </div>
           <p className="text-xs text-slate-400 max-w-3xl">
-            Complete ERP / SAP / Odoo standardized operations directory for <strong className="text-cyan-300">{currentCompany.name}</strong>.
-            Definitions, standard interactive UserForm popups, and financial / operational Report Viewers across all industries.
+            {scopeFilter === 'COMPANY' ? (
+              <>
+                Active operational departments tailored for <strong className="text-cyan-300">{currentCompany.name}</strong> ({currentCompany.industry} · {currentCompany.category}).
+                Each department contains live definitions, standard multi-row transaction forms with 18% GST, and branded PDF reports.
+              </>
+            ) : (
+              <>
+                Complete global catalog of 130 standardized departments across 12 enterprise industries for MTS-ERP.
+              </>
+            )}
           </p>
         </div>
 
-        <div className="flex items-center gap-2 font-mono text-xs font-bold">
-          <div className="px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-center">
-            <div className="text-lg text-cyan-400">130</div>
-            <div className="text-[9px] text-slate-400 uppercase">Departments</div>
+        <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3">
+          {/* Scope Toggle */}
+          <div className="flex items-center p-1 bg-slate-950 rounded-xl border border-slate-800">
+            <button
+              onClick={() => setScopeFilter('COMPANY')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                scopeFilter === 'COMPANY'
+                  ? 'bg-cyan-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              {currentCompany.name.split(' ')[0]} ({assignedDepts.length})
+            </button>
+            <button
+              onClick={() => setScopeFilter('ALL')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                scopeFilter === 'ALL'
+                  ? 'bg-purple-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              All 130 Master
+            </button>
           </div>
-          <div className="px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-center">
-            <div className="text-lg text-purple-400">950+</div>
-            <div className="text-[9px] text-slate-400 uppercase">Forms &amp; Reports</div>
+
+          <div className="flex items-center gap-2 font-mono text-xs font-bold">
+            <div className="px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-center">
+              <div className="text-lg text-cyan-400">{filteredDepts.length}</div>
+              <div className="text-[9px] text-slate-400 uppercase">Visible</div>
+            </div>
           </div>
         </div>
       </div>
@@ -258,33 +349,40 @@ export const DepartmentMasterModule: React.FC = () => {
                     {/* Expanded Detail View: Definitions, Forms, Reports */}
                     {isExpanded && (
                       <div className="pt-3 border-t border-slate-800/80 space-y-5 animate-in fade-in text-xs">
-                        {/* Definition Chips */}
+                        {/* Definition Chips (Interactive Master Setup & Definitions) */}
                         <div className="space-y-1.5">
-                          <span className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider block">
-                            Department Core Definitions &amp; Master Setup
-                          </span>
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider block">
+                              Department Core Definitions &amp; Master Setup
+                            </span>
+                            <span className="text-[10px] text-cyan-400 font-medium">Click to configure</span>
+                          </div>
                           <div className="flex flex-wrap gap-1.5">
                             {dept.definitions.map((def, idx) => (
-                              <span
+                              <button
+                                type="button"
                                 key={idx}
-                                className="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 text-[11px] font-medium"
+                                onClick={() => handleDefinitionClick(dept, def)}
+                                className="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 hover:border-cyan-500/60 hover:bg-slate-750 text-slate-300 hover:text-cyan-300 text-[11px] font-medium transition-all cursor-pointer flex items-center gap-1.5 group"
+                                title={`Open definition details for ${def}`}
                               >
-                                • {def}
-                              </span>
+                                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 group-hover:scale-125 transition-transform" />
+                                <span>{def}</span>
+                              </button>
                             ))}
                           </div>
                         </div>
 
                         {/* Interactive Forms & Reports Split */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {/* Forms Column */}
+                          {/* Forms Column (10-Row Multi-Row Document Grid with 18% GST and Logo) */}
                           <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800 space-y-2.5">
                             <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                               <h4 className="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
                                 <FileText className="w-4 h-4" />
                                 <span>Department Operational Forms ({dept.forms.length})</span>
                               </h4>
-                              <span className="text-[10px] text-slate-400">Click to Open Form</span>
+                              <span className="text-[10px] text-slate-400">10-Row Grid</span>
                             </div>
 
                             <div className="grid grid-cols-1 gap-1.5 max-h-56 overflow-y-auto pr-1">
@@ -292,13 +390,7 @@ export const DepartmentMasterModule: React.FC = () => {
                                 <button
                                   type="button"
                                   key={f.code}
-                                  onClick={() =>
-                                    setActiveFormTarget({
-                                      code: f.code,
-                                      name: f.name,
-                                      departmentName: dept.name
-                                    })
-                                  }
+                                  onClick={() => handleFormClick(dept, f)}
                                   className="p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-cyan-500/60 text-left transition-all flex items-center justify-between group cursor-pointer"
                                 >
                                   <div className="flex items-center gap-2 min-w-0">
@@ -315,14 +407,14 @@ export const DepartmentMasterModule: React.FC = () => {
                             </div>
                           </div>
 
-                          {/* Reports Column */}
+                          {/* Reports Column (Printable PDF with Company Logo Toggle) */}
                           <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800 space-y-2.5">
                             <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                               <h4 className="text-xs font-bold text-purple-400 uppercase tracking-wider flex items-center gap-1.5">
                                 <BarChart3 className="w-4 h-4" />
                                 <span>Operational &amp; Audit Reports ({dept.reports.length})</span>
                               </h4>
-                              <span className="text-[10px] text-slate-400">Click to View</span>
+                              <span className="text-[10px] text-slate-400">PDF &amp; Logo</span>
                             </div>
 
                             <div className="grid grid-cols-1 gap-1.5 max-h-56 overflow-y-auto pr-1">
@@ -330,13 +422,7 @@ export const DepartmentMasterModule: React.FC = () => {
                                 <button
                                   type="button"
                                   key={r.code}
-                                  onClick={() =>
-                                    setActiveReportTarget({
-                                      code: r.code,
-                                      title: r.name,
-                                      departmentName: dept.name
-                                    })
-                                  }
+                                  onClick={() => handleReportClick(dept, r)}
                                   className="p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-purple-500/60 text-left transition-all flex items-center justify-between group cursor-pointer"
                                 >
                                   <div className="flex items-center gap-2 min-w-0">
@@ -497,7 +583,34 @@ export const DepartmentMasterModule: React.FC = () => {
         </div>
       )}
 
-      {/* Interactive Popup UserForm Modal */}
+      {/* Comprehensive Department Master Definition Modal */}
+      {selectedDefinitionTarget && (
+        <DepartmentDefinitionModal
+          isOpen={true}
+          onClose={() => setSelectedDefinitionTarget(null)}
+          definitionTarget={selectedDefinitionTarget}
+        />
+      )}
+
+      {/* Comprehensive 10-Row Multi-Row Document Form with 18% GST and Logo Toggle */}
+      {selectedFormTarget && (
+        <StandardDocumentGridForm
+          isOpen={true}
+          onClose={() => setSelectedFormTarget(null)}
+          formTarget={selectedFormTarget}
+        />
+      )}
+
+      {/* Comprehensive Report Parameter Modal with Logo Upload & Printable PDF */}
+      {selectedReportTarget && (
+        <ReportParameterModal
+          isOpen={true}
+          onClose={() => setSelectedReportTarget(null)}
+          reportTarget={selectedReportTarget}
+        />
+      )}
+
+      {/* Legacy Fallback Popup UserForm Modal */}
       {activeFormTarget && (
         <DepartmentPopupForm
           isOpen={true}
@@ -508,7 +621,7 @@ export const DepartmentMasterModule: React.FC = () => {
         />
       )}
 
-      {/* Interactive Report Viewer Popup Modal */}
+      {/* Legacy Fallback Report Viewer Popup Modal */}
       {activeReportTarget && (
         <DepartmentReportViewer
           isOpen={true}

@@ -95,7 +95,7 @@ export const SystemApiAuditViewer: React.FC<SystemApiAuditViewerProps> = ({ onNa
   const handleRunSyntheticProbe = async () => {
     setIsPinging(true);
     try {
-      await apiAuditService.runSyntheticProbe('albarka', '/api/v1/health/ping', 'INCOMING');
+      await apiAuditService.runSyntheticProbe('crest', '/api/v1/health/ping', 'INCOMING');
       await apiAuditService.runSyntheticProbe('master', 'https://api.fbr.gov.pk/v1/ping', 'OUTGOING');
       refreshData();
     } finally {

@@ -36,6 +36,12 @@ export type ThemePalette =
   | 'royal-black-gold'
   | 'modern-light';
 
+export type ThemeMode = 'dark' | 'slate-gray' | 'light';
+
+export type LoginTemplateId = 'split' | 'minimal' | 'glass' | 'terminal';
+
+export type TableDensity = 'compact' | 'standard';
+
 export interface Branch {
   id: string;
   name: string;
@@ -59,9 +65,9 @@ export interface ClientCompany {
   tenantId: string;
   name: string;
   registeredName: string;
-  code: string; // e.g. AFI001
-  slug: string; // e.g. albarka
-  subdomain: string; // albarka.erp.mts.pk
+  code: string; // e.g. CTM003
+  slug: string; // e.g. crest
+  subdomain: string; // crest.mts-sap.vercel.app
   url: string;
   industry: IndustryPackage;
   category: string;
@@ -80,6 +86,7 @@ export interface ClientCompany {
   userLimit: number;
   branchLimit: number;
   activeModules: string[];
+  assignedDepartmentIds?: string[];
   status: 'ACTIVE' | 'SUSPENDED' | 'INACTIVE';
   createdAt: string;
   adminName: string;
@@ -131,6 +138,37 @@ export interface ClientCompany {
     logoUrl?: string;
     faviconUrl?: string;
   };
+  // Advanced Pakistani Enterprise & Regulatory Metadata
+  secpNumber?: string;
+  entityType?: 'Private Limited' | 'Public Limited' | 'Sole Proprietorship' | 'Partnership / AOP' | 'Listed Public Company';
+  salesTaxAuthority?: 'FBR (Federal)' | 'PRA (Punjab)' | 'SRB (Sindh)' | 'KPRA (Khyber Pakhtunkhwa)' | 'BRA (Balochistan)';
+  chamberOfCommerce?: string;
+  pswId?: string;
+  filerStatus?: 'ACTIVE_FILER' | 'NON_FILER' | 'EXEMPT';
+  bankDetails?: {
+    bankName: string;
+    accountTitle: string;
+    iban: string;
+    swiftCode?: string;
+    branchCode?: string;
+    currency?: string;
+  };
+  fiscalYear?: {
+    startMonth: string;
+    endMonth: string;
+  };
+  factoryLocations?: string[];
+  contactCnic?: string;
+  connectedReports?: string[];
+  communicationGateways?: {
+    smsQuota: number;
+    smsUsed: number;
+    whatsappAlertsEnabled: boolean;
+    whatsappPhone?: string;
+  };
+  themeMode?: ThemeMode;
+  loginTemplateId?: LoginTemplateId;
+  tableDensity?: TableDensity;
 }
 
 export interface CompanyDocument {

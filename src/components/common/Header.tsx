@@ -121,7 +121,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewCompanyModal, onSelectT
               </button>
               <button
                 onClick={() => {
-                  switchTenantBySlug(allCompanies[0]?.slug || 'albarka');
+                  switchTenantBySlug(allCompanies[0]?.slug || 'crest');
                   onSelectTab('dashboard');
                 }}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition-all ${

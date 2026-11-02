@@ -720,7 +720,7 @@ export const SubscriptionTrialModal: React.FC<SubscriptionTrialModalProps> = ({
                       <label className="block text-xs font-semibold text-slate-300 mb-1">Sender Account Title *</label>
                       <input
                         type="text"
-                        placeholder="e.g. Tariq Mehmood / Albarka Ltd"
+                        placeholder="e.g. Tariq Mehmood / Crest Textile Mills Ltd"
                         value={senderAccountTitle}
                         onChange={(e) => {
                           setSenderAccountTitle(e.target.value);

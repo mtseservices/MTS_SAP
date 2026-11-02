@@ -8,6 +8,7 @@ import { TTSButton } from '../common/TTSButton';
 import { offlineStore } from '../../services/offlineStore';
 import { QrScannerModal, ScannedItemPayload } from '../common/QrScannerModal';
 import { ItemSearchSelector } from '../common/ItemSearchSelector';
+import { StandardDocumentGridForm } from '../common/StandardDocumentGridForm';
 
 export const SalesPosModule: React.FC = () => {
   const { currentCompany } = useAuthTenant();
@@ -15,13 +16,14 @@ export const SalesPosModule: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'invoices' | 'pos'>('invoices');
   const [printModalInvoice, setPrintModalInvoice] = useState<SalesInvoice | null>(null);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [isGridModalOpen, setIsGridModalOpen] = useState(false);
 
   // POS State
   const [posCustomer, setPosCustomer] = useState('Walk-in Customer / Retail');
-  const [posItemName, setPosItemName] = useState('Albarka Energy Biscuits Box');
-  const [posItemCode, setPosItemCode] = useState('FG-BISCUIT-BOX');
-  const [posQty, setPosQty] = useState(5);
-  const [posPrice, setPosPrice] = useState(2400);
+  const [posItemName, setPosItemName] = useState('100% Combed Cotton Yarn 30s/1');
+  const [posItemCode, setPosItemCode] = useState('RM-YARN-30S');
+  const [posQty, setPosQty] = useState(10);
+  const [posPrice, setPosPrice] = useState(4800);
   const [lastScannedNotification, setLastScannedNotification] = useState<string | null>(null);
 
   const handleItemScanned = (scanned: ScannedItemPayload) => {
@@ -105,6 +107,13 @@ export const SalesPosModule: React.FC = () => {
           >
             <QrCode className="w-4 h-4" />
             Scan Product QR
+          </button>
+          <button
+            onClick={() => setIsGridModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs transition-all shadow-md cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            10-Row Tax Bill / Invoice
           </button>
           <div className="flex items-center gap-1 bg-slate-800 p-1 rounded-xl border border-slate-700 text-xs font-bold">
             <button
@@ -337,6 +346,19 @@ export const SalesPosModule: React.FC = () => {
         onItemScanned={handleItemScanned}
         title="Sales & POS Barcode Scanner"
         moduleContext="SALES"
+      />
+
+      {/* 10-Row Transactional Document / Tax Invoice Form */}
+      <StandardDocumentGridForm
+        isOpen={isGridModalOpen}
+        onClose={() => setIsGridModalOpen(false)}
+        formTarget={{
+          id: 'tax_invoice',
+          code: 'TAX_INVOICE_STRN',
+          title: 'Commercial Tax Invoice (STRN 18%)',
+          departmentId: 'sales',
+          departmentLabel: 'Sales & Distribution'
+        }}
       />
     </div>
   );

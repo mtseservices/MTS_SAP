@@ -57,9 +57,7 @@ export interface BottleneckCandidate {
 }
 
 const TENANT_COLORS: Record<string, string> = {
-  albarka: '#06b6d4',   // Cyan
-  solartech: '#10b981', // Emerald
-  crest: '#f59e0b',     // Amber
+  crest: '#06b6d4',     // Cyan
   master: '#a855f7',    // Purple
   default: '#38bdf8'    // Sky
 };
@@ -126,8 +124,6 @@ export class AuditInsightsService {
 
     // Base latency profiles per tenant
     const baseLatencies: Record<string, number> = {
-      albarka: 45,
-      solartech: this.isMitigated('bn_solartech_meezan') ? 95 : 220,
       crest: this.isMitigated('bn_crest_ocr') ? 85 : 310,
       master: 32
     };
@@ -144,14 +140,6 @@ export class AuditInsightsService {
       // Add realistic variance + temporal spikes (e.g. at middle points)
       const isPeakInterval = i % 7 === 2 || i === 4;
 
-      const albarkaLat = Math.round(
-        (baseLatencies.albarka + Math.sin(i * 0.8) * 14 + (isPeakInterval ? 35 : 0)) * multiplier
-      );
-
-      const solartechLat = Math.round(
-        (baseLatencies.solartech + Math.cos(i * 0.6) * 38 + (isPeakInterval && !this.isMitigated('bn_solartech_meezan') ? 280 : 0)) * multiplier
-      );
-
       const crestLat = Math.round(
         (baseLatencies.crest + Math.sin(i * 0.4) * 45 + (isPeakInterval && !this.isMitigated('bn_crest_ocr') ? 210 : 0)) * multiplier
       );
@@ -160,7 +148,7 @@ export class AuditInsightsService {
         (baseLatencies.master + Math.cos(i * 0.5) * 8) * multiplier
       );
 
-      const values = [albarkaLat, solartechLat, crestLat, masterLat];
+      const values = [crestLat, masterLat];
       const systemAvg = Math.round(values.reduce((a, b) => a + b, 0) / values.length);
       const systemP95 = Math.round(Math.max(...values) * 0.95);
       const systemP99 = Math.round(Math.max(...values) * 1.12);
@@ -170,8 +158,6 @@ export class AuditInsightsService {
         timeLabel,
         date: sliceTime,
         tenants: {
-          albarka: Math.max(15, albarkaLat),
-          solartech: Math.max(20, solartechLat),
           crest: Math.max(22, crestLat),
           master: Math.max(12, masterLat)
         },
@@ -188,26 +174,10 @@ export class AuditInsightsService {
    * Generates Error Log Frequency per active tenant
    */
   public getErrorBreakdown(timeWindow: TimeWindow = '1h'): TenantErrorBreakdown[] {
-    const isSolarMitigated = this.isMitigated('bn_solartech_meezan');
     const isCrestMitigated = this.isMitigated('bn_crest_ocr');
-    const isAlbarkaMitigated = this.isMitigated('bn_albarka_rate_limit');
+    const isMeezanMitigated = this.isMitigated('bn_crest_meezan');
 
     return [
-      {
-        tenantId: 'tenant_solartech',
-        tenantSlug: 'solartech',
-        tenantName: 'SolarTech Power Solutions PK',
-        color: TENANT_COLORS.solartech,
-        clientErrors4xx: 18,
-        rateLimits429: isSolarMitigated ? 2 : 46,
-        gatewayErrors502_503: isSolarMitigated ? 4 : 84, // Meezan bank timeout
-        serverErrors500: 5,
-        totalErrors: isSolarMitigated ? 29 : 153,
-        totalRequests: 2840,
-        errorRatePct: isSolarMitigated ? 1.0 : 5.4,
-        topFailingEndpoint: 'https://api.meezanbank.com/h2h/v2/corporate/disbursement',
-        severity: isSolarMitigated ? 'HEALTHY' : 'CRITICAL'
-      },
       {
         tenantId: 'tenant_crest',
         tenantSlug: 'crest',
@@ -215,28 +185,13 @@ export class AuditInsightsService {
         color: TENANT_COLORS.crest,
         clientErrors4xx: 24,
         rateLimits429: 6,
-        gatewayErrors502_503: isCrestMitigated ? 3 : 38,
+        gatewayErrors502_503: isMeezanMitigated ? 3 : 28,
         serverErrors500: isCrestMitigated ? 4 : 29, // OCR engine queue saturation
-        totalErrors: isCrestMitigated ? 37 : 97,
-        totalRequests: 3420,
-        errorRatePct: isCrestMitigated ? 1.1 : 2.8,
+        totalErrors: isCrestMitigated && isMeezanMitigated ? 37 : 87,
+        totalRequests: 7600,
+        errorRatePct: isCrestMitigated ? 0.9 : 2.1,
         topFailingEndpoint: '/api/v1/inventory/ocr-scan-invoice',
         severity: isCrestMitigated ? 'HEALTHY' : 'DEGRADED'
-      },
-      {
-        tenantId: 'tenant_albarka',
-        tenantSlug: 'albarka',
-        tenantName: 'Albarka Food Industries (Pvt) Ltd',
-        color: TENANT_COLORS.albarka,
-        clientErrors4xx: 32,
-        rateLimits429: isAlbarkaMitigated ? 1 : 14,
-        gatewayErrors502_503: 11, // FBR gateway retries
-        serverErrors500: 2,
-        totalErrors: isAlbarkaMitigated ? 46 : 59,
-        totalRequests: 4180,
-        errorRatePct: isAlbarkaMitigated ? 1.1 : 1.4,
-        topFailingEndpoint: 'https://api.fbr.gov.pk/di/v1/invoicing/digital-submit',
-        severity: 'HEALTHY'
       },
       {
         tenantId: 'system_master',
@@ -260,29 +215,10 @@ export class AuditInsightsService {
    * Identified System Bottlenecks for the Scatter Plot and Mitigation Matrix
    */
   public getBottlenecks(): BottleneckCandidate[] {
-    const isSolarMitigated = this.isMitigated('bn_solartech_meezan');
     const isCrestMitigated = this.isMitigated('bn_crest_ocr');
-    const isAlbarkaMitigated = this.isMitigated('bn_albarka_rate_limit');
+    const isMeezanMitigated = this.isMitigated('bn_crest_meezan');
 
     return [
-      {
-        id: 'bn_solartech_meezan',
-        endpoint: 'https://api.meezanbank.com/h2h/v2/corporate/disbursement',
-        tenantId: 'tenant_solartech',
-        tenantSlug: 'solartech',
-        tenantName: 'SolarTech Power Solutions PK',
-        category: 'BANK_GATEWAY',
-        avgLatencyMs: isSolarMitigated ? 110 : 820,
-        p99LatencyMs: isSolarMitigated ? 210 : 1450,
-        requestRatePerMin: 145,
-        errorCount: isSolarMitigated ? 4 : 84,
-        errorRatePct: isSolarMitigated ? 0.8 : 8.7,
-        severity: isSolarMitigated ? 'HEALTHY' : 'CRITICAL',
-        rootCause: 'Upstream Meezan Bank Host-to-Host gateway timeout; synchronous thread blocking on 800ms disbursement window.',
-        impactDescription: 'Supplier vendor payments delayed, pending cheque queue backing up during 12:00-14:00 settlement cycle.',
-        remediationAdvice: 'Deploy asynchronous queuing worker with exponential backoff and circuit breaker fallback to batch mode.',
-        mitigationApplied: isSolarMitigated
-      },
       {
         id: 'bn_crest_ocr',
         endpoint: '/api/v1/inventory/ocr-scan-invoice',
@@ -296,35 +232,35 @@ export class AuditInsightsService {
         errorCount: isCrestMitigated ? 7 : 38,
         errorRatePct: isCrestMitigated ? 1.2 : 4.5,
         severity: isCrestMitigated ? 'HEALTHY' : 'WARNING',
-        rootCause: 'High-resolution bill scans submitted simultaneously from 4 yarn spinning units saturating client inference thread.',
+        rootCause: 'High-resolution fabric bill scans submitted simultaneously from 4 yarn spinning units saturating client inference thread.',
         impactDescription: 'Goods Receipt Note (GRN) creation slowed down by up to 12 seconds per multi-page invoice scan.',
         remediationAdvice: 'Compress client images to 1280px max before upload; offload OCR model inference to parallel web workers.',
         mitigationApplied: isCrestMitigated
       },
       {
-        id: 'bn_albarka_rate_limit',
-        endpoint: '/api/v1/inventory/items/batch-adjust',
-        tenantId: 'tenant_albarka',
-        tenantSlug: 'albarka',
-        tenantName: 'Albarka Food Industries (Pvt) Ltd',
-        category: 'INVENTORY',
-        avgLatencyMs: isAlbarkaMitigated ? 35 : 185,
-        p99LatencyMs: isAlbarkaMitigated ? 65 : 320,
-        requestRatePerMin: 220,
-        errorCount: isAlbarkaMitigated ? 2 : 28,
-        errorRatePct: isAlbarkaMitigated ? 0.4 : 3.8,
-        severity: isAlbarkaMitigated ? 'HEALTHY' : 'WARNING',
-        rootCause: 'Warehouse barcode sync script firing 15 requests per second, exceeding default 2500 req/hr tenant quota.',
-        impactDescription: 'Intermittent 429 Too Many Requests response returned to Kot Lakhpat central dispatch warehouse handhelds.',
-        remediationAdvice: 'Increase tenant quota threshold to 10,000 req/hr and configure client sync script to send 50-item batches.',
-        mitigationApplied: isAlbarkaMitigated
+        id: 'bn_crest_meezan',
+        endpoint: 'https://api.meezanbank.com/h2h/v2/corporate/disbursement',
+        tenantId: 'tenant_crest',
+        tenantSlug: 'crest',
+        tenantName: 'Crest Textile Mills Ltd',
+        category: 'BANK_GATEWAY',
+        avgLatencyMs: isMeezanMitigated ? 110 : 820,
+        p99LatencyMs: isMeezanMitigated ? 210 : 1450,
+        requestRatePerMin: 145,
+        errorCount: isMeezanMitigated ? 4 : 28,
+        errorRatePct: isMeezanMitigated ? 0.6 : 3.7,
+        severity: isMeezanMitigated ? 'HEALTHY' : 'CRITICAL',
+        rootCause: 'Upstream Meezan Bank Host-to-Host gateway timeout; synchronous thread blocking on 800ms disbursement window.',
+        impactDescription: 'Raw cotton supplier vendor payments delayed during 12:00-14:00 settlement cycle.',
+        remediationAdvice: 'Deploy asynchronous queuing worker with exponential backoff and circuit breaker fallback to batch mode.',
+        mitigationApplied: isMeezanMitigated
       },
       {
         id: 'bn_fbr_digital_invoicing',
         endpoint: 'https://api.fbr.gov.pk/di/v1/invoicing/digital-submit',
-        tenantId: 'tenant_albarka',
-        tenantSlug: 'albarka',
-        tenantName: 'Albarka Food Industries (Pvt) Ltd',
+        tenantId: 'tenant_crest',
+        tenantSlug: 'crest',
+        tenantName: 'Crest Textile Mills Ltd',
         category: 'TAX_FBR',
         avgLatencyMs: 142,
         p99LatencyMs: 380,
@@ -332,8 +268,8 @@ export class AuditInsightsService {
         errorCount: 11,
         errorRatePct: 0.9,
         severity: 'HEALTHY',
-        rootCause: 'FBR Islamabad gateway response time varies between 90ms and 350ms during peak business closing hours.',
-        impactDescription: 'POS sales receipt QR code generation requires 200ms round-trip to tax authority servers.',
+        rootCause: 'FBR Islamabad digital tax invoice gateway response time varies during peak closing hours.',
+        impactDescription: 'Textile sales invoice QR code generation requires 200ms round-trip to tax authority servers.',
         remediationAdvice: 'Pre-allocate fiscal invoice numbers offline with asynchronous FBR server reconciliation sync.',
         mitigationApplied: false
       },

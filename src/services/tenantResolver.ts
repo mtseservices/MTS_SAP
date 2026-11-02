@@ -1,68 +1,7 @@
 import { ClientCompany } from '../types/erp';
+import { INDUSTRY_DEPARTMENT_PRESETS } from './departmentCategoryMapper';
 
 export const INITIAL_CLIENT_COMPANIES: ClientCompany[] = [
-  {
-    id: 'comp_albarka_001',
-    tenantId: 'tenant_albarka',
-    name: 'Albarka Food Industries (Pvt) Ltd',
-    registeredName: 'Albarka Food Industries Private Limited',
-    code: 'AFI001',
-    slug: 'albarka',
-    subdomain: 'albarka.mts-sap.vercel.app',
-    url: 'https://mts-sap.vercel.app?company=albarka',
-    industry: 'Food & Beverage',
-    category: 'FMCG Manufacturing',
-    ntn: '4829104-7',
-    strn: '3277876543219',
-    email: 'info@albarka.com.pk',
-    phone: '+92-42-35889911',
-    address: 'Plot 42, Industrial Estate, Kot Lakhpat',
-    city: 'Lahore',
-    province: 'Punjab',
-    country: 'Pakistan',
-    logoUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=120&q=80',
-    primaryContact: 'Muhammad Ali - COO',
-    subscriptionPlan: 'Enterprise',
-    userLimit: 50,
-    branchLimit: 5,
-    activeModules: ['Finance', 'Procurement', 'Inventory', 'Sales', 'Production', 'HR', 'Quality', 'Workflow', 'Reports'],
-    status: 'ACTIVE',
-    createdAt: '2026-01-15',
-    adminName: 'Tariq Mehmood',
-    adminEmail: 'admin@albarka.com.pk',
-    theme: 'corporate-blue',
-  },
-  {
-    id: 'comp_solartech_002',
-    tenantId: 'tenant_solartech',
-    name: 'SolarTech Power Solutions PK',
-    registeredName: 'SolarTech Energy Systems (Pvt) Ltd',
-    code: 'STP002',
-    slug: 'solartech',
-    subdomain: 'solartech.mts-sap.vercel.app',
-    url: 'https://mts-sap.vercel.app?company=solartech',
-    industry: 'Solar & Electrical',
-    category: 'Renewable Energy EPC & Retail',
-    ntn: '5910283-1',
-    strn: '1098237465012',
-    email: 'contact@solartech.pk',
-    phone: '+92-51-8492000',
-    address: 'Sector I-9/2, Industrial Area',
-    city: 'Islamabad',
-    province: 'Federal Capital',
-    country: 'Pakistan',
-    logoUrl: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=120&q=80',
-    primaryContact: 'Usman Khan - CEO',
-    subscriptionPlan: 'Enterprise',
-    userLimit: 30,
-    branchLimit: 3,
-    activeModules: ['Finance', 'Procurement', 'Inventory', 'Sales', 'HR', 'Workflow', 'Reports'],
-    status: 'ACTIVE',
-    createdAt: '2026-02-10',
-    adminName: 'Usman Khan',
-    adminEmail: 'admin@solartech.pk',
-    theme: 'professional-green',
-  },
   {
     id: 'comp_crest_003',
     tenantId: 'tenant_crest',
@@ -88,6 +27,7 @@ export const INITIAL_CLIENT_COMPANIES: ClientCompany[] = [
     userLimit: 100,
     branchLimit: 8,
     activeModules: ['Finance', 'Procurement', 'Inventory', 'Sales', 'Production', 'HR', 'Quality', 'Workflow', 'Reports'],
+    assignedDepartmentIds: INDUSTRY_DEPARTMENT_PRESETS['Textile'],
     status: 'ACTIVE',
     createdAt: '2026-03-01',
     adminName: 'Rashid Ahmed',
@@ -119,7 +59,7 @@ export function resolveCurrentTenant(): ResolvedTenant {
   // 1. Check Path-based: /company/{slug}
   if (pathname.startsWith('/company')) {
     const parts = pathname.split('/');
-    const slug = parts[2]; // /company/albarka -> ['','company', 'albarka']
+    const slug = parts[2]; // /company/crest -> ['','company', 'crest']
     if (slug) {
       const matchedCompany = INITIAL_CLIENT_COMPANIES.find(c => c.slug.toLowerCase() === slug.toLowerCase());
       if (matchedCompany) {
@@ -128,7 +68,7 @@ export function resolveCurrentTenant(): ResolvedTenant {
     }
   }
 
-  // Check URL query param ?company=albarka or ?tenant=albarka or ?master=true
+  // Check URL query param ?company=crest or ?tenant=crest or ?master=true
   const queryTenant = searchParams.get('company') || searchParams.get('tenant');
   const isMasterParam = searchParams.get('master') === 'true' || hash.includes('/master') || pathname === '/';
 
@@ -143,7 +83,7 @@ export function resolveCurrentTenant(): ResolvedTenant {
     }
   }
 
-  // Extract subdomain from hostname e.g. "albarka.erp.domain.com"
+  // Extract subdomain from hostname e.g. "crest.erp.domain.com"
   const hostParts = hostname.split('.');
   if (hostParts.length >= 3 && hostParts[0] !== 'www' && hostParts[0] !== 'erp') {
     const subdomain = hostParts[0].toLowerCase();

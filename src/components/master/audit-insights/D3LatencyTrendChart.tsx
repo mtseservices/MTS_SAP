@@ -10,9 +10,7 @@ interface D3LatencyTrendChartProps {
 }
 
 const TENANTS_CONFIG: Record<string, { label: string; color: string }> = {
-  albarka: { label: 'Albarka Food Industries', color: '#06b6d4' },
-  solartech: { label: 'SolarTech Power PK', color: '#10b981' },
-  crest: { label: 'Crest Textile Mills', color: '#f59e0b' },
+  crest: { label: 'Crest Textile Mills Ltd', color: '#06b6d4' },
   master: { label: 'MTS Master System', color: '#a855f7' }
 };
 

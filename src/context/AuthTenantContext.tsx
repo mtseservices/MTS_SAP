@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useRef } from 'r
 import { ClientCompany, UserProfile, ThemePalette, Branch } from '../types/erp';
 import { INITIAL_CLIENT_COMPANIES, resolveCurrentTenant } from '../services/tenantResolver';
 import { INITIAL_BRANCHES } from '../services/mockData';
+import { getDefaultDepartmentIdsForIndustry } from '../services/departmentCategoryMapper';
 import { doc, deleteDoc, setDoc } from 'firebase/firestore';
 import { db } from '../services/firebaseConfig';
 
@@ -66,6 +67,7 @@ interface AuthTenantContextType {
     companyId: string,
     roles: { id: string; name: string; code: string; department?: string; permissions?: string[] }[]
   ) => Promise<void>;
+  updateCompanyDepartments: (companyId: string, departmentIds: string[]) => Promise<void>;
   login: (type?: 'MASTER' | 'CLIENT', companySlug?: string, role?: string) => void;
   logout: (reason?: string) => void;
   sessionLockNotice: string | null;
@@ -90,16 +92,16 @@ const MASTER_USER: UserProfile = {
 
 const DEFAULT_CLIENT_USER: UserProfile = {
   id: 'usr_client_admin_01',
-  email: 'admin@albarka.com.pk',
-  name: 'Tariq Mehmood',
+  email: 'admin@cresttextile.com',
+  name: 'Rashid Ahmed',
   role: 'CLIENT_ADMIN',
-  tenantId: 'tenant_albarka',
-  companyId: 'comp_albarka_001',
-  companyName: 'Albarka Food Industries (Pvt) Ltd',
-  branchId: 'br_lahore_01',
-  branchName: 'Lahore Head Office & Plant',
+  tenantId: 'tenant_crest',
+  companyId: 'comp_crest_003',
+  companyName: 'Crest Textile Mills Ltd',
+  branchId: 'br_faisalabad_01',
+  branchName: 'Faisalabad Textile Complex & Plant',
   isMaster: false,
-  allowedCompanies: ['tenant_albarka', 'tenant_solartech']
+  allowedCompanies: ['tenant_crest']
 };
 
 const AuthTenantContext = createContext<AuthTenantContextType | undefined>(undefined);
@@ -159,15 +161,27 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         }
       }
     } catch {}
+    try {
+      const storedDepts = localStorage.getItem(`mts_depts_${c.id}`);
+      if (storedDepts) {
+        const parsedDepts = JSON.parse(storedDepts);
+        if (Array.isArray(parsedDepts) && parsedDepts.length > 0) {
+          result.assignedDepartmentIds = parsedDepts;
+        }
+      }
+    } catch {}
+
     return result;
   };
 
-  // Initial Companies filtered by permanent deletion list
+  // Initial Companies filtered by permanent deletion list and sample companies purge
   const [allCompanies, setAllCompanies] = useState<ClientCompany[]>(() => {
     const deletedIds = getDeletedCompanyIds();
     const customComps = getCustomCompanies();
     const combined = [...customComps, ...INITIAL_CLIENT_COMPANIES];
-    return combined.filter(c => !deletedIds.includes(c.id)).map(applySubOverride);
+    return combined
+      .filter(c => !deletedIds.includes(c.id) && c.id !== 'comp_albarka_001' && c.id !== 'comp_solartech_002')
+      .map(applySubOverride);
   });
 
   // Strict initial authentication: First time open MUST require login!
@@ -178,13 +192,15 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [isMasterPortal, setIsMasterPortal] = useState<boolean>(false);
   const [currentCompany, setCurrentCompany] = useState<ClientCompany>(() => {
     const deletedIds = getDeletedCompanyIds();
-    const available = INITIAL_CLIENT_COMPANIES.filter(c => !deletedIds.includes(c.id));
+    const available = INITIAL_CLIENT_COMPANIES.filter(
+      c => !deletedIds.includes(c.id) && c.id !== 'comp_albarka_001' && c.id !== 'comp_solartech_002'
+    );
     return applySubOverride(available[0] || INITIAL_CLIENT_COMPANIES[0]);
   });
 
   const [currentUser, setCurrentUser] = useState<UserProfile>(DEFAULT_CLIENT_USER);
   const [currentBranch, setCurrentBranch] = useState<Branch>(INITIAL_BRANCHES[0]);
-  const [theme, setTheme] = useState<ThemePalette>('corporate-blue');
+  const [theme, setTheme] = useState<ThemePalette>('royal-black-gold');
 
   // Security Inactivity Tracker (5 minutes = 300,000 ms)
   const [sessionLockNotice, setSessionLockNotice] = useState<string | null>(() => {
@@ -213,6 +229,33 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       // Ignore quota issues
     }
   };
+
+  // Permanent purge of deleted legacy sample company references and URL query parameters
+  useEffect(() => {
+    try {
+      const url = new URL(window.location.href);
+      let changed = false;
+      const compParam = url.searchParams.get('company');
+      const tenantParam = url.searchParams.get('tenant');
+      if (compParam === 'albarka' || compParam === 'solartech') {
+        url.searchParams.set('company', 'crest');
+        changed = true;
+      }
+      if (tenantParam === 'albarka' || tenantParam === 'solartech' || tenantParam === 'tenant_albarka' || tenantParam === 'tenant_solartech') {
+        url.searchParams.set('tenant', 'crest');
+        changed = true;
+      }
+      if (url.pathname.includes('/albarka') || url.pathname.includes('/solartech')) {
+        url.pathname = url.pathname.replace(/\/albarka|\/solartech/g, '/crest');
+        changed = true;
+      }
+      if (changed) {
+        window.history.replaceState({}, '', url.toString());
+      }
+    } catch {
+      // Ignore in non-browser environments
+    }
+  }, []);
 
   // GLOBAL 5-MINUTE INACTIVITY TIMER MIDDLEWARE
   useEffect(() => {
@@ -441,11 +484,14 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       userLimit: newCompData.userLimit || 25,
       branchLimit: newCompData.branchLimit || 3,
       activeModules: ['Finance', 'Procurement', 'Inventory', 'Sales', 'HR', 'Reports'],
+      assignedDepartmentIds: (newCompData.assignedDepartmentIds && newCompData.assignedDepartmentIds.length > 0)
+        ? newCompData.assignedDepartmentIds
+        : getDefaultDepartmentIdsForIndustry(newCompData.industry, newCompData.category),
       status: 'ACTIVE',
       createdAt: new Date().toISOString().split('T')[0],
       adminName: newCompData.adminName || 'Company Admin',
       adminEmail: newCompData.adminEmail || 'admin@company.pk',
-      theme: newCompData.theme || 'corporate-blue'
+      theme: newCompData.theme || 'royal-black-gold'
     };
 
     // Save to custom companies in localStorage
@@ -462,6 +508,35 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
     setAllCompanies(prev => [newCompany, ...prev]);
     return newCompany;
+  };
+
+  const updateCompanyDepartments = async (companyId: string, departmentIds: string[]): Promise<void> => {
+    // 1. Save locally for instant persistence
+    try {
+      localStorage.setItem(`mts_depts_${companyId}`, JSON.stringify(departmentIds));
+    } catch {}
+
+    // 2. Persist to Firestore
+    try {
+      const companyDocRef = doc(db, 'companies', companyId);
+      await setDoc(companyDocRef, { assignedDepartmentIds: departmentIds }, { merge: true });
+    } catch (e) {
+      console.warn('Firestore updateCompanyDepartments error:', e);
+    }
+
+    // 3. Update memory state
+    setAllCompanies(prev =>
+      prev.map(c => {
+        if (c.id === companyId) {
+          return { ...c, assignedDepartmentIds: departmentIds };
+        }
+        return c;
+      })
+    );
+
+    if (currentCompany.id === companyId) {
+      setCurrentCompany(prev => ({ ...prev, assignedDepartmentIds: departmentIds }));
+    }
   };
 
   const permanentDeleteCompany = async (companyId: string): Promise<void> => {
@@ -666,6 +741,7 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         permanentDeleteCompany,
         updateCompanySubscription,
         updateCompanyCustomRoles,
+        updateCompanyDepartments,
         login,
         logout,
         sessionLockNotice,

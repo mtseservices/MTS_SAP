@@ -17,12 +17,19 @@ import {
   LogIn,
   Key,
   Copy,
-  ExternalLink
+  ExternalLink,
+  FolderTree,
+  Search,
+  CheckSquare,
+  Square,
+  RotateCcw
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { IndustryPackage, ThemePalette } from '../../types/erp';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../../services/firebaseConfig';
+import { getDefaultDepartmentIdsForIndustry } from '../../services/departmentCategoryMapper';
+import { COMPLETE_DEPARTMENTS_CATALOGUE } from '../../services/departmentCatalogueData';
 
 interface CompanyRegistrationWizardProps {
   onSuccess: (slug: string) => void;
@@ -73,6 +80,13 @@ export const CompanyRegistrationWizard: React.FC<CompanyRegistrationWizardProps>
     'Reports'
   ]);
 
+  // Category Department Assignment State
+  const [assignedDepartmentIds, setAssignedDepartmentIds] = useState<string[]>(() => {
+    return getDefaultDepartmentIdsForIndustry('Food & Beverage', 'Food Processing & Retail Chain');
+  });
+  const [deptSearchTerm, setDeptSearchTerm] = useState('');
+  const [deptCatalogView, setDeptCatalogView] = useState<'RECOMMENDED' | 'ALL'>('RECOMMENDED');
+
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [createdCompanyDetails, setCreatedCompanyDetails] = useState<{
@@ -110,6 +124,12 @@ export const CompanyRegistrationWizard: React.FC<CompanyRegistrationWizardProps>
     });
   };
 
+  const handleIndustryChange = (newInd: IndustryPackage) => {
+    const autoDepts = getDefaultDepartmentIdsForIndustry(newInd, formData.category);
+    setFormData({ ...formData, industry: newInd });
+    setAssignedDepartmentIds(autoDepts);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.slug) {
@@ -127,6 +147,7 @@ export const CompanyRegistrationWizard: React.FC<CompanyRegistrationWizardProps>
       ...formData,
       url: liveUrl,
       activeModules: selectedModules,
+      assignedDepartmentIds: assignedDepartmentIds,
     });
 
     // Sync Company Record to Firebase Firestore
@@ -412,7 +433,7 @@ Admin Email: ${formData.adminEmail}`;
                 <label className="block text-xs font-semibold text-slate-300 mb-1">Industry Package</label>
                 <select
                   value={formData.industry}
-                  onChange={(e) => setFormData({ ...formData, industry: e.target.value as IndustryPackage })}
+                  onChange={(e) => handleIndustryChange(e.target.value as IndustryPackage)}
                   className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-purple-500"
                 >
                   <option value="Food & Beverage">Food & Beverage</option>
@@ -562,6 +583,170 @@ Admin Email: ${formData.adminEmail}`;
                   </button>
                 );
               })}
+            </div>
+          </div>
+
+          {/* Section 6: Category-Based Department Assignment */}
+          <div className="space-y-4 pt-3 border-t border-slate-800">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div>
+                <h2 className="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1.5">
+                  <FolderTree className="w-4 h-4 text-cyan-400" />
+                  6. Operational Departments Assignment ({formData.industry})
+                </h2>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Auto-selected based on <strong className="text-cyan-300">{formData.industry}</strong> industry. Customize with interactive checkboxes.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs px-2.5 py-1 rounded-xl bg-cyan-950/60 border border-cyan-800 text-cyan-300 font-mono font-bold">
+                  {assignedDepartmentIds.length} of 130 Assigned
+                </span>
+              </div>
+            </div>
+
+            {/* Filter & Bulk Actions Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-2 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800">
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setDeptCatalogView('RECOMMENDED')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    deptCatalogView === 'RECOMMENDED'
+                      ? 'bg-purple-600 text-white shadow-md'
+                      : 'bg-slate-800 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Recommended for {formData.industry} ({getDefaultDepartmentIdsForIndustry(formData.industry, formData.category).length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDeptCatalogView('ALL')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    deptCatalogView === 'ALL'
+                      ? 'bg-purple-600 text-white shadow-md'
+                      : 'bg-slate-800 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  All 130 Departments Catalog
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const rec = getDefaultDepartmentIdsForIndustry(formData.industry, formData.category);
+                    setAssignedDepartmentIds(rec);
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-semibold flex items-center gap-1 transition-all cursor-pointer"
+                  title="Reset to recommended"
+                >
+                  <RotateCcw className="w-3 h-3 text-cyan-400" /> Reset to Recommended
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAssignedDepartmentIds(COMPLETE_DEPARTMENTS_CATALOGUE.map((d) => d.id));
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-semibold flex items-center gap-1 transition-all cursor-pointer"
+                >
+                  <CheckSquare className="w-3 h-3 text-emerald-400" /> Select All 130
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAssignedDepartmentIds([])}
+                  className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-semibold flex items-center gap-1 transition-all cursor-pointer"
+                >
+                  <Square className="w-3 h-3 text-rose-400" /> Deselect All
+                </button>
+              </div>
+            </div>
+
+            {/* Search Input within departments */}
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                value={deptSearchTerm}
+                onChange={(e) => setDeptSearchTerm(e.target.value)}
+                placeholder="Search departments by name, forms, or definitions..."
+                className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-purple-500"
+              />
+            </div>
+
+            {/* Checkboxes Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5 max-h-80 overflow-y-auto p-2 bg-slate-950/40 rounded-2xl border border-slate-800">
+              {(() => {
+                const recommendedIds = getDefaultDepartmentIdsForIndustry(formData.industry, formData.category);
+                let list = COMPLETE_DEPARTMENTS_CATALOGUE;
+                if (deptCatalogView === 'RECOMMENDED') {
+                  list = list.filter((d) => recommendedIds.includes(d.id));
+                }
+                if (deptSearchTerm.trim()) {
+                  const q = deptSearchTerm.toLowerCase();
+                  list = list.filter(
+                    (d) =>
+                      d.name.toLowerCase().includes(q) ||
+                      d.definitions.some((def) => def.toLowerCase().includes(q)) ||
+                      d.forms.some((f) => f.name.toLowerCase().includes(q) || f.code.toLowerCase().includes(q)) ||
+                      d.reports.some((r) => r.name.toLowerCase().includes(q) || r.code.toLowerCase().includes(q))
+                  );
+                }
+
+                if (list.length === 0) {
+                  return (
+                    <div className="col-span-full py-6 text-center text-slate-500 text-xs font-mono">
+                      No departments match search query "{deptSearchTerm}".
+                    </div>
+                  );
+                }
+
+                return list.map((dept) => {
+                  const isChecked = assignedDepartmentIds.includes(dept.id);
+                  const isRecommended = recommendedIds.includes(dept.id);
+
+                  return (
+                    <div
+                      key={dept.id}
+                      onClick={() => {
+                        if (isChecked) {
+                          setAssignedDepartmentIds(assignedDepartmentIds.filter((id) => id !== dept.id));
+                        } else {
+                          setAssignedDepartmentIds([...assignedDepartmentIds, dept.id]);
+                        }
+                      }}
+                      className={`p-2.5 rounded-xl border text-left text-xs transition-all cursor-pointer flex items-start gap-2.5 select-none ${
+                        isChecked
+                          ? 'bg-purple-950/40 border-purple-500/80 text-purple-100 shadow-sm'
+                          : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => {}}
+                        className="mt-0.5 rounded border-slate-700 text-purple-600 focus:ring-0 cursor-pointer"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="font-bold truncate text-[11px] text-slate-100">
+                            {dept.number}. {dept.name}
+                          </span>
+                          {isRecommended && (
+                            <span className="text-[9px] px-1.5 py-0.2 rounded bg-cyan-950 text-cyan-400 border border-cyan-800/50 shrink-0 font-mono">
+                              REC
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[10px] text-slate-400 mt-0.5 truncate">
+                          {dept.definitions.length} Defs · {dept.forms.length} Forms · {dept.reports.length} Reports
+                        </div>
+                      </div>
+                    </div>
+                  );
+                });
+              })()}
             </div>
           </div>
 

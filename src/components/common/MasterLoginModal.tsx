@@ -19,7 +19,7 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = tru
   const isMasterRequested = pathname === '/' || params.get('master') === 'true' || params.get('portal') === 'master';
   const companyFromUrl = params.get('company');
   const matchedCompany = companyFromUrl ? allCompanies.find(c => c.slug === companyFromUrl) : null;
-  const initialCompanySlug = matchedCompany?.slug || allCompanies[0]?.slug || 'albarka';
+  const initialCompanySlug = matchedCompany?.slug || allCompanies[0]?.slug || 'crest';
 
   const [showMasterToggle, setShowMasterToggle] = useState(isMasterRequested);
   const [loginType, setLoginType] = useState<'CLIENT' | 'MASTER'>(isMasterRequested ? 'MASTER' : 'CLIENT');
