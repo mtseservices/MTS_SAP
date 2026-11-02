@@ -12,6 +12,8 @@ import { TenantManagement } from './components/master/TenantManagement';
 import { SubscriptionBillingManager } from './components/master/SubscriptionBillingManager';
 import { SystemHealthWidget } from './components/master/SystemHealthWidget';
 import { RateLimitManager } from './components/master/RateLimitManager';
+import { MasterSettingsDashboard } from './components/master/MasterSettingsDashboard';
+import { UserCreationManager } from './components/master/UserCreationManager';
 
 // Client Tenant ERP Views
 import { ClientDashboard } from './components/client/ClientDashboard';
@@ -28,6 +30,7 @@ import { AiAssistantModule } from './components/client/AiAssistantModule';
 import { CompanySettingsModule } from './components/client/CompanySettingsModule';
 import { CrmModule } from './components/client/CrmModule';
 import { DepartmentMasterModule } from './components/client/DepartmentMasterModule';
+import { PerformanceMetricsDashboard } from './components/client/PerformanceMetricsDashboard';
 
 import { LanguageProvider } from './context/LanguageContext';
 import { MasterLoginModal } from './components/common/MasterLoginModal';
@@ -45,7 +48,7 @@ function MainLayout() {
     const validTabs: ActiveTab[] = [
       'dashboard', 'departments', 'finance', 'procurement', 'inventory', 'sales',
       'production', 'hr', 'formBuilder', 'reports', 'approvals',
-      'aiAssistant', 'auditLogs', 'companySettings', 'crm', 'masterDashboard',
+      'aiAssistant', 'auditLogs', 'companySettings', 'crm', 'performanceMetrics', 'masterDashboard',
       'masterCompanies', 'masterSubdomains', 'masterRegister',
       'masterSubscriptions', 'masterAudit', 'masterSystemHealth', 'masterRateLimits'
     ];
@@ -137,6 +140,14 @@ function MainLayout() {
             <RateLimitManager />
           )}
 
+          {isMasterPortal && activeTab === 'masterSettings' && (
+            <MasterSettingsDashboard />
+          )}
+
+          {isMasterPortal && activeTab === 'masterUserCreation' && (
+            <UserCreationManager />
+          )}
+
           {/* Client Tenant ERP Views */}
           {!isMasterPortal && activeTab === 'dashboard' && (
             <ClientDashboard onNavigateTab={(tab) => setActiveTab(tab)} />
@@ -156,6 +167,7 @@ function MainLayout() {
           {!isMasterPortal && activeTab === 'auditLogs' && <AuditLogViewer />}
           {!isMasterPortal && activeTab === 'companySettings' && <CompanySettingsModule />}
           {!isMasterPortal && activeTab === 'crm' && <CrmModule />}
+          {!isMasterPortal && activeTab === 'performanceMetrics' && <PerformanceMetricsDashboard />}
         </main>
       </div>
 

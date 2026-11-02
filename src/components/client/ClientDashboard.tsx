@@ -53,6 +53,7 @@ import { subscribeCompanyVouchers } from '../../services/firebaseAccounting';
 import { QrScannerModal, ScannedItemPayload } from '../common/QrScannerModal';
 import { SubscriptionTrialModal } from '../common/SubscriptionTrialModal';
 import { INITIAL_INVENTORY, INITIAL_ACCOUNTS } from '../../services/mockData';
+import { PerformanceMetricsDashboard } from './PerformanceMetricsDashboard';
 
 interface ClientDashboardProps {
   onNavigateTab: (tab: ActiveTab) => void;
@@ -115,7 +116,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ onNavigateTab 
   const [newWidgetType, setNewWidgetType] = useState<'metric' | 'bar' | 'pie'>('bar');
 
   // Widget Reordering & Personalization State
-  const baseDefaultWidgets = ['topBanner', 'countdownBanner', 'expiringAlert', 'kpiCards', 'financialSummary', 'actionHub'];
+  const baseDefaultWidgets = ['topBanner', 'countdownBanner', 'expiringAlert', 'performanceMetrics', 'kpiCards', 'financialSummary', 'actionHub'];
   const defaultWidgets = [...baseDefaultWidgets, ...customWidgets.map(w => w.id)];
 
   const [widgetOrder, setWidgetOrder] = useState<string[]>(() => {
@@ -561,6 +562,9 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ onNavigateTab 
               </button>
             </div>
           );
+
+        case 'performanceMetrics':
+          return <PerformanceMetricsDashboard />;
 
         case 'kpiCards':
           return (

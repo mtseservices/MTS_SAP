@@ -81,6 +81,20 @@
         "instructions": { "type": "string" }
       },
       "required": ["id", "bankName", "accountTitle", "accountNumber", "iban", "isActive"]
+    },
+    "ClientUser": {
+      "title": "Client User",
+      "description": "User associated with a specific company tenant",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "tenantId": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string" },
+        "invitationToken": { "type": "string" }
+      },
+      "required": ["userId", "tenantId", "name", "email", "role"]
     }
   },
   "firestore": {
@@ -95,6 +109,10 @@
     "/tenants/{tenantId}/companies/{companyId}": {
       "schema": "ClientCompany",
       "description": "Tenant company settings"
+    },
+    "/tenants/{tenantId}/users/{userId}": {
+      "schema": "ClientUser",
+      "description": "Users within a tenant"
     },
     "/tenants/{tenantId}/vouchers/{voucherId}": {
       "schema": "JournalVoucher",

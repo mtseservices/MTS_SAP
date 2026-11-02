@@ -46,6 +46,7 @@ export type ActiveTab =
   | 'companySettings'
   | 'auditLogs'
   | 'crm'
+  | 'performanceMetrics'
   // Master Admin Tabs
   | 'masterDashboard'
   | 'masterCompanies'
@@ -90,6 +91,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
     { id: 'masterAudit' as ActiveTab, label: 'Global Audit Logs', icon: History },
     { id: 'masterSystemHealth' as ActiveTab, label: 'System Health & Ping', icon: Activity },
     { id: 'masterRateLimits' as ActiveTab, label: 'API Rate Limits & Quotas', icon: ShieldAlert },
+    { id: 'masterSettings' as ActiveTab, label: 'System Settings', icon: Settings },
+    { id: 'masterUserCreation' as ActiveTab, label: 'User Creation Portal', icon: Users },
   ];
 
   // Detailed Department Menu Hierarchy
@@ -223,6 +226,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
   const utilityItems = [
     { id: 'departments' as ActiveTab, label: '130 Department Master', icon: FolderTree },
     { id: 'crm' as ActiveTab, label: 'CRM & Sales Pipeline', icon: Users },
+    { id: 'performanceMetrics' as ActiveTab, label: 'Performance Metrics', icon: TrendingUp },
     { id: 'formBuilder' as ActiveTab, label: t('formBuilder'), icon: FileCheck2 },
     { id: 'reports' as ActiveTab, label: t('reports'), icon: BarChart3 },
     { id: 'approvals' as ActiveTab, label: t('approvals'), icon: ShieldCheck },
