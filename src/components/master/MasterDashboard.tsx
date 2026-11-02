@@ -19,11 +19,13 @@ import { TTSButton } from '../common/TTSButton';
 interface MasterDashboardProps {
   onNavigateRegister: () => void;
   onNavigateCompanies: () => void;
+  onNavigateApiAudit?: () => void;
 }
 
 export const MasterDashboard: React.FC<MasterDashboardProps> = ({
   onNavigateRegister,
-  onNavigateCompanies
+  onNavigateCompanies,
+  onNavigateApiAudit
 }) => {
   const { allCompanies } = useAuthTenant();
 
@@ -48,8 +50,17 @@ export const MasterDashboard: React.FC<MasterDashboardProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <TTSButton text={dashboardSpeech} label="Listen Briefing" size="lg" />
+          {onNavigateApiAudit && (
+            <button
+              onClick={onNavigateApiAudit}
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-cyan-600/30 hover:bg-cyan-600/50 text-cyan-300 font-bold text-xs border border-cyan-500/40 shadow-lg shadow-cyan-950/40 transition-all"
+            >
+              <Activity className="w-4 h-4 text-cyan-400" />
+              API Telemetry & Audit
+            </button>
+          )}
           <button
             onClick={onNavigateRegister}
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-lg shadow-purple-600/30 transition-all"

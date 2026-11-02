@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { auditLogger } from '../services/auditLogger';
+import { auditLogger } from '../../services/auditLogger';
 import { UserRole } from '../../types/erp';
 
 interface EnterpriseFormTemplateProps {

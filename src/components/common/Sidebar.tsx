@@ -25,7 +25,8 @@ import {
   PieChart,
   Activity,
   ShieldAlert,
-  TrendingUp
+  TrendingUp,
+  Network
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -55,6 +56,7 @@ export type ActiveTab =
   | 'masterSubdomains'
   | 'masterSubscriptions'
   | 'masterAudit'
+  | 'masterApiAudit'
   | 'masterSystemHealth'
   | 'masterRateLimits'
   | 'masterSettings'
@@ -92,6 +94,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
     { id: 'masterSubdomains' as ActiveTab, label: 'Company URLs & Slugs', icon: Globe2 },
     { id: 'masterSubscriptions' as ActiveTab, label: 'Subscription & Billing', icon: CreditCard },
     { id: 'masterAudit' as ActiveTab, label: 'Global Audit Logs', icon: History },
+    { id: 'masterApiAudit' as ActiveTab, label: 'System API Audit', icon: Network },
     { id: 'masterSystemHealth' as ActiveTab, label: 'System Health & Ping', icon: Activity },
     { id: 'masterRateLimits' as ActiveTab, label: 'API Rate Limits & Quotas', icon: ShieldAlert },
     { id: 'masterSettings' as ActiveTab, label: 'System Settings', icon: Settings },

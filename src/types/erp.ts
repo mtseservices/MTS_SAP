@@ -509,3 +509,39 @@ export interface NotificationItem {
   read: boolean;
   timestamp: string;
 }
+
+// --- SYSTEM API AUDIT & OBSERVABILITY TYPES ---
+
+export type ApiDirection = 'INCOMING' | 'OUTGOING';
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+export type ApiCategory = 
+  | 'FINANCE' 
+  | 'INVENTORY' 
+  | 'PROCUREMENT' 
+  | 'AUTH' 
+  | 'TAX_FBR' 
+  | 'BANK_GATEWAY' 
+  | 'AI_OCR' 
+  | 'SYSTEM';
+
+export interface ApiAuditLogEntry {
+  id: string;
+  timestamp: string;
+  tenantId: string;
+  tenantSlug: string;
+  tenantName: string;
+  direction: ApiDirection;
+  method: HttpMethod;
+  endpoint: string;
+  statusCode: number;
+  statusText: string;
+  latencyMs: number;
+  clientIp: string;
+  geoRegion: string;
+  userAgent?: string;
+  serviceCategory: ApiCategory;
+  requestPayloadSummary?: string;
+  responsePayloadSummary?: string;
+  errorMessage?: string;
+  headers?: Record<string, string>;
+}

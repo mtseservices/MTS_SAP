@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Settings, Shield, Palette, Type, Save, Database, Download } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { BrandingConfigurator } from '../common/BrandingConfigurator';
+import { ReportConfigManager } from './ReportConfigManager';
 
 export const MasterSettingsDashboard: React.FC = () => {
   const { allCompanies } = useAuthTenant();
@@ -33,6 +34,7 @@ export const MasterSettingsDashboard: React.FC = () => {
 
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
         <BrandingConfigurator isGlobal onSave={(b) => console.log('Saved Global Branding', b)} />
+        <ReportConfigManager />
         
         {/* Security Section */}
         <section className="space-y-3">

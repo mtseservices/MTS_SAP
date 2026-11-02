@@ -14,6 +14,7 @@ import { SystemHealthWidget } from './components/master/SystemHealthWidget';
 import { RateLimitManager } from './components/master/RateLimitManager';
 import { MasterSettingsDashboard } from './components/master/MasterSettingsDashboard';
 import { UserCreationManager } from './components/master/UserCreationManager';
+import { SystemApiAuditViewer } from './components/master/SystemApiAuditViewer';
 
 // Client Tenant ERP Views
 import { ClientDashboard } from './components/client/ClientDashboard';
@@ -50,7 +51,8 @@ function MainLayout() {
       'production', 'hr', 'formBuilder', 'reports', 'approvals',
       'aiAssistant', 'auditLogs', 'companySettings', 'crm', 'performanceMetrics', 'masterDashboard',
       'masterCompanies', 'masterSubdomains', 'masterRegister',
-      'masterSubscriptions', 'masterAudit', 'masterSystemHealth', 'masterRateLimits'
+      'masterSubscriptions', 'masterAudit', 'masterApiAudit', 'masterSystemHealth', 'masterRateLimits',
+      'masterSettings', 'masterUserCreation'
     ];
 
     const targetTab = (moduleParam && validTabs.includes(moduleParam))
@@ -111,6 +113,7 @@ function MainLayout() {
             <MasterDashboard
               onNavigateRegister={() => setActiveTab('masterRegister')}
               onNavigateCompanies={() => setActiveTab('masterCompanies')}
+              onNavigateApiAudit={() => setActiveTab('masterApiAudit')}
             />
           )}
 
@@ -128,6 +131,10 @@ function MainLayout() {
 
           {isMasterPortal && activeTab === 'masterAudit' && (
             <AuditLogViewer />
+          )}
+
+          {isMasterPortal && activeTab === 'masterApiAudit' && (
+            <SystemApiAuditViewer />
           )}
 
           {isMasterPortal && activeTab === 'masterSystemHealth' && (
