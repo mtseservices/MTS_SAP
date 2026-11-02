@@ -83,10 +83,10 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = tru
       // Strict Master Admin Password Check
       // Valid Master Username: MTS-ERP-SAP or master.admin@mts-erp.pk
       // Valid Master Password: MtsAdmin@2026! (strictly case sensitive, no bypass)
-      const isMasterUserMatch = cleanUser.toLowerCase() === 'mts-erp-sap' || 
+      const isMasterUserMatch = cleanUser.toLowerCase() === 'mts-sap' || 
                                cleanUser.toLowerCase() === 'master.admin@mts-erp.pk';
       
-      const isMasterPasswordMatch = cleanPass === 'MtsAdmin@2026!';
+      const isMasterPasswordMatch = cleanPass === 'mts-sap';
 
       if (isMasterUserMatch && isMasterPasswordMatch) {
         setFailedAttempts(0);
@@ -343,7 +343,7 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = tru
                 {loginType === 'MASTER' ? 'Master Security Password' : 'Password'}
               </label>
               <span className="text-[10px] text-cyan-400 font-mono">
-                {loginType === 'MASTER' ? 'Password: MtsAdmin@2026!' : 'Password: Client@123'}
+                {loginType === 'MASTER' ? 'Password: mts-sap' : 'Password: Client@123'}
               </span>
             </div>
             <div className="relative">
