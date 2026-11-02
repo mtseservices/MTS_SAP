@@ -36,7 +36,7 @@ import { db } from '../../services/firebaseConfig';
 
 export const CompanySettingsModule: React.FC = () => {
   const { currentCompany, setCurrentCompany, theme, setTheme, allBranches, isMasterPortal, currentUser } = useAuthTenant();
-  const [activeTab, setActiveTab] = useState<'basic' | 'advanced' | 'subscription' | 'appearance' | 'security' | 'documents'>('basic');
+  const [activeTab, setActiveTab] = useState<'basic' | 'advanced' | 'subscription' | 'appearance' | 'security' | 'documents' | 'partnership'>('basic');
 
   // Documents Vault State
   const [documents, setDocuments] = useState<CompanyDocument[]>(
@@ -112,6 +112,14 @@ export const CompanySettingsModule: React.FC = () => {
   const [passwordSuccess, setPasswordSuccess] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
+  // Partnership Details
+  const [partnershipName, setPartnershipName] = useState(currentCompany.partnershipDetails?.name || '');
+  const [partnershipReg, setPartnershipReg] = useState(currentCompany.partnershipDetails?.registrationNumber || '');
+  const [partnershipAddress, setPartnershipAddress] = useState(currentCompany.partnershipDetails?.address || '');
+  const [partnershipContactPerson, setPartnershipContactPerson] = useState(currentCompany.partnershipDetails?.contactPerson || '');
+  const [partnershipEmail, setPartnershipEmail] = useState(currentCompany.partnershipDetails?.contactEmail || '');
+  const [partnershipPhone, setPartnershipPhone] = useState(currentCompany.partnershipDetails?.contactPhone || '');
+
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   // Favicon Synchronization Effect: Automatically update browser tab favicon with logo URL
@@ -163,7 +171,15 @@ export const CompanySettingsModule: React.FC = () => {
       tablePattern: selectedTablePattern,
       tableLayoutPattern: selectedTableLayout,
       fontFamily: selectedFont,
-      documents
+      documents,
+      partnershipDetails: {
+        name: partnershipName,
+        registrationNumber: partnershipReg,
+        address: partnershipAddress,
+        contactPerson: partnershipContactPerson,
+        contactEmail: partnershipEmail,
+        contactPhone: partnershipPhone
+      }
     };
 
     // Update Context & Firestore
@@ -389,6 +405,14 @@ export const CompanySettingsModule: React.FC = () => {
           }`}
         >
           <FileText className="w-4 h-4" /> Documents Vault ({documents.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('partnership')}
+          className={`px-4 py-2.5 rounded-xl transition-all cursor-pointer flex items-center gap-2 ${
+            activeTab === 'partnership' ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-600/30' : 'bg-slate-900 text-slate-400 hover:text-slate-100 hover:bg-slate-800'
+          }`}
+        >
+          <Users className="w-4 h-4" /> Partnership Details
         </button>
       </div>
 
@@ -1042,6 +1066,72 @@ export const CompanySettingsModule: React.FC = () => {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB: PARTNERSHIP DETAILS */}
+        {activeTab === 'partnership' && (
+          <div className="space-y-6 animate-in fade-in">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-2 border-b border-slate-800 pb-2">
+              <Users className="w-4 h-4" /> Partnership Setup Details
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Partnership Name</label>
+                <input
+                  type="text"
+                  value={partnershipName}
+                  onChange={(e) => setPartnershipName(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-semibold focus:outline-none focus:border-cyan-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Registration Number</label>
+                <input
+                  type="text"
+                  value={partnershipReg}
+                  onChange={(e) => setPartnershipReg(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-semibold focus:outline-none focus:border-cyan-500"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Partnership Address</label>
+                <input
+                  type="text"
+                  value={partnershipAddress}
+                  onChange={(e) => setPartnershipAddress(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-semibold focus:outline-none focus:border-cyan-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Contact Person</label>
+                <input
+                  type="text"
+                  value={partnershipContactPerson}
+                  onChange={(e) => setPartnershipContactPerson(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-semibold focus:outline-none focus:border-cyan-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Contact Email</label>
+                <input
+                  type="email"
+                  value={partnershipEmail}
+                  onChange={(e) => setPartnershipEmail(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-semibold focus:outline-none focus:border-cyan-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Contact Phone</label>
+                <input
+                  type="text"
+                  value={partnershipPhone}
+                  onChange={(e) => setPartnershipPhone(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-semibold focus:outline-none focus:border-cyan-500"
+                />
               </div>
             </div>
           </div>

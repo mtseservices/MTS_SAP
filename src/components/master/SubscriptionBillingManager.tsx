@@ -336,7 +336,7 @@ export const SubscriptionBillingManager: React.FC = () => {
     setVMethod(comp.lastPaymentMethod || 'Meezan Bank IBFT');
     setVTxnId(comp.lastPaymentTxnId || `MZB-${Date.now().toString().slice(-6)}`);
     setVPlan(comp.subscriptionPlan || 'Professional Enterprise');
-    setVCycle(comp.subscriptionCycle || 'Monthly');
+    setVCycle((comp.subscriptionCycle as SubscriptionCycle) || 'Monthly');
     setVDays(comp.subscriptionCycle === 'Yearly' ? 365 : 30);
     setShowVerifyModal(true);
   };

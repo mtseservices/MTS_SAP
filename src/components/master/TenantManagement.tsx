@@ -33,7 +33,7 @@ export const TenantManagement: React.FC = () => {
     setAllCompanies(prev =>
       prev.map(c => {
         if (c.id === id) {
-          const newStatus = c.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
+          const newStatus = (c.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE') as 'ACTIVE' | 'SUSPENDED' | 'INACTIVE';
           return { ...c, status: newStatus };
         }
         return c;
@@ -42,7 +42,7 @@ export const TenantManagement: React.FC = () => {
   };
 
   const handleArchiveCompany = async (comp: ClientCompany) => {
-    const updated = { ...comp, isArchived: true, status: 'INACTIVE' };
+    const updated = { ...comp, isArchived: true, status: 'INACTIVE' as 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' };
     setAllCompanies(prev => prev.map(c => c.id === comp.id ? updated : c));
     try {
       await setDoc(doc(db, 'companies', comp.id), updated, { merge: true });
@@ -61,7 +61,7 @@ export const TenantManagement: React.FC = () => {
   };
 
   const handleRestoreCompany = async (comp: ClientCompany) => {
-    const updated = { ...comp, isArchived: false, status: 'ACTIVE' };
+    const updated = { ...comp, isArchived: false, status: 'ACTIVE' as 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' };
     setAllCompanies(prev => prev.map(c => c.id === comp.id ? updated : c));
     try {
       await setDoc(doc(db, 'companies', comp.id), updated, { merge: true });

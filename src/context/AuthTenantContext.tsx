@@ -504,6 +504,7 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       paymentMethod: string;
       amount: number;
       txnId: string;
+      paymentStatus?: 'PAID' | 'PENDING' | 'OVERDUE' | 'TRIAL';
     }
   ): Promise<void> => {
     const payStatus = data.paymentStatus || (data.amount > 0 ? 'PAID' : (data.daysRemaining > 0 ? 'TRIAL' : 'PENDING'));

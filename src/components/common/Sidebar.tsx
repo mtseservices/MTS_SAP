@@ -24,7 +24,8 @@ import {
   FileText,
   PieChart,
   Activity,
-  ShieldAlert
+  ShieldAlert,
+  TrendingUp
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -55,7 +56,9 @@ export type ActiveTab =
   | 'masterSubscriptions'
   | 'masterAudit'
   | 'masterSystemHealth'
-  | 'masterRateLimits';
+  | 'masterRateLimits'
+  | 'masterSettings'
+  | 'masterUserCreation';
 
 interface SidebarProps {
   activeTab: ActiveTab;

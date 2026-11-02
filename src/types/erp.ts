@@ -115,6 +115,14 @@ export interface ClientCompany {
   }[];
   documents?: CompanyDocument[];
   isArchived?: boolean;
+  partnershipDetails?: {
+    name: string;
+    registrationNumber: string;
+    address: string;
+    contactPerson: string;
+    contactEmail: string;
+    contactPhone: string;
+  };
 }
 
 export interface CompanyDocument {
