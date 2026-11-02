@@ -33,7 +33,8 @@ import {
   Flame,
   Truck,
   FileSpreadsheet,
-  Download
+  Download,
+  GitCommit
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -76,7 +77,8 @@ export type ActiveTab =
   | 'masterSettings'
   | 'masterUserCreation'
   | 'masterSystemSecurity'
-  | 'masterBatchExport';
+  | 'masterBatchExport'
+  | 'masterWorkflowEditor';
 
 interface SidebarProps {
   activeTab: ActiveTab;
@@ -150,6 +152,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
     { id: 'masterUserCreation' as ActiveTab, label: 'User Creation Portal', icon: Users },
     { id: 'masterSystemSecurity' as ActiveTab, label: 'System Security & Sessions', icon: ShieldAlert },
     { id: 'masterBatchExport' as ActiveTab, label: 'Batch Client Data Export', icon: Download },
+    { id: 'masterWorkflowEditor' as ActiveTab, label: 'Approval Workflow Editor', icon: GitCommit },
   ];
 
   // Helper utility items (The isolated "130 Department Master" bottom link has been removed as requested)

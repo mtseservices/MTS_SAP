@@ -40,6 +40,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../../services/firebaseConfig';
 import { getDefaultDepartmentIdsForIndustry } from '../../services/departmentCategoryMapper';
 import { COMPLETE_DEPARTMENTS_CATALOGUE } from '../../services/departmentCatalogueData';
+import { PAKISTAN_PROVINCES_CITIES, getCitiesForProvince } from '../../services/pakistanRegions';
 
 interface CompanyRegistrationWizardProps {
   onSuccess: (slug: string) => void;
@@ -171,6 +172,34 @@ export const CompanyRegistrationWizard: React.FC<CompanyRegistrationWizardProps>
       slug: generatedSlug,
       adminUsername: `admin_${generatedSlug}`
     });
+  };
+
+  const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const res = event.target?.result;
+        if (res && typeof res === 'string') {
+          setFormData(prev => ({ ...prev, logoUrl: res }));
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleBgFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const res = event.target?.result;
+        if (res && typeof res === 'string') {
+          setFormData(prev => ({ ...prev, backgroundUrl: res }));
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const calculateBill = () => {
@@ -431,13 +460,32 @@ Password: ${createdCompanyDetails.password}`;
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Province / Territory</label>
+                  <select
+                    value={formData.province}
+                    onChange={(e) => {
+                      const newProv = e.target.value;
+                      const cities = getCitiesForProvince(newProv);
+                      setFormData({ ...formData, province: newProv, city: cities[0] || '' });
+                    }}
+                    className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-purple-300 font-bold"
+                  >
+                    {PAKISTAN_PROVINCES_CITIES.map(p => (
+                      <option key={p.province} value={p.province}>{p.province}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Primary City</label>
-                  <input
-                    type="text"
+                  <select
                     value={formData.city}
                     onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-100"
-                  />
+                    className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-100 font-bold"
+                  >
+                    {getCitiesForProvince(formData.province).map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Contact Phone</label>
@@ -633,26 +681,38 @@ Password: ${createdCompanyDetails.password}`;
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                        <Upload className="w-3 h-3" /> Company Logo URL
+                        <Upload className="w-3 h-3" /> Company Logo (URL or PC File)
                       </label>
                       <input
                         type="text"
                         value={formData.logoUrl}
                         onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
-                        placeholder="https://example.com/logo.png"
-                        className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-indigo-300 font-mono focus:border-indigo-500"
+                        placeholder="https://... or upload from PC"
+                        className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-indigo-300 font-mono focus:border-indigo-500 mb-2"
+                      />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleLogoFileChange}
+                        className="w-full text-[10px] text-slate-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer"
                       />
                     </div>
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                        <Upload className="w-3 h-3" /> Login Background URL
+                        <Upload className="w-3 h-3" /> Login Background (URL or PC File)
                       </label>
                       <input
                         type="text"
                         value={formData.backgroundUrl}
                         onChange={(e) => setFormData({ ...formData, backgroundUrl: e.target.value })}
-                        placeholder="https://example.com/bg.jpg"
-                        className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-indigo-300 font-mono focus:border-indigo-500"
+                        placeholder="https://... or upload from PC"
+                        className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-indigo-300 font-mono focus:border-indigo-500 mb-2"
+                      />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleBgFileChange}
+                        className="w-full text-[10px] text-slate-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer"
                       />
                     </div>
                   </div>

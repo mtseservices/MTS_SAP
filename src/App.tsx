@@ -19,6 +19,7 @@ import { SystemApiAuditViewer } from './components/master/SystemApiAuditViewer';
 import { AuditInsightsDashboard } from './components/master/AuditInsightsDashboard';
 import { SystemSecurityDashboard } from './components/master/SystemSecurityDashboard';
 import { BatchClientDataExport } from './components/master/BatchClientDataExport';
+import { ApprovalWorkflowEditor } from './components/master/ApprovalWorkflowEditor';
 
 // Client Tenant ERP Views
 import { ClientDashboard } from './components/client/ClientDashboard';
@@ -56,7 +57,7 @@ function MainLayout() {
       'aiAssistant', 'auditLogs', 'companySettings', 'crm', 'performanceMetrics', 'masterDashboard',
       'masterCompanies', 'masterSubdomains', 'masterRegister',
       'masterSubscriptions', 'masterAudit', 'masterApiAudit', 'masterAuditInsights', 'masterSystemHealth', 'masterRateLimits',
-      'masterSettings', 'masterUserCreation', 'masterSystemSecurity', 'masterBatchExport'
+      'masterSettings', 'masterUserCreation', 'masterSystemSecurity', 'masterBatchExport', 'masterWorkflowEditor'
     ];
 
     const targetTab = (moduleParam && validTabs.includes(moduleParam))
@@ -175,6 +176,10 @@ function MainLayout() {
 
           {isMasterPortal && activeTab === 'masterBatchExport' && (
             <BatchClientDataExport />
+          )}
+
+          {isMasterPortal && activeTab === 'masterWorkflowEditor' && (
+            <ApprovalWorkflowEditor />
           )}
 
           {/* Client Tenant ERP Views */}
