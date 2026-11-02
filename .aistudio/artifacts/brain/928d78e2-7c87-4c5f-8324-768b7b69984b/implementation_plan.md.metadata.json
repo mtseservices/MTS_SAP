@@ -1,6 +1,6 @@
 {
-  "summary": "Implementation plan for standardizing ERP modules, localization, and functional tenant login URLs.",
-  "updatedAt": "2026-11-02T13:51:55.032797313Z",
+  "summary": "Implementation plan for a metadata-driven ERP reporting and form system using a central JSON registry.",
+  "updatedAt": "2026-11-02T14:06:00.668352437Z",
   "requestFeedback": true,
   "userFacing": true
 }

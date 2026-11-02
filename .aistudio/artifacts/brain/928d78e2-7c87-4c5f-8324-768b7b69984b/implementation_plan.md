@@ -1,22 +1,26 @@
-# ERP Standardization and Localization Plan
+# ERP Report & Form Standardization Plan
 
-## 1. Functional Tenant Login URLs
-- **URL Structure**: `https://app.mts-erp.pk/[tenant-slug]/login`
-- **Implementation**: 
-  - Add a utility function `generateLoginUrl(tenantSlug: string)` to `src/services/tenantResolver.ts`.
-  - Add "Copy Login URL" action buttons in:
-    - Master Admin Dashboard Sidebar.
-    - Tenant Management Table.
-    - Client Detail View/Drawer.
+## 1. Central Configuration Registry
+- **File**: `src/config/reportFormRegistry.ts`
+- **Purpose**: A central TypeScript/JSON registry mapping report/form IDs to their required fields, validation rules, and default columns.
+- **Structure**:
+  ```typescript
+  export const ReportFormRegistry = {
+    'DAILY_POS_REP': {
+      title: 'Daily POS Sales Summary',
+      fields: ['fromDate', 'toDate', 'voucherType', 'voucherNo', 'vheaderId', 'detailLevel'],
+      defaultColumns: ['date', 'voucherNo', 'amount', 'tax', 'netAmount'],
+    },
+    // ... add mappings for 130+ modules
+  };
+  ```
 
-## 2. Localization Strategy (Pakistani Business Market)
-- **Enhanced Translations**: Extend `src/services/translations.ts` to include:
-  - Standard ERP terms (GL, P&L, etc.).
-  - Local Tax terminology: GST (General Sales Tax), WHT (Withholding Tax), FED (Federal Excise Duty), Advance Income Tax.
-- **Implementation**: Inject these localized labels into the `EnterpriseFormTemplate` and `EnterpriseReportTemplate` components via a localization hook.
+## 2. Dynamic Component Framework
+- **EnterpriseFormFactory**: A new component that takes a `formId` from the registry and renders the appropriate UI components dynamically.
+- **EnterpriseReportTable**: A new component that takes a `reportId` and dynamically builds columns based on the registry.
 
-## 3. Module Standardisation (Priority Refactor)
-- **Template Application**: Refactor `FinanceAccountsModule`, `InventoryModule`, and `ProcurementModule` to use:
-  - `EnterpriseFormTemplate` for all data entry.
-  - `EnterpriseReportTemplate` for all reporting.
-- **Professional Layout**: Ensure audit trails, approval workflows, and standardized status management are active in all three modules.
+## 3. Implementation Roadmap
+1. **Foundation**: Create `src/config/reportFormRegistry.ts` with initial mappings for Finance, Inventory, and Sales.
+2. **Infrastructure**: Implement `EnterpriseFormFactory` and `EnterpriseReportTable` to read from this registry.
+3. **Migration**: Refactor existing modules (`FinanceAccountsModule`, `InventoryModule`, etc.) to replace hardcoded popups with the new factory components.
+4. **List View Standardization**: Implement a standardized `DataTable` component that accepts `defaultColumns` from the registry for all invoice/bill/voucher lists.
