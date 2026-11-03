@@ -44,6 +44,7 @@ import { PartnershipManagementModule } from './components/partnership/Partnershi
 
 import { LanguageProvider } from './context/LanguageContext';
 import { MasterLoginModal } from './components/common/MasterLoginModal';
+import { TenantRouteHandler } from './components/common/TenantRouteHandler';
 import { initOfflineSyncListener } from './services/offlineSyncService';
 
 function MainLayout() {
@@ -267,7 +268,9 @@ export default function App() {
   return (
     <LanguageProvider>
       <AuthTenantProvider>
-        <RootApp />
+        <TenantRouteHandler>
+          <RootApp />
+        </TenantRouteHandler>
       </AuthTenantProvider>
     </LanguageProvider>
   );

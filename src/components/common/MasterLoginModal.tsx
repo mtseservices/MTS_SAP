@@ -15,7 +15,10 @@ import {
   Globe,
   Copy,
   Check,
-  ExternalLink
+  ExternalLink,
+  Mail,
+  ArrowLeft,
+  CheckCircle2
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { auth, googleProvider } from '../../services/firebaseConfig';
@@ -32,29 +35,50 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({
   onClose,
   isStandalone = false
 }) => {
-  const { allCompanies, login, sessionLockNotice } = useAuthTenant();
+  const { allCompanies, login, loginWithGoogle, resetTenantPassword, sessionLockNotice } = useAuthTenant();
 
   const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
   const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
+
+  // Extract tenant slug from query param OR path (/login/:slug, /company/:slug, /tenant/:slug)
+  let extractedSlug = params.get('company') || params.get('tenant');
+  if (!extractedSlug && pathname !== '/') {
+    if (pathname.startsWith('/login/')) {
+      extractedSlug = pathname.replace('/login/', '').split('/')[0];
+    } else if (pathname.startsWith('/company/')) {
+      extractedSlug = pathname.replace('/company/', '').split('/')[0];
+    } else if (pathname.startsWith('/tenant/')) {
+      extractedSlug = pathname.replace('/tenant/', '').split('/')[0];
+    }
+  }
+
   const isMasterRequested =
-    pathname === '/' || params.get('master') === 'true' || params.get('portal') === 'master';
-  const companyFromUrl = params.get('company');
-  const isClientUrl = Boolean(companyFromUrl);
-  const matchedCompany = companyFromUrl ? allCompanies.find((c) => c.slug === companyFromUrl) : null;
+    (pathname === '/' && !extractedSlug) || params.get('master') === 'true' || params.get('portal') === 'master';
+  const isClientUrl = Boolean(extractedSlug);
+  const matchedCompany = extractedSlug
+    ? allCompanies.find((c) => c.slug.toLowerCase() === extractedSlug!.toLowerCase())
+    : null;
   const currentComp = matchedCompany || allCompanies[0];
+  const activeSlug = currentComp?.slug || extractedSlug || 'crest';
 
   const loginTemplate = currentComp?.loginTemplateId || 'split';
 
   const [loginType, setLoginType] = useState<'CLIENT' | 'MASTER'>(
     isClientUrl ? 'CLIENT' : (isMasterRequested ? 'MASTER' : 'CLIENT')
   );
-  const [selectedCompanySlug] = useState(currentComp?.slug || 'crest');
   const [selectedRole] = useState<string>('CLIENT_ADMIN');
   const [username, setUsername] = useState(isClientUrl ? 'admin' : (isMasterRequested ? 'MTS-ERP-SAP' : 'admin'));
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedUrl, setCopiedUrl] = useState(false);
+
+  // Forgot Password State
+  const [isResetMode, setIsResetMode] = useState(false);
+  const [resetEmail, setResetEmail] = useState(currentComp?.adminEmail || '');
+  const [isSendingReset, setIsSendingReset] = useState(false);
+  const [resetSuccessMsg, setResetSuccessMsg] = useState<string | null>(null);
+  const [resetErrorMsg, setResetErrorMsg] = useState<string | null>(null);
 
   const MASTER_PORTAL_URL = 'https://mts-sap.vercel.app/';
 
@@ -64,6 +88,34 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({
     navigator.clipboard.writeText(MASTER_PORTAL_URL);
     setCopiedUrl(true);
     setTimeout(() => setCopiedUrl(false), 2000);
+  };
+
+  const handleOpenReset = () => {
+    setIsResetMode(true);
+    setResetEmail(currentComp?.adminEmail || '');
+    setResetSuccessMsg(null);
+    setResetErrorMsg(null);
+  };
+
+  const handleResetSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSendingReset(true);
+    setResetSuccessMsg(null);
+    setResetErrorMsg(null);
+    try {
+      await resetTenantPassword(resetEmail);
+      setResetSuccessMsg(`Password reset instructions have been sent to ${resetEmail}. Check your inbox to set a new password.`);
+    } catch (err: any) {
+      if (err.code === 'auth/user-not-found') {
+        setResetErrorMsg(`No registered administrator account found for ${resetEmail}.`);
+      } else if (err.code === 'auth/invalid-email') {
+        setResetErrorMsg('Please enter a valid email address format.');
+      } else {
+        setResetErrorMsg(err.message || 'Failed to send password reset email. Please verify credentials.');
+      }
+    } finally {
+      setIsSendingReset(false);
+    }
   };
 
   const handleLoginSubmit = (e: React.FormEvent) => {
@@ -91,12 +143,22 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({
         setErrorMsg('Invalid Master Admin credentials. Hint: Username "MTS-ERP-SAP" and Password "mts-sap".');
       }
     } else {
-      const validPass = ['client@123', '123456', 'admin123', 'password', 'same', 'crest@2026'];
+      const validPass = [
+        currentComp?.adminPassword?.toLowerCase(),
+        'client@123',
+        '123456',
+        'admin123',
+        'password',
+        'same',
+        'crest@2026',
+        'mts-sap'
+      ].filter(Boolean);
+
       if (validPass.includes(cleanPass.toLowerCase()) || cleanPass.length >= 4) {
-        login('CLIENT', selectedCompanySlug, selectedRole);
+        login('CLIENT', activeSlug, selectedRole);
         if (onClose) onClose();
       } else {
-        setErrorMsg('Invalid client security password. (Try: Client@123 or 123456).');
+        setErrorMsg(`Invalid client security password for ${currentComp?.name || 'organization'}.`);
       }
     }
   };
@@ -107,19 +169,14 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({
     setIsGoogleSigningIn(true);
     setErrorMsg(null);
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      if (result.user) {
-        login('CLIENT', selectedCompanySlug, selectedRole);
-        if (onClose) onClose();
-      }
+      await loginWithGoogle(activeSlug);
+      if (onClose) onClose();
     } catch (err: any) {
       console.warn('Google sign-in error:', err);
       if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
-        setErrorMsg('Google sign-in popup was closed.');
+        setErrorMsg('Google sign-in window was closed.');
       } else {
-        // Fallback login for tenant client admin
-        login('CLIENT', selectedCompanySlug, selectedRole);
-        if (onClose) onClose();
+        setErrorMsg(err.message || 'Google authentication failed.');
       }
     } finally {
       setIsGoogleSigningIn(false);
@@ -141,6 +198,89 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({
   };
 
   const isCompanyInMaintenance = currentComp?.status === 'MAINTENANCE';
+
+  const renderResetForm = () => (
+    <form onSubmit={handleResetSubmit} className="space-y-4 animate-in fade-in">
+      <div className="p-3.5 rounded-2xl bg-slate-800/90 border border-cyan-500/30 shadow-lg relative overflow-hidden">
+        <div className="flex items-center justify-between border-b border-slate-700/60 pb-2">
+          <span className="text-[10px] uppercase font-bold text-cyan-400">Target Tenant Admin</span>
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+        </div>
+        <div className="flex items-center gap-3 mt-2.5">
+          {currentComp?.logoUrl ? (
+            <img
+              src={currentComp.logoUrl}
+              alt={currentComp.name}
+              className="w-10 h-10 rounded-xl object-contain bg-slate-900 p-1 border border-slate-700"
+            />
+          ) : (
+            <div className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
+              <Building2 className="w-5 h-5" />
+            </div>
+          )}
+          <div className="min-w-0 flex-1">
+            <div className="font-bold text-slate-100 text-xs truncate">{currentComp?.name}</div>
+            <div className="text-[9px] text-slate-400 font-mono truncate">
+              Default Admin: {currentComp?.adminEmail || 'admin@company.pk'}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <label className="text-[10px] font-bold uppercase text-slate-400 font-mono tracking-wider block">
+          Tenant Administrator Email
+        </label>
+        <div className="relative">
+          <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="email"
+            value={resetEmail}
+            onChange={(e) => setResetEmail(e.target.value)}
+            required
+            placeholder="admin@company.com"
+            className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-cyan-500 transition-all font-mono"
+          />
+        </div>
+      </div>
+
+      {resetSuccessMsg && (
+        <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2 shadow-lg">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{resetSuccessMsg}</span>
+        </div>
+      )}
+
+      {resetErrorMsg && (
+        <div className="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2 shadow-lg">
+          <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+          <span>{resetErrorMsg}</span>
+        </div>
+      )}
+
+      <button
+        type="submit"
+        disabled={isSendingReset}
+        className="w-full py-3 rounded-xl font-bold text-xs bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 shadow-cyan-600/20 text-white transition-all transform active:scale-95 cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
+      >
+        <Mail className="w-4 h-4" />
+        <span>{isSendingReset ? 'Sending Reset Email...' : 'Send Password Reset Email'}</span>
+      </button>
+
+      <button
+        type="button"
+        onClick={() => {
+          setIsResetMode(false);
+          setResetSuccessMsg(null);
+          setResetErrorMsg(null);
+        }}
+        className="w-full py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        <span>Back to Sign In</span>
+      </button>
+    </form>
+  );
 
   const renderForm = () => (
     <form onSubmit={handleLoginSubmit} className="space-y-4">
@@ -244,13 +384,23 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
             </div>
           </div>
-          <div className="flex items-center gap-2.5 mt-2.5">
-            <div className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
-              <Building2 className="w-4 h-4" />
-            </div>
+          <div className="flex items-center gap-3 mt-2.5">
+            {currentComp?.logoUrl ? (
+              <img
+                src={currentComp.logoUrl}
+                alt={currentComp.name}
+                className="w-10 h-10 rounded-xl object-contain bg-slate-900 p-1 border border-slate-700"
+              />
+            ) : (
+              <div className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
+                <Building2 className="w-5 h-5" />
+              </div>
+            )}
             <div className="min-w-0 flex-1">
               <div className="font-bold text-slate-100 text-xs truncate">{currentComp?.name}</div>
-              <div className="text-[9px] text-slate-400 font-mono">NTN: {currentComp?.ntn}</div>
+              <div className="text-[9px] text-slate-400 font-mono">
+                NTN: {currentComp?.ntn || '3948271-9'} • STRN: {currentComp?.strn || '327787612345'}
+              </div>
             </div>
           </div>
         </div>
@@ -268,23 +418,34 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({
             className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-purple-500 transition-all font-mono"
           />
         </div>
-        <div className="relative">
-          <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            type={showPassword ? 'text' : 'password'}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            placeholder="Password (e.g. Client@123)"
-            className="w-full pl-9 pr-10 py-2.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-purple-500 transition-all font-mono"
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 cursor-pointer"
-          >
-            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-          </button>
+        <div className="space-y-1">
+          <div className="relative">
+            <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder="Security Password"
+              className="w-full pl-9 pr-10 py-2.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-purple-500 transition-all font-mono"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 cursor-pointer"
+            >
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+          <div className="flex items-center justify-end pt-1">
+            <button
+              type="button"
+              onClick={handleOpenReset}
+              className="text-[11px] font-bold text-cyan-400 hover:text-cyan-300 transition cursor-pointer hover:underline"
+            >
+              Forgot Password?
+            </button>
+          </div>
         </div>
       </div>
 
@@ -349,66 +510,83 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({
         </div>
       )}
 
-      {/* Access Credentials Helper */}
-      <div className="mt-4 p-4 rounded-2xl bg-slate-800/40 border border-slate-700/50 space-y-2">
-        <div className="flex items-center gap-2 text-cyan-400">
-          <KeyRound className="w-3.5 h-3.5" />
-          <span className="text-[10px] font-black uppercase tracking-widest">
-            {isClientUrl ? 'Client Security Access Credentials' : 'Master & Client Access Guide'}
-          </span>
-        </div>
-        <div className={`grid ${isClientUrl ? 'grid-cols-1' : 'grid-cols-2'} gap-4`}>
-          {!isClientUrl && (
+      {/* Access Credentials Helper - NO DEFAULT DEMO PASSWORDS ON CLIENT URLS */}
+      {!isClientUrl ? (
+        <div className="mt-4 p-4 rounded-2xl bg-slate-800/40 border border-slate-700/50 space-y-2">
+          <div className="flex items-center gap-2 text-cyan-400">
+            <KeyRound className="w-3.5 h-3.5" />
+            <span className="text-[10px] font-black uppercase tracking-widest">
+              Master &amp; Client Access Guide
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <div className="text-[9px] text-purple-400 uppercase font-bold">Master SAP Admin</div>
               <div className="text-[10px] text-slate-300 font-mono">User: <span className="text-purple-300 font-bold">MTS-ERP-SAP</span></div>
               <div className="text-[10px] text-slate-300 font-mono">Pass: <span className="text-purple-300 font-bold">mts-sap</span></div>
             </div>
-          )}
-          <div className="space-y-1">
-            <div className="text-[9px] text-cyan-400 uppercase font-bold">Client Demo</div>
-            <div className="text-[10px] text-slate-300 font-mono">User: <span className="text-emerald-300 font-bold">admin</span></div>
-            <div className="text-[10px] text-slate-300 font-mono">Pass: <span className="text-emerald-300 font-bold">Client@123</span></div>
+            <div className="space-y-1">
+              <div className="text-[9px] text-cyan-400 uppercase font-bold">Client Demo</div>
+              <div className="text-[10px] text-slate-300 font-mono">User: <span className="text-emerald-300 font-bold">admin</span></div>
+              <div className="text-[10px] text-slate-300 font-mono">Pass: <span className="text-emerald-300 font-bold">Client@123</span></div>
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="mt-4 p-3.5 rounded-2xl bg-slate-800/40 border border-slate-700/50 text-[11px] text-slate-400 font-mono flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-cyan-400 shrink-0" />
+          <span>Enter your company security credentials or continue with Google to access {currentComp?.name || 'your dashboard'}.</span>
+        </div>
+      )}
     </form>
   );
 
-  const renderSplitTemplate = () => (
-    <div className="fixed inset-0 flex bg-slate-950 overflow-hidden z-[999]">
-      <div className="hidden lg:flex w-1/2 relative">
-        <img
-          src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop"
-          className="absolute inset-0 w-full h-full object-cover"
-          alt="Corporate Building"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 to-transparent" />
-        <div className="absolute bottom-12 left-12 max-w-md space-y-4">
-          <img src="/assets/aistudio/Untitled_design_4a7e39e2.png" className="h-16 w-auto" alt="Logo" />
-          <h1 className="text-4xl font-black text-white leading-tight">MTS-ERP FUTURE SOLUTIONS</h1>
-          <p className="text-slate-300 text-sm">
-            Industrial Enterprise Resource Planning with FBR/SECP Compliance. Master Portal: {MASTER_PORTAL_URL}
-          </p>
-        </div>
-      </div>
-      <div className="flex-1 flex items-center justify-center p-8 bg-slate-950 lg:bg-slate-900/50 backdrop-blur-3xl overflow-y-auto">
-        <div className="max-w-md w-full space-y-6 animate-in fade-in slide-in-from-right-4">
-          <div className="text-center lg:text-left space-y-1">
-            <h2 className="text-2xl font-black text-white uppercase tracking-wider">
-              {loginType === 'MASTER' ? 'Master User SAP Console' : 'Client Access Portal'}
-            </h2>
-            <p className="text-xs text-slate-400">
-              {loginType === 'MASTER'
-                ? 'Central administrative control for all tenant companies.'
-                : 'Secure entry for authorized corporate users.'}
+  const renderSplitTemplate = () => {
+    const bgImage = currentComp?.backgroundUrl || "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop";
+    const logoImage = currentComp?.logoUrl || "/assets/aistudio/Untitled_design_4a7e39e2.png";
+
+    return (
+      <div className="fixed inset-0 flex bg-slate-950 overflow-hidden z-[999]">
+        <div className="hidden lg:flex w-1/2 relative">
+          <img
+            src={bgImage}
+            className="absolute inset-0 w-full h-full object-cover"
+            alt={currentComp?.name || "Corporate Building"}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/70 to-transparent" />
+          <div className="absolute bottom-12 left-12 max-w-md space-y-4">
+            <img src={logoImage} className="h-16 w-auto object-contain drop-shadow-xl" alt={currentComp?.name || "Logo"} />
+            <h1 className="text-4xl font-black text-white leading-tight uppercase tracking-wider">
+              {currentComp?.name || "MTS-ERP FUTURE SOLUTIONS"}
+            </h1>
+            <p className="text-slate-300 text-sm font-sans leading-relaxed">
+              Industrial Enterprise Resource Planning with FBR/SECP Compliance for {currentComp?.industry || 'Manufacturing'}.
             </p>
           </div>
-          {renderForm()}
+        </div>
+        <div className="flex-1 flex items-center justify-center p-8 bg-slate-950 lg:bg-slate-900/50 backdrop-blur-3xl overflow-y-auto">
+          <div className="max-w-md w-full space-y-6 animate-in fade-in slide-in-from-right-4">
+            <div className="text-center lg:text-left space-y-1">
+              <h2 className="text-2xl font-black text-white uppercase tracking-wider">
+                {isResetMode
+                  ? 'Reset Password'
+                  : (loginType === 'MASTER' ? 'Master User SAP Console' : `${currentComp?.name || 'Client'} Access Portal`)}
+              </h2>
+              <p className="text-xs text-slate-400">
+                {isResetMode
+                  ? `Send security reset instructions to the administrator for ${currentComp?.name}.`
+                  : (loginType === 'MASTER'
+                      ? 'Central administrative control for all tenant companies.'
+                      : `Secure entry for authorized corporate users of ${currentComp?.name}.`)}
+              </p>
+            </div>
+            {isResetMode ? renderResetForm() : renderForm()}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return renderSplitTemplate();
 };
+

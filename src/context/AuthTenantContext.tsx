@@ -4,8 +4,9 @@ import { INITIAL_CLIENT_COMPANIES, resolveCurrentTenant } from '../services/tena
 import { INITIAL_BRANCHES } from '../services/mockData';
 import { getDefaultDepartmentIdsForIndustry } from '../services/departmentCategoryMapper';
 import { doc, deleteDoc, setDoc, getDoc } from 'firebase/firestore';
-import { onAuthStateChanged, signInAnonymously, setPersistence, browserLocalPersistence } from 'firebase/auth';
-import { db, auth, sanitizeForFirestore } from '../services/firebaseConfig';
+import { onAuthStateChanged, signInAnonymously, signInWithPopup, sendPasswordResetEmail, setPersistence, browserLocalPersistence } from 'firebase/auth';
+import { db, auth, googleProvider, sanitizeForFirestore } from '../services/firebaseConfig';
+import { auditLogger } from '../services/auditLogger';
 
 // Global Security Inactivity Middleware Constants
 export const INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; // Exactly 5 minutes (300,000 ms)
@@ -81,6 +82,8 @@ interface AuthTenantContextType {
     }
   ) => Promise<void>;
   login: (type?: 'MASTER' | 'CLIENT', companySlug?: string, role?: string) => void;
+  loginWithGoogle: (companySlug?: string) => Promise<void>;
+  resetTenantPassword: (email: string) => Promise<void>;
   logout: (reason?: string) => void;
   sessionLockNotice: string | null;
   clearSessionLockNotice: () => void;
@@ -629,6 +632,100 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   };
 
+  const loginWithGoogle = async (companySlug?: string): Promise<void> => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const googleUser = result.user;
+
+      const targetSlug = companySlug || currentCompany?.slug || 'crest';
+      const matchedCompany =
+        allCompanies.find(c => c.slug.toLowerCase() === targetSlug.toLowerCase()) ||
+        currentCompany;
+
+      const user: UserProfile = {
+        id: googleUser.uid,
+        email: googleUser.email || matchedCompany.adminEmail || 'admin@mts-erp.pk',
+        name: googleUser.displayName || matchedCompany.adminName || 'Client Admin',
+        role: 'CLIENT_ADMIN',
+        tenantId: matchedCompany.tenantId,
+        companyId: matchedCompany.id,
+        companyName: matchedCompany.name,
+        branchId: 'main',
+        branchName: 'Global HQ',
+        isMaster: false,
+        allowedCompanies: [matchedCompany.id],
+        avatarUrl: googleUser.photoURL || undefined
+      };
+
+      setCurrentUser(user);
+      setCurrentCompany(matchedCompany);
+      setIsMasterPortal(false);
+      setIsAuthenticated(true);
+      setSessionLockNotice(null);
+
+      const sessionId = `google_sess_${googleUser.uid}_${Date.now()}`;
+      localStorage.setItem(STORAGE_SESSION_ID_KEY, sessionId);
+      localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(user));
+      localStorage.setItem(STORAGE_IS_MASTER_KEY, 'false');
+      sessionStorage.setItem(STORAGE_AUTH_KEY, 'true');
+      sessionStorage.setItem(STORAGE_IS_MASTER_KEY, 'false');
+
+      try {
+        await setDoc(doc(db, 'sessions', sessionId), {
+          sessionId,
+          userId: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          tenantId: user.tenantId,
+          companyId: user.companyId,
+          companyName: user.companyName,
+          isMaster: false,
+          status: 'ACTIVE',
+          authProvider: 'google',
+          createdAt: new Date().toISOString()
+        });
+      } catch (e) {
+        console.warn('Firestore Google session sync notice:', e);
+      }
+
+      await auditLogger.logAction({
+        tenantId: matchedCompany.tenantId,
+        userId: user.id,
+        userName: user.name,
+        userRole: user.role,
+        actionType: 'LOGIN',
+        module: 'Google Authentication',
+        details: `Google user ${user.email} signed in as Client Admin for ${matchedCompany.name}`
+      });
+    } catch (err: any) {
+      console.error('loginWithGoogle failed:', err);
+      throw err;
+    }
+  };
+
+  const resetTenantPassword = async (email: string): Promise<void> => {
+    try {
+      const targetEmail = email.trim();
+      if (!targetEmail) {
+        throw new Error('Please enter a valid administrator email address.');
+      }
+      await sendPasswordResetEmail(auth, targetEmail);
+      await auditLogger.logAction({
+        tenantId: currentCompany?.tenantId || 'tenant_default',
+        userId: currentUser?.id || 'guest',
+        userName: currentUser?.name || 'Client Admin',
+        userRole: 'CLIENT_ADMIN',
+        actionType: 'SETTINGS_CHANGE',
+        module: 'Password Reset',
+        details: `Password reset email sent to tenant admin ${targetEmail}`
+      });
+    } catch (err: any) {
+      console.error('resetTenantPassword failed:', err);
+      throw err;
+    }
+  };
+
   const logout = async (reason?: string) => {
     const sessionId = localStorage.getItem(STORAGE_SESSION_ID_KEY);
     if (sessionId) {
@@ -1024,6 +1121,8 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         updateCompanyDepartments,
         updateCompanyBranding,
         login,
+        loginWithGoogle,
+        resetTenantPassword,
         logout,
         sessionLockNotice,
         clearSessionLockNotice,

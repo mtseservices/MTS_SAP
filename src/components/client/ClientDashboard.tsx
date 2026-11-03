@@ -443,11 +443,14 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ onNavigateTab 
           return (
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-gradient-to-r from-slate-900 via-cyan-950/40 to-slate-900 border border-cyan-800/40 p-6 rounded-2xl shadow-2xl">
               <div>
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <Building2 className="w-6 h-6 text-cyan-400" />
                   <h1 className="text-xl font-black text-slate-100 tracking-tight">
                     {currentCompany.name} • Executive Portal
                   </h1>
+                  <span className="px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30 text-[10px] uppercase font-mono">
+                    {currentCompany.subscriptionPlan || 'Enterprise Plan'}
+                  </span>
                 </div>
                 <p className="text-xs text-slate-400 max-w-2xl font-mono">
                   Active Branch: <strong className="text-cyan-300">{currentBranch.name}</strong> • Industry: {currentCompany.industry} • NTN: {currentCompany.ntn}
