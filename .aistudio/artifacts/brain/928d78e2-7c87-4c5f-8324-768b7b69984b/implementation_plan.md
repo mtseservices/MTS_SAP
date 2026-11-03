@@ -1,15 +1,15 @@
-# Implementation Plan - Robust Tenant Slug Parsing & Keyword-Based Auto-Provisioning
+# Implementation Plan - QR Code-Based Client Login
 
 ## Proposed Changes
 
-### 1. `src/components/common/TenantRouteHandler.tsx`
-- Refine slug extraction and parsing logic to cleanly handle `/login/:slug`, `/company/:slug`, `/tenant/:slug`, and query parameters (`?company=...` or `?tenant=...`).
-- Implement robust validation and automated invocation of `ensureCompanyExists` for any valid non-empty slug.
-
-### 2. `src/context/AuthTenantContext.tsx`
-- Enhance `ensureCompanyExists` to scan slug keywords (e.g. `food`, `textile`, `steel`, `pharma`, `tech`, `trading`) and dynamically assign tailored industry profiles, categories, and default active modules upon auto-provisioning.
+### `src/components/common/ClientLoginView.tsx` (or equivalent client login component)
+- Add a "QR Code Login" option / tab on the client-specific login page.
+- **QR Code Login Features**:
+  - Displays a secure session QR code graphic (with tenant name, timestamp, and secure token).
+  - Includes a "Simulate Mobile App Scan" helper button that opens a simulated mobile approval dialog.
+  - Upon clicking "Approve Login on Mobile", completes authentication and logs in instantly as the tenant administrator without password entry.
 
 ## Verification Plan
-- Run `lint_applet` to check TypeScript correctness.
+- Run `lint_applet` to verify TypeScript type correctness.
 - Run `compile_applet` to ensure successful build.
-- Test accessing `/login/fusionfoodfaisalabad` to verify it auto-provisions with Food & Beverage industry profile and opens the client login page successfully.
+- Visually test QR code login generation and simulated mobile approval flow.

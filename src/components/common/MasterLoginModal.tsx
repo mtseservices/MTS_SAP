@@ -18,7 +18,8 @@ import {
   ExternalLink,
   Mail,
   ArrowLeft,
-  CheckCircle2
+  CheckCircle2,
+  QrCode
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { auth, googleProvider } from '../../services/firebaseConfig';
@@ -72,6 +73,12 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedUrl, setCopiedUrl] = useState(false);
+  const [isQrMode, setIsQrMode] = useState(false);
+
+  const handleQrApproval = () => {
+    login('CLIENT', activeSlug, selectedRole);
+    if (onClose) onClose();
+  };
 
   // Forgot Password State
   const [isResetMode, setIsResetMode] = useState(false);
@@ -406,62 +413,139 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({
         </div>
       )}
 
-      <div className="space-y-3">
-        <div className="relative">
-          <User className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-            placeholder="Username (e.g. admin)"
-            className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-purple-500 transition-all font-mono"
-          />
+      {loginType === 'CLIENT' && (
+        <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800 mb-3">
+          <button
+            type="button"
+            onClick={() => setIsQrMode(false)}
+            className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5 ${
+              !isQrMode ? 'bg-cyan-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Lock className="w-3.5 h-3.5" />
+            <span>Password / Google</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsQrMode(true)}
+            className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5 ${
+              isQrMode ? 'bg-cyan-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <QrCode className="w-3.5 h-3.5" />
+            <span>Mobile QR Login</span>
+          </button>
         </div>
-        <div className="space-y-1">
-          <div className="relative">
-            <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="Security Password"
-              className="w-full pl-9 pr-10 py-2.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-purple-500 transition-all font-mono"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 cursor-pointer"
-            >
-              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            </button>
-          </div>
-          <div className="flex items-center justify-end pt-1">
-            <button
-              type="button"
-              onClick={handleOpenReset}
-              className="text-[11px] font-bold text-cyan-400 hover:text-cyan-300 transition cursor-pointer hover:underline"
-            >
-              Forgot Password?
-            </button>
-          </div>
-        </div>
-      </div>
+      )}
 
-      <button
-        type="submit"
-        className={`w-full py-3 rounded-xl font-bold text-xs shadow-xl transition-all transform active:scale-95 cursor-pointer text-white ${
-          loginType === 'MASTER'
-            ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 shadow-purple-600/30'
-            : 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 shadow-cyan-600/20'
-        }`}
-      >
-        <div className="flex items-center justify-center gap-2">
-          <LogIn className="w-4 h-4" />
-          <span>Authorize &amp; Sign In ({loginType === 'MASTER' ? 'Master User' : 'Client User'})</span>
+      {isQrMode && loginType === 'CLIENT' ? (
+        <div className="space-y-4 py-3 text-center">
+          <div className="bg-slate-950/80 border border-slate-800 p-6 rounded-2xl flex flex-col items-center justify-center space-y-4 shadow-inner relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/5 to-transparent pointer-events-none" />
+            
+            <div className="w-40 h-40 bg-white p-3 rounded-2xl shadow-2xl flex items-center justify-center border-4 border-cyan-500/30 relative group">
+              <svg className="w-full h-full text-slate-950" viewBox="0 0 100 100" fill="currentColor">
+                <rect x="5" y="5" width="30" height="30" rx="4" fill="none" stroke="currentColor" strokeWidth="6" />
+                <rect x="13" y="13" width="14" height="14" rx="2" />
+                <rect x="65" y="5" width="30" height="30" rx="4" fill="none" stroke="currentColor" strokeWidth="6" />
+                <rect x="73" y="13" width="14" height="14" rx="2" />
+                <rect x="5" y="65" width="30" height="30" rx="4" fill="none" stroke="currentColor" strokeWidth="6" />
+                <rect x="13" y="73" width="14" height="14" rx="2" />
+                <rect x="42" y="10" width="16" height="6" rx="2" />
+                <rect x="42" y="24" width="8" height="14" rx="2" />
+                <rect x="54" y="24" width="6" height="14" rx="2" />
+                <rect x="65" y="45" width="14" height="14" rx="2" />
+                <rect x="85" y="45" width="10" height="10" rx="2" />
+                <rect x="42" y="45" width="16" height="16" rx="2" />
+                <rect x="10" y="45" width="12" height="12" rx="2" />
+                <rect x="28" y="45" width="8" height="12" rx="2" />
+                <rect x="42" y="70" width="14" height="20" rx="2" />
+                <rect x="65" y="70" width="25" height="8" rx="2" />
+                <rect x="65" y="82" width="12" height="10" rx="2" />
+                <rect x="81" y="82" width="9" height="10" rx="2" />
+              </svg>
+              <div className="absolute inset-0 bg-cyan-500/10 backdrop-blur-[0.5px] rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="text-[10px] font-black uppercase text-cyan-900 bg-cyan-400 px-2 py-1 rounded shadow">Secure Token Active</span>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="text-xs font-bold text-slate-200">Scan with MTS Enterprise App</div>
+              <p className="text-[10px] text-slate-400 leading-relaxed max-w-xs mx-auto">
+                Open the mobile app on your smartphone, tap Scan QR, and point your camera at this screen to instantly authorize session for <span className="text-cyan-400 font-semibold">{currentComp?.name}</span>.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleQrApproval}
+            className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-emerald-900/30 transition-all cursor-pointer flex items-center justify-center gap-2"
+          >
+            <CheckCircle2 className="w-4 h-4" />
+            <span>Simulate Mobile App Approval &amp; Login</span>
+          </button>
         </div>
-      </button>
+      ) : (
+        <>
+          <div className="space-y-3">
+            <div className="relative">
+              <User className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                placeholder="Username (e.g. admin)"
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-purple-500 transition-all font-mono"
+              />
+            </div>
+            <div className="space-y-1">
+              <div className="relative">
+                <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="Security Password"
+                  className="w-full pl-9 pr-10 py-2.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-purple-500 transition-all font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 cursor-pointer"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              <div className="flex items-center justify-end pt-1">
+                <button
+                  type="button"
+                  onClick={handleOpenReset}
+                  className="text-[11px] font-bold text-cyan-400 hover:text-cyan-300 transition cursor-pointer hover:underline"
+                >
+                  Forgot Password?
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className={`w-full py-3 rounded-xl font-bold text-xs shadow-xl transition-all transform active:scale-95 cursor-pointer text-white ${
+              loginType === 'MASTER'
+                ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 shadow-purple-600/30'
+                : 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 shadow-cyan-600/20'
+            }`}
+          >
+            <div className="flex items-center justify-center gap-2">
+              <LogIn className="w-4 h-4" />
+              <span>Authorize &amp; Sign In ({loginType === 'MASTER' ? 'Master User' : 'Client User'})</span>
+            </div>
+          </button>
+        </>
+      )}
 
       {/* Google Sign-In Option for Client Logins */}
       {loginType === 'CLIENT' && (
