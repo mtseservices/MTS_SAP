@@ -611,9 +611,29 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
 
     setIsAuthenticated(false);
+    setIsMasterPortal(false);
+    setCurrentUser(DEFAULT_CLIENT_USER);
+
     sessionStorage.removeItem(STORAGE_AUTH_KEY);
     sessionStorage.removeItem(STORAGE_USER_KEY);
     sessionStorage.removeItem(STORAGE_IS_MASTER_KEY);
+    sessionStorage.removeItem(STORAGE_LOCK_NOTICE_KEY);
+
+    localStorage.removeItem(STORAGE_LAST_ACTIVITY_KEY);
+    localStorage.removeItem(STORAGE_AUTH_KEY);
+    localStorage.removeItem('mts_is_master');
+    localStorage.removeItem('mts_master_session');
+
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('company');
+      url.searchParams.delete('module');
+      url.searchParams.delete('subtab');
+      url.searchParams.delete('master');
+      url.searchParams.delete('portal');
+      window.history.replaceState({}, '', url.pathname);
+    } catch {}
+
     if (reason) {
       sessionStorage.setItem(STORAGE_LOCK_NOTICE_KEY, reason);
       setSessionLockNotice(reason);

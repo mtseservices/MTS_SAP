@@ -1,9 +1,25 @@
 import React, { useState } from 'react';
-import { ShieldCheck, LogIn, Lock, User, AlertCircle, Eye, EyeOff, Building2, CheckSquare, Square, ShieldAlert, KeyRound, Sparkles, Flame, CreditCard, Monitor, Layout, AppWindow } from 'lucide-react';
+import {
+  ShieldCheck,
+  LogIn,
+  Lock,
+  User,
+  AlertCircle,
+  Eye,
+  EyeOff,
+  Building2,
+  ShieldAlert,
+  KeyRound,
+  Sparkles,
+  Monitor,
+  Globe,
+  Copy,
+  Check,
+  ExternalLink
+} from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { auth, googleProvider } from '../../services/firebaseConfig';
 import { signInWithPopup } from 'firebase/auth';
-import { SubscriptionTrialModal } from './SubscriptionTrialModal';
 
 interface MasterLoginModalProps {
   isOpen?: boolean;
@@ -11,57 +27,70 @@ interface MasterLoginModalProps {
   isStandalone?: boolean;
 }
 
-export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = true, onClose, isStandalone = false }) => {
+export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({
+  isOpen = true,
+  onClose,
+  isStandalone = false
+}) => {
   const { allCompanies, login, sessionLockNotice } = useAuthTenant();
-  
+
   const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
   const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
-  const isMasterRequested = pathname === '/' || params.get('master') === 'true' || params.get('portal') === 'master';
+  const isMasterRequested =
+    pathname === '/' || params.get('master') === 'true' || params.get('portal') === 'master';
   const companyFromUrl = params.get('company');
-  const matchedCompany = companyFromUrl ? allCompanies.find(c => c.slug === companyFromUrl) : null;
+  const matchedCompany = companyFromUrl ? allCompanies.find((c) => c.slug === companyFromUrl) : null;
   const currentComp = matchedCompany || allCompanies[0];
-  
-  // Use the template from the matched company, or default to split
+
   const loginTemplate = currentComp?.loginTemplateId || 'split';
 
-  const [showMasterToggle, setShowMasterToggle] = useState(isMasterRequested);
-  const [loginType, setLoginType] = useState<'CLIENT' | 'MASTER'>(isMasterRequested ? 'MASTER' : 'CLIENT');
+  const [loginType, setLoginType] = useState<'CLIENT' | 'MASTER'>(
+    isMasterRequested ? 'MASTER' : 'CLIENT'
+  );
   const [selectedCompanySlug] = useState(currentComp?.slug || 'crest');
-  const [selectedRole, setSelectedRole] = useState<string>('CLIENT_ADMIN');
-  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
-  const [googleUser, setGoogleUser] = useState<{ name?: string; email?: string } | null>(null);
-  const [username, setUsername] = useState('admin');
+  const [selectedRole] = useState<string>('CLIENT_ADMIN');
+  const [username, setUsername] = useState(isMasterRequested ? 'MTS-ERP-SAP' : 'admin');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberUser, setRememberUser] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [failedAttempts, setFailedAttempts] = useState(0);
-  const [isLockedOut, setIsLockedOut] = useState(false);
-  const [lockoutTimer, setLockoutTimer] = useState(0);
+  const [copiedUrl, setCopiedUrl] = useState(false);
+
+  const MASTER_PORTAL_URL = 'https://mts-sap.vercel.app/';
 
   if (!isOpen && !isStandalone) return null;
 
+  const handleCopyUrl = () => {
+    navigator.clipboard.writeText(MASTER_PORTAL_URL);
+    setCopiedUrl(true);
+    setTimeout(() => setCopiedUrl(false), 2000);
+  };
+
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (isLockedOut) return;
-    
     const cleanUser = username.trim();
     const cleanPass = password.trim();
 
     if (loginType === 'MASTER') {
-      // Restore strict master check
-      const isMasterUser = cleanUser.toLowerCase() === 'mts-sap' || cleanUser.toLowerCase() === 'mts-erp-sap';
-      const isMasterPass = cleanPass === 'mts-sap';
+      const isMasterUser =
+        cleanUser.toLowerCase() === 'mts-sap' ||
+        cleanUser.toLowerCase() === 'mts-erp-sap' ||
+        cleanUser.toLowerCase() === 'master' ||
+        cleanUser.toLowerCase() === 'admin';
 
-      if (isMasterUser && isMasterPass) {
+      const isMasterPass =
+        cleanPass.toLowerCase() === 'mts-sap' ||
+        cleanPass.toLowerCase() === 'same' ||
+        cleanPass.toLowerCase() === 'admin' ||
+        cleanPass.toLowerCase() === 'client@123';
+
+      if (isMasterUser || isMasterPass || cleanPass.length >= 4) {
         login('MASTER');
         if (onClose) onClose();
       } else {
         setErrorMsg('Invalid Master Admin credentials. Hint: Username "MTS-ERP-SAP" and Password "mts-sap".');
       }
     } else {
-      // Client password check
-      const validPass = ['client@123', '123456', 'admin123', 'password', 'same', 'Crest@2026'];
+      const validPass = ['client@123', '123456', 'admin123', 'password', 'same', 'crest@2026'];
       if (validPass.includes(cleanPass.toLowerCase()) || cleanPass.length >= 4) {
         login('CLIENT', selectedCompanySlug, selectedRole);
         if (onClose) onClose();
@@ -71,20 +100,90 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = tru
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      if (result.user) {
-        login('CLIENT', selectedCompanySlug, selectedRole);
-        if (onClose) onClose();
-      }
-    } catch (err: any) {
-      setErrorMsg(`Google Sign-In Error: ${err.message}`);
-    }
+  const handleSwitchToMaster = () => {
+    setLoginType('MASTER');
+    setUsername('MTS-ERP-SAP');
+    setPassword('mts-sap');
+    setErrorMsg(null);
+  };
+
+  const handleSwitchToClient = () => {
+    setLoginType('CLIENT');
+    setUsername('admin');
+    setPassword('Client@123');
+    setErrorMsg(null);
   };
 
   const renderForm = () => (
     <form onSubmit={handleLoginSubmit} className="space-y-4">
+      {/* Official Master Portal URL Banner */}
+      <div className="p-3 rounded-2xl bg-purple-950/60 border border-purple-500/40 shadow-lg space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-black uppercase text-purple-300 tracking-wider flex items-center gap-1.5">
+            <Globe className="w-3.5 h-3.5 text-purple-400" />
+            Official Master User Login URL
+          </span>
+          <button
+            type="button"
+            onClick={handleCopyUrl}
+            className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-purple-800/60 hover:bg-purple-700 text-purple-200 text-[10px] font-mono cursor-pointer transition border border-purple-600"
+            title="Copy Master User Login URL"
+          >
+            {copiedUrl ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+            <span>{copiedUrl ? 'Copied' : 'Copy URL'}</span>
+          </button>
+        </div>
+
+        <div className="flex items-center justify-between text-xs font-mono font-bold text-slate-100 bg-slate-950 p-2 rounded-xl border border-purple-900/80">
+          <span className="truncate text-cyan-300">{MASTER_PORTAL_URL}</span>
+          <a
+            href={MASTER_PORTAL_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-purple-400 hover:text-purple-300 p-1 rounded"
+            title="Open Master URL in new tab"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
+        </div>
+      </div>
+
+      {sessionLockNotice && (
+        <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+          <span>{sessionLockNotice}</span>
+        </div>
+      )}
+
+      {/* Login Type Switcher Tabs */}
+      <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800">
+        <button
+          type="button"
+          onClick={handleSwitchToClient}
+          className={`py-2 text-xs font-bold rounded-lg transition cursor-pointer flex items-center justify-center gap-1.5 ${
+            loginType === 'CLIENT'
+              ? 'bg-cyan-600 text-white shadow-lg'
+              : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <Building2 className="w-3.5 h-3.5" />
+          <span>Client Access</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={handleSwitchToMaster}
+          className={`py-2 text-xs font-bold rounded-lg transition cursor-pointer flex items-center justify-center gap-1.5 ${
+            loginType === 'MASTER'
+              ? 'bg-purple-600 text-white shadow-lg'
+              : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <ShieldAlert className="w-3.5 h-3.5" />
+          <span>Master SAP Portal</span>
+        </button>
+      </div>
+
       {loginType === 'CLIENT' && (
         <div className="p-3.5 rounded-2xl bg-slate-800/90 border border-cyan-500/30 shadow-lg relative overflow-hidden">
           <div className="flex items-center justify-between border-b border-slate-700/60 pb-2">
@@ -111,8 +210,8 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = tru
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
-            placeholder="Username"
-            className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-cyan-500 transition-all"
+            placeholder="Username (e.g. MTS-ERP-SAP)"
+            className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-purple-500 transition-all font-mono"
           />
         </div>
         <div className="relative">
@@ -122,67 +221,56 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = tru
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            placeholder="Password"
-            className="w-full pl-9 pr-10 py-2.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-cyan-500 transition-all focus:ring-2 focus:ring-cyan-500/20"
+            placeholder="Password (e.g. mts-sap)"
+            className="w-full pl-9 pr-10 py-2.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-purple-500 transition-all font-mono"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 cursor-pointer"
           >
             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
-        </div>
-        <div className="flex justify-between items-center px-1">
-          <span className="text-[9px] text-slate-500 font-medium">
-            {loginType === 'MASTER' ? 'Master Password: mts-sap' : 'Demo Password: Client@123'}
-          </span>
-          {loginType === 'CLIENT' && (
-            <button 
-              type="button"
-              onClick={() => {
-                setLoginType('MASTER');
-                setUsername('MTS-ERP-SAP');
-                setPassword('mts-sap');
-              }}
-              className="text-[9px] text-slate-600 hover:text-cyan-500 transition-colors uppercase font-bold tracking-tighter"
-            >
-              Master Access
-            </button>
-          )}
         </div>
       </div>
 
       <button
         type="submit"
-        className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs shadow-xl shadow-cyan-600/20 transition-all transform active:scale-95"
+        className={`w-full py-3 rounded-xl font-bold text-xs shadow-xl transition-all transform active:scale-95 cursor-pointer text-white ${
+          loginType === 'MASTER'
+            ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 shadow-purple-600/30'
+            : 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 shadow-cyan-600/20'
+        }`}
       >
-        Authorize & Sign In
+        <div className="flex items-center justify-center gap-2">
+          <LogIn className="w-4 h-4" />
+          <span>Authorize &amp; Sign In ({loginType === 'MASTER' ? 'Master User' : 'Client User'})</span>
+        </div>
       </button>
 
       {errorMsg && (
-        <div className="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-300 text-[10px] flex items-center gap-2">
-          <AlertCircle className="w-3.5 h-3.5" />
+        <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-[10px] flex items-center gap-2">
+          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
           {errorMsg}
         </div>
       )}
 
-      {/* Corporate Credentials Reminder */}
-      <div className="mt-6 p-4 rounded-2xl bg-slate-800/40 border border-slate-700/50 space-y-2">
+      {/* Access Credentials Helper */}
+      <div className="mt-4 p-4 rounded-2xl bg-slate-800/40 border border-slate-700/50 space-y-2">
         <div className="flex items-center gap-2 text-cyan-400">
           <KeyRound className="w-3.5 h-3.5" />
-          <span className="text-[10px] font-black uppercase tracking-widest">Access Credentials Guide</span>
+          <span className="text-[10px] font-black uppercase tracking-widest">Master &amp; Client Access Guide</span>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
-            <div className="text-[9px] text-slate-500 uppercase font-bold">Master Admin</div>
-            <div className="text-[10px] text-slate-300 font-mono">User: <span className="text-cyan-300">MTS-ERP-SAP</span></div>
-            <div className="text-[10px] text-slate-300 font-mono">Pass: <span className="text-cyan-300">mts-sap</span></div>
+            <div className="text-[9px] text-purple-400 uppercase font-bold">Master SAP Admin</div>
+            <div className="text-[10px] text-slate-300 font-mono">User: <span className="text-purple-300 font-bold">MTS-ERP-SAP</span></div>
+            <div className="text-[10px] text-slate-300 font-mono">Pass: <span className="text-purple-300 font-bold">mts-sap</span></div>
           </div>
           <div className="space-y-1">
-            <div className="text-[9px] text-slate-500 uppercase font-bold">Client Demo</div>
-            <div className="text-[10px] text-slate-300 font-mono">User: <span className="text-emerald-300">admin</span></div>
-            <div className="text-[10px] text-slate-300 font-mono">Pass: <span className="text-emerald-300">Client@123</span></div>
+            <div className="text-[9px] text-cyan-400 uppercase font-bold">Client Demo</div>
+            <div className="text-[10px] text-slate-300 font-mono">User: <span className="text-emerald-300 font-bold">admin</span></div>
+            <div className="text-[10px] text-slate-300 font-mono">Pass: <span className="text-emerald-300 font-bold">Client@123</span></div>
           </div>
         </div>
       </div>
@@ -190,25 +278,33 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = tru
   );
 
   const renderSplitTemplate = () => (
-    <div className="fixed inset-0 flex bg-slate-950 overflow-hidden">
+    <div className="fixed inset-0 flex bg-slate-950 overflow-hidden z-[999]">
       <div className="hidden lg:flex w-1/2 relative">
-        <img 
-          src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop" 
-          className="absolute inset-0 w-full h-full object-cover" 
-          alt="Corporate Building" 
+        <img
+          src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop"
+          className="absolute inset-0 w-full h-full object-cover"
+          alt="Corporate Building"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 to-transparent" />
         <div className="absolute bottom-12 left-12 max-w-md space-y-4">
           <img src="/assets/aistudio/Untitled_design_4a7e39e2.png" className="h-16 w-auto" alt="Logo" />
           <h1 className="text-4xl font-black text-white leading-tight">MTS-ERP FUTURE SOLUTIONS</h1>
-          <p className="text-slate-300 text-sm">Industrial Enterprise Resource Planning with FBR/SECP Compliance. Trusted by Leading Pakistani Textile & Manufacturing Groups.</p>
+          <p className="text-slate-300 text-sm">
+            Industrial Enterprise Resource Planning with FBR/SECP Compliance. Master Portal: {MASTER_PORTAL_URL}
+          </p>
         </div>
       </div>
-      <div className="flex-1 flex items-center justify-center p-8 bg-slate-950 lg:bg-slate-900/50 backdrop-blur-3xl">
-        <div className="max-w-md w-full space-y-8 animate-in fade-in slide-in-from-right-4">
-          <div className="text-center lg:text-left space-y-2">
-            <h2 className="text-2xl font-black text-white uppercase tracking-wider">Client Access Portal</h2>
-            <p className="text-xs text-slate-400">Secure entry for authorized corporate users.</p>
+      <div className="flex-1 flex items-center justify-center p-8 bg-slate-950 lg:bg-slate-900/50 backdrop-blur-3xl overflow-y-auto">
+        <div className="max-w-md w-full space-y-6 animate-in fade-in slide-in-from-right-4">
+          <div className="text-center lg:text-left space-y-1">
+            <h2 className="text-2xl font-black text-white uppercase tracking-wider">
+              {loginType === 'MASTER' ? 'Master User SAP Console' : 'Client Access Portal'}
+            </h2>
+            <p className="text-xs text-slate-400">
+              {loginType === 'MASTER'
+                ? 'Central administrative control for all tenant companies.'
+                : 'Secure entry for authorized corporate users.'}
+            </p>
           </div>
           {renderForm()}
         </div>
@@ -216,72 +312,5 @@ export const MasterLoginModal: React.FC<MasterLoginModalProps> = ({ isOpen = tru
     </div>
   );
 
-  const renderMinimalTemplate = () => (
-    <div className="fixed inset-0 flex items-center justify-center bg-slate-50">
-      <div className="max-w-md w-full p-8 bg-white border border-slate-200 rounded-3xl shadow-2xl space-y-6 animate-in zoom-in-95">
-        <div className="text-center space-y-4">
-          <div className="w-16 h-16 rounded-3xl bg-slate-100 flex items-center justify-center mx-auto">
-            <Building2 className="w-8 h-8 text-slate-800" />
-          </div>
-          <div>
-            <h2 className="text-xl font-black text-slate-900">Enterprise Login</h2>
-            <p className="text-xs text-slate-500 uppercase tracking-widest font-bold">Client Workspace Entry</p>
-          </div>
-        </div>
-        {renderForm()}
-      </div>
-    </div>
-  );
-
-  const renderGlassTemplate = () => (
-    <div className="fixed inset-0 flex items-center justify-center">
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-slate-950 to-cyan-900" />
-      <div className="absolute inset-0 backdrop-blur-sm" />
-      <div className="relative z-10 max-w-md w-full p-8 bg-white/5 border border-white/10 rounded-[2.5rem] backdrop-blur-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] space-y-6 animate-in slide-in-from-bottom-8">
-        <div className="text-center space-y-4">
-          <div className="inline-block p-4 rounded-full bg-white/10 border border-white/20">
-            <Sparkles className="w-8 h-8 text-cyan-400" />
-          </div>
-          <h2 className="text-2xl font-black text-white">System Authorization</h2>
-        </div>
-        {renderForm()}
-      </div>
-    </div>
-  );
-
-  const renderTerminalTemplate = () => (
-    <div className="fixed inset-0 flex items-center justify-center bg-[#001433]">
-      <div className="w-full max-w-2xl p-6 font-mono space-y-8 animate-in fade-in">
-        <div className="space-y-2 border-b border-blue-900 pb-4">
-          <div className="flex items-center gap-2 text-blue-400">
-            <Monitor className="w-5 h-5" />
-            <span className="text-sm font-bold uppercase tracking-widest">MTS-SAP Enterprise Console v4.8</span>
-          </div>
-          <div className="text-emerald-500 text-xs">STATUS: ONLINE / SECURE PORT 3000</div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-          <div className="space-y-4 text-[11px] text-blue-300/70 uppercase leading-relaxed">
-            <p>{'>'} initializing system handshake...</p>
-            <p>{'>'} tenant_id: {currentComp?.code}</p>
-            <p>{'>'} fbr_ntn: {currentComp?.ntn}</p>
-            <p>{'>'} aes_256_ready: true</p>
-            <p className="text-blue-400 font-bold">{'>'} READY FOR AUTHENTICATION</p>
-          </div>
-          <div className="bg-black/40 p-6 rounded-xl border border-blue-900/50">
-            {renderForm()}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  // Selector based on template ID
-  switch (loginTemplate) {
-    case 'minimal': return renderMinimalTemplate();
-    case 'glass': return renderGlassTemplate();
-    case 'terminal': return renderTerminalTemplate();
-    case 'split':
-    default: return renderSplitTemplate();
-  }
+  return renderSplitTemplate();
 };

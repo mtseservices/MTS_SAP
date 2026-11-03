@@ -1,0 +1,1436 @@
+# MASTER DEVELOPMENT PROMPT
+# MTS ERP FUTURE SOLUTIONS
+# PARTNERSHIP MANAGEMENT, PARTNERSHIP DEED & PROFIT/LOSS DISTRIBUTION MODULE
+
+## 1. DEVELOPMENT OBJECTIVE
+
+Act as a senior ERP architect, partnership accounting specialist, business contract management specialist, financial controller, legal document workflow designer and full-stack developer.
+
+I have an existing MTS ERP FUTURE SOLUTIONS application developed using Google AI Studio Build, React, TypeScript, Firebase and Vercel.
+
+Add a complete enterprise-level **Partnership Management System** to the existing ERP.
+
+This must be a fully functional module, not a static demo, sample screen or non-working prototype.
+
+It must work with real-time Firebase database operations, calculations, document management, approval workflows, audit trails and integration with the existing Finance & Accounts, Costing, Inventory, Sales, Procurement, HR and other ERP modules.
+
+Preserve existing ERP functionality and database records.
+
+The module must support:
+- Two partners.
+- Three partners.
+- Four partners.
+- Five partners.
+- Multiple partners.
+- Custom partnership structures.
+- Individual investors.
+- Working partners.
+- Sleeping partners.
+- Capital-only partners.
+- Profit-sharing partners.
+- Business operating partners.
+- Corporate and individual partners, where legally permitted.
+
+Do not restrict the number of partners to a fixed number.
+
+---
+
+# 2. PARTNERSHIP MANAGEMENT DASHBOARD
+
+Create a professional dashboard titled:
+
+**Partnership & Joint Venture Management**
+
+Display real-time summary cards:
+
+1. Total Partnerships.
+2. Active Partnerships.
+3. Pending Agreements.
+4. Draft Agreements.
+5. Active Partners.
+6. Total Capital Investment.
+7. Total Profit Allocated.
+8. Total Loss Allocated.
+9. Outstanding Partner Payments.
+10. Pending Partner Approvals.
+11. Expiring Agreements.
+12. Disputed Agreements.
+
+Provide dashboard filters:
+- Company.
+- Partnership.
+- Partner.
+- Financial Year.
+- Agreement Status.
+- Partnership Type.
+- Branch.
+- Date Range.
+
+Display:
+- Partner contribution chart.
+- Profit-sharing chart.
+- Capital investment chart.
+- Partner-wise balances.
+- Monthly profit distribution.
+- Partnership liabilities.
+- Pending approvals.
+
+All dashboard figures must be calculated from actual saved records, not hardcoded sample values.
+
+---
+
+# 3. PARTNERSHIP MASTER REGISTRATION
+
+Create a detailed Partnership Registration Form.
+
+## A. General Partnership Information
+
+Fields:
+
+- Partnership ID (Auto Generated).
+- Partnership Code.
+- Partnership Name.
+- Registered Business Name.
+- Business Category.
+- Business Subcategory.
+- Business Activity.
+- Partnership Type.
+- Registration Date.
+- Effective Date.
+- Agreement Start Date.
+- Agreement End Date.
+- Financial Year.
+- Partnership Duration.
+- Country.
+- Province.
+- City.
+- Registered Office Address.
+- Operating Address.
+- Tax Registration Number.
+- NTN.
+- STRN, where applicable.
+- Registration Authority.
+- Registration Number.
+- Bank Account Details.
+- Currency.
+- Status.
+
+Partnership Type:
+- General Partnership.
+- Limited Liability Partnership, where legally applicable.
+- Joint Venture.
+- Strategic Partnership.
+- Investment Partnership.
+- Working Partnership.
+- Silent / Sleeping Partnership.
+- Profit-Sharing Arrangement.
+- Custom Agreement.
+
+Important: Clearly distinguish a contractual profit-sharing arrangement from a legally registered partnership. Do not automatically classify every investor or commission recipient as a legal partner.
+
+## B. Partnership Purpose
+
+Fields:
+
+- Business Purpose.
+- Nature of Business.
+- Scope of Activities.
+- Investment Objective.
+- Operational Responsibilities.
+- Geographic Operating Area.
+- Product / Service Categories.
+- Business Assets.
+- Initial Business Value.
+- Expected Revenue.
+- Expected Investment.
+- Special Conditions.
+
+---
+
+# 4. PARTNER MASTER – MULTIPLE PARTNERS
+
+Create a separate partner record for every partner.
+
+Allow adding unlimited partners subject to platform and subscription limits.
+
+Button: **+ Add New Partner**
+
+## Partner Information Form
+
+### A. Personal / Business Information
+
+- Partner ID.
+- Partner Code.
+- Partner Type.
+- Full Name.
+- Father / Husband Name, where applicable.
+- Company / Organization Name.
+- CNIC / Registration Number.
+- NTN.
+- Date of Birth / Incorporation.
+- Nationality.
+- Country.
+- City.
+- Residential / Registered Address.
+- Email.
+- Mobile Number.
+- WhatsApp Number.
+- Emergency Contact.
+- Occupation.
+- Designation.
+- Profile Photograph.
+- CNIC / Registration Document Upload.
+- Tax Document Upload.
+- Bank Account Details.
+
+Collect sensitive identity documents only when necessary, protect them with strict access permissions and never display full identity numbers unnecessarily.
+
+### B. Partner Classification
+
+Provide selectable options:
+
+1. Active Partner.
+2. Working Partner.
+3. Sleeping Partner.
+4. Capital Partner.
+5. Investor Partner.
+6. Managing Partner.
+7. Technical Partner.
+8. Silent Partner.
+9. Profit-Sharing Partner.
+10. Custom Partner.
+
+A partner may have multiple classifications.
+
+### C. Partner Joining Details
+
+- Joining Date.
+- Effective Date.
+- Retirement Date.
+- Partner Status.
+- Initial Capital.
+- Additional Capital.
+- Agreed Profit Share.
+- Agreed Loss Share.
+- Voting Rights.
+- Management Rights.
+- Signing Authority.
+- Bank Transaction Authority.
+
+---
+
+# 5. PARTNER CAPITAL CONTRIBUTION MANAGEMENT
+
+Create a complete Capital Contribution Management Form.
+
+Each partner may contribute capital in different ways.
+
+Contribution Types:
+
+- Cash.
+- Bank Transfer.
+- Property.
+- Land.
+- Machinery.
+- Equipment.
+- Vehicles.
+- Inventory.
+- Raw Materials.
+- Finished Goods.
+- Technology.
+- Intellectual Property.
+- Services.
+- Other Assets.
+
+## Capital Contribution Form
+
+Fields:
+
+- Contribution ID.
+- Partnership ID.
+- Partner ID.
+- Contribution Date.
+- Contribution Type.
+- Description.
+- Quantity.
+- UOM.
+- Agreed Valuation.
+- Unit Value.
+- Total Contribution Value.
+- Currency.
+- Payment Reference.
+- Asset Reference.
+- Valuation Method.
+- Supporting Document.
+- Approval Status.
+- Approved By.
+- Approval Date.
+
+Support multiple contributions by the same partner.
+
+## Capital Account
+
+Maintain separate capital accounts for every partner.
+
+Track:
+
+- Opening Capital.
+- Initial Investment.
+- Additional Investment.
+- Asset Contribution.
+- Capital Withdrawal.
+- Profit Added.
+- Loss Deducted.
+- Other Adjustments.
+- Closing Capital.
+
+Formula:
+
+Closing Capital = Opening Capital + Additional Contributions + Allocated Profit - Allocated Loss - Capital Withdrawals +/- Approved Adjustments.
+
+Do not treat partner loans as capital contributions unless explicitly classified and approved as capital.
+
+---
+
+# 6. PROFIT-SHARING CONFIGURATION ENGINE
+
+This is one of the most important sections.
+
+Create a flexible Profit & Loss Sharing Configuration module.
+
+Each partnership must have its own configurable sharing agreement.
+
+Do not assume that all partners receive equal percentages.
+
+## Sharing Models
+
+Support:
+
+1. Equal Percentage.
+2. Unequal Percentage.
+3. Fixed Amount.
+4. Percentage + Fixed Amount.
+5. Capital-Based Sharing.
+6. Revenue-Based Sharing.
+7. Net Profit-Based Sharing.
+8. Gross Profit-Based Sharing.
+9. Department-Based Sharing.
+10. Product-Based Sharing.
+11. Project-Based Sharing.
+12. Branch-Based Sharing.
+13. Partner-Specific Formula.
+14. Custom Formula.
+
+## A. Percentage-Based Sharing
+
+Example:
+
+Partnership has three partners.
+
+- Partner A: 50%.
+- Partner B: 30%.
+- Partner C: 20%.
+
+Total must equal 100% for a complete allocation under a full-distribution agreement.
+
+The system must automatically calculate each partner's share.
+
+Example: Distributable Profit = Rs. 1,000,000.
+
+- Partner A = Rs. 500,000.
+- Partner B = Rs. 300,000.
+- Partner C = Rs. 200,000.
+
+## B. Fixed Amount Sharing
+
+Example:
+
+- Partner A = Rs. 100,000.
+- Partner B = Rs. 150,000.
+- Partner C = Remaining Profit.
+
+Allow:
+- Fixed monthly amount.
+- Fixed quarterly amount.
+- Fixed annual amount.
+- Fixed project amount.
+- Fixed transaction amount.
+
+A fixed amount must be classified clearly as one of:
+- Partner remuneration.
+- Guaranteed payment, if legally and contractually permitted.
+- Profit distribution.
+- Commission.
+- Reimbursement.
+- Other approved payment.
+
+Do not automatically treat a fixed payment as profit distribution.
+
+## C. Percentage + Fixed Amount
+
+Example:
+
+Partner A:
+- Fixed monthly remuneration: Rs. 50,000.
+- Profit share: 40%.
+
+Partner B:
+- Fixed monthly remuneration: Rs. 30,000.
+- Profit share: 35%.
+
+Partner C:
+- Profit share: 25%.
+
+The calculation engine must distinguish partner remuneration from distributable profit and prevent duplicate deduction.
+
+## D. Custom Sharing
+
+Allow manual configuration.
+
+Example:
+
+| Partner | Profit Share | Fixed Amount |
+|---|---:|---:|
+| Partner A | 40% | Rs. 50,000 |
+| Partner B | 35% | Rs. 30,000 |
+| Partner C | 25% | Rs. 0 |
+
+Allow different percentage and amount settings for different business activities.
+
+## E. Percentage Validation
+
+Implement:
+- Percentage total validation.
+- Missing percentage warning.
+- Over-allocation warning.
+- Under-allocation warning.
+- Unallocated balance tracking.
+- Rounding adjustment.
+- Approval before activation.
+
+For a 100% allocation rule, do not activate the distribution configuration if the percentage total is not 100%, unless an authorized user explicitly selects a permitted residual/unallocated-share arrangement.
+
+Never silently modify a partner's percentage.
+
+---
+
+# 7. PROFIT AND LOSS CALCULATION ENGINE
+
+Connect this module with existing ERP financial transactions.
+
+Profit must be calculated from actual approved accounting records.
+
+Provide configurable calculation bases:
+
+- Gross Profit.
+- Operating Profit.
+- Net Profit.
+- Profit Before Tax.
+- Profit After Tax.
+- Project Profit.
+- Product Profit.
+- Branch Profit.
+- Revenue Less Agreed Expenses.
+
+## Profit Calculation Components
+
+Revenue:
+- Sales Revenue.
+- Service Revenue.
+- Other Operating Income.
+- Approved Additional Income.
+
+Less:
+- Sales Returns.
+- Discounts.
+- Cost of Goods Sold.
+- Direct Expenses.
+- Salaries.
+- Rent.
+- Utilities.
+- Logistics.
+- Marketing.
+- Administrative Expenses.
+- Depreciation.
+- Finance Cost.
+- Taxes, as applicable.
+- Other Approved Expenses.
+
+Show a detailed Profit & Loss Calculation Statement.
+
+Clearly separate:
+- Accounting profit.
+- Taxable profit.
+- Cash available for distribution.
+- Distributable profit.
+
+The distributable amount must follow the agreement and applicable law, including reserves, accumulated losses, liabilities and required approvals.
+
+## Real-Time Calculations
+
+When approved financial transactions change:
+- Recalculate relevant profitability.
+- Update the partnership dashboard.
+- Update partner allocation previews.
+- Update financial statements.
+
+Do not automatically post final partner distributions just because a sales or expense record changes.
+
+Use a controlled calculation, review and approval process.
+
+---
+
+# 8. LOSS-SHARING MANAGEMENT
+
+Allow separate loss-sharing percentages.
+
+Do not assume profit percentages and loss percentages are identical.
+
+Fields:
+
+- Partner.
+- Loss Sharing Percentage.
+- Fixed Loss Responsibility.
+- Capital Risk Limit.
+- Agreed Loss Conditions.
+- Liability Terms.
+- Special Conditions.
+
+Example:
+
+- Partner A: 50%.
+- Partner B: 30%.
+- Partner C: 20%.
+
+Loss allocation must be calculated using the approved agreement.
+
+Show:
+- Total Partnership Loss.
+- Partner-wise Loss.
+- Capital Account Impact.
+- Outstanding Partner Liability.
+- Loss Carry Forward.
+- Recovery / Adjustment.
+
+For legally sensitive liability clauses, generate a draft for legal review rather than inventing enforceable terms.
+
+---
+
+# 9. PARTNER REMUNERATION, COMMISSION AND OTHER ENTITLEMENTS
+
+Create a Partner Compensation Configuration.
+
+Support different earning types:
+
+1. Monthly Salary / Remuneration.
+2. Management Fee.
+3. Sales Commission.
+4. Procurement Commission.
+5. Project Commission.
+6. Production Incentive.
+7. Business Development Fee.
+8. Fixed Allowance.
+9. Performance Bonus.
+10. Profit Share.
+11. Revenue Share.
+12. Custom Entitlement.
+
+For each earning define:
+
+- Partner.
+- Earning Type.
+- Calculation Basis.
+- Fixed Amount.
+- Percentage.
+- Rate.
+- Effective Date.
+- Expiry Date.
+- Applicable Department.
+- Applicable Product.
+- Applicable Project.
+- Applicable Branch.
+- Approval Rule.
+- Accounting Head.
+
+## Commission Examples
+
+Sales commission:
+- 2% of approved net sales.
+
+Procurement commission:
+- Fixed amount per approved procurement order.
+
+Project commission:
+- 5% of approved project profit.
+
+Management remuneration:
+- Rs. 75,000 per month.
+
+Each entitlement must have a clear accounting classification.
+
+Prevent duplicate commissions and double-counting in the profit calculation.
+
+---
+
+# 10. PARTNER ROLES, RESPONSIBILITIES AND AUTHORITY
+
+Create a Partnership Roles & Responsibilities Matrix.
+
+Each partner can have separate authority.
+
+Define:
+
+- Managing Partner.
+- Finance Partner.
+- Operations Partner.
+- Procurement Partner.
+- Sales Partner.
+- Production Partner.
+- Technical Partner.
+- Investor.
+- Advisory Partner.
+
+For each partner configure:
+
+- Responsibilities.
+- Department Access.
+- Approval Authority.
+- Spending Limit.
+- Contract Signing Authority.
+- Bank Authorization.
+- Purchase Approval.
+- Sales Approval.
+- Hiring Authority.
+- Financial Reporting Access.
+- Voting Rights.
+- Decision-Making Power.
+
+Example:
+
+Partner A:
+- Managing Partner.
+- Purchase Approval up to Rs. 500,000.
+- Bank Authorization.
+
+Partner B:
+- Finance Partner.
+- Accounts Approval.
+- Financial Reports.
+
+Partner C:
+- Operations Partner.
+- Inventory and Production Access.
+
+Use Role-Based Access Control.
+
+Voting percentage and financial profit percentage must be separate fields.
+
+---
+
+# 11. PARTNERSHIP DECISION AND VOTING SYSTEM
+
+Create a Partner Resolution Management module.
+
+Support:
+
+- Ordinary Decisions.
+- Major Business Decisions.
+- Capital Increase.
+- New Partner Admission.
+- Partner Removal.
+- Business Expansion.
+- Loan Approval.
+- Asset Sale.
+- Agreement Amendment.
+- Profit Distribution.
+- Business Closure.
+
+Fields:
+
+- Resolution Number.
+- Meeting Date.
+- Resolution Subject.
+- Description.
+- Proposed By.
+- Applicable Partners.
+- Voting Method.
+- Approval Threshold.
+- Votes in Favour.
+- Votes Against.
+- Abstentions.
+- Final Decision.
+- Meeting Minutes.
+- Attachments.
+
+Voting models:
+- One Partner, One Vote.
+- Percentage-Based Voting.
+- Unanimous Approval.
+- Majority Approval.
+- Custom Contractual Voting.
+
+Do not automatically use profit percentages as voting rights.
+
+Apply the exact voting rule specified in the approved agreement.
+
+---
+
+# 12. COMPLETE PARTNERSHIP DEED / CONTRACT GENERATOR
+
+Create a professional Partnership Agreement & Deed Generator.
+
+This must generate a lengthy, structured, editable contract based on the actual partnership information.
+
+Do not generate a generic one-page agreement.
+
+The agreement should include the following sections.
+
+## Partnership Deed Structure
+
+### 1. Title and Introduction
+- Partnership Agreement Title.
+- Agreement Number.
+- Date of Execution.
+- Place of Execution.
+- Names of All Parties.
+
+### 2. Definitions and Interpretation
+Define:
+- Partnership.
+- Partners.
+- Capital.
+- Contribution.
+- Revenue.
+- Profit.
+- Loss.
+- Distributable Profit.
+- Remuneration.
+- Business Assets.
+- Financial Year.
+- Confidential Information.
+- Effective Date.
+
+### 3. Formation of Partnership
+- Names of partners.
+- Business name.
+- Registered address.
+- Principal place of business.
+- Nature of business.
+- Business objectives.
+- Commencement date.
+
+### 4. Duration
+- Fixed-term or continuing arrangement.
+- Renewal conditions.
+- Termination provisions.
+
+### 5. Capital Contributions
+For each partner:
+- Initial capital.
+- Additional capital.
+- Asset contributions.
+- Valuation.
+- Contribution deadlines.
+- Capital account treatment.
+
+### 6. Profit-Sharing Agreement
+- Profit calculation basis.
+- Profit percentages.
+- Fixed profit allocations, if applicable.
+- Variable sharing.
+- Remuneration.
+- Reserves.
+- Distribution frequency.
+- Distribution approvals.
+
+### 7. Loss-Sharing Agreement
+- Loss calculation.
+- Loss percentages.
+- Capital account treatment.
+- Loss carry-forward.
+- Additional capital requirements.
+- Contractual limitations.
+
+### 8. Partner Remuneration
+- Monthly payments.
+- Management fees.
+- Commission.
+- Bonuses.
+- Reimbursements.
+- Approval process.
+
+### 9. Roles and Responsibilities
+- Individual partner duties.
+- Operational responsibilities.
+- Management responsibilities.
+- Reporting obligations.
+
+### 10. Bank and Financial Authority
+- Bank account operation.
+- Authorized signatories.
+- Payment approval limits.
+- Financial controls.
+- Borrowing authority.
+
+### 11. Management and Decision-Making
+- Management powers.
+- Voting rights.
+- Ordinary decisions.
+- Major decisions.
+- Unanimous decisions.
+- Meeting procedures.
+
+### 12. Accounting and Audit
+- Accounting records.
+- Financial year.
+- Financial statements.
+- Inspection rights.
+- Internal audit.
+- External audit.
+- Tax compliance.
+
+### 13. Drawings and Withdrawals
+- Monthly drawings.
+- Advance payments.
+- Capital withdrawals.
+- Partner current accounts.
+- Adjustment procedures.
+
+### 14. Confidentiality
+- Business information.
+- Financial records.
+- Customer data.
+- Supplier information.
+- Trade secrets.
+
+### 15. Conflict of Interest
+- Disclosure requirements.
+- Related-party transactions.
+- Competing business activities.
+- Approval requirements.
+
+### 16. Admission of New Partners
+- Approval process.
+- Capital contribution.
+- Revised sharing percentages.
+- Deed amendment.
+- Effective date.
+
+### 17. Retirement and Withdrawal
+- Notice period.
+- Settlement date.
+- Capital account settlement.
+- Profit or loss adjustment.
+- Outstanding liabilities.
+
+### 18. Death or Incapacity of a Partner
+- Notice.
+- Estate / legal representative process.
+- Valuation.
+- Settlement.
+- Continuation of partnership.
+
+### 19. Transfer of Partnership Interest
+- Transfer restrictions.
+- Consent requirements.
+- Valuation.
+- Existing partners' rights.
+
+### 20. Dispute Resolution
+- Internal discussion.
+- Negotiation.
+- Mediation.
+- Arbitration where validly agreed.
+- Court jurisdiction.
+- Governing law.
+
+### 21. Dissolution and Winding Up
+- Dissolution conditions.
+- Asset valuation.
+- Settlement of liabilities.
+- Outstanding taxes.
+- Partner capital settlement.
+- Distribution of remaining assets.
+
+### 22. Amendments
+- Written amendments.
+- Partner approval.
+- Version history.
+- Effective date.
+
+### 23. Notices
+- Official email.
+- Registered address.
+- Delivery procedure.
+
+### 24. Governing Law
+For Pakistan-based agreements, provide configurable jurisdiction and governing-law fields.
+
+Where appropriate, include the Pakistan Partnership Act, 1932 as a legal reference for general partnership agreements, subject to current legal verification and the selected legal structure.
+
+Do not represent an LLP, company or other legal structure as an ordinary partnership automatically.
+
+### 25. Signatures and Witnesses
+For each partner:
+- Full Name.
+- CNIC / Identification.
+- Signature.
+- Date.
+- Witness Name.
+- Witness Identification.
+- Witness Signature.
+
+### 26. Annexures
+- Partner List.
+- Capital Contribution Schedule.
+- Profit Sharing Schedule.
+- Loss Sharing Schedule.
+- Partner Remuneration Schedule.
+- Roles & Responsibilities.
+- Asset Contribution Schedule.
+- Special Conditions.
+- Other Attachments.
+
+## Contract generation features
+
+Buttons:
+- Generate Draft Agreement.
+- Edit Agreement.
+- Preview.
+- Save Draft.
+- Submit for Approval.
+- Approve.
+- Reject.
+- Download PDF.
+- Download DOCX.
+- Print.
+- Create New Version.
+- Archive.
+
+Generate contract text using saved partnership information and approved terms.
+
+Never invent a partner's percentage, contribution, liability or authority.
+
+If a required term is missing, mark it as **Not Defined – Requires Partner Decision**.
+
+Allow the user to manually edit every clause before approval.
+
+Show a clear warning:
+
+"Generated agreement is a draft for review. Legal validity, stamping, registration and enforceability must be verified by a qualified legal professional."
+
+Do not claim that an electronically generated document is automatically registered, stamped or legally executed.
+
+---
+
+# 13. DOCUMENT UPLOAD AND AGREEMENT MANAGEMENT
+
+Create a Partnership Document Management section.
+
+Allow uploads of:
+
+- Existing Partnership Deed.
+- Signed Agreement.
+- CNIC Copies.
+- NTN Documents.
+- Registration Certificates.
+- Capital Contribution Proof.
+- Bank Statements.
+- Property Documents.
+- Asset Valuation Reports.
+- Tax Documents.
+- Meeting Minutes.
+- Amendment Documents.
+- Other Legal Documents.
+
+Features:
+- Upload.
+- Preview.
+- Download.
+- Replace.
+- Version History.
+- Document Category.
+- Issue Date.
+- Expiry Date.
+- Uploaded By.
+- Approval Status.
+- Access Permissions.
+
+Support PDF, DOCX, XLSX, JPG and PNG, subject to secure file validation.
+
+Store files in Firebase Storage.
+
+Use tenant-scoped file access rules.
+
+Do not expose private partnership documents through public URLs.
+
+---
+
+# 14. PARTNER APPROVAL AND SIGNATURE WORKFLOW
+
+Create a complete approval workflow.
+
+Agreement Status:
+
+- Draft.
+- Under Review.
+- Pending Partner Approval.
+- Partially Approved.
+- Approved.
+- Rejected.
+- Signed.
+- Active.
+- Expired.
+- Amended.
+- Terminated.
+- Archived.
+
+Each partner should be able to:
+- Review agreement.
+- Review capital contribution.
+- Review profit percentage.
+- Review loss percentage.
+- Review responsibilities.
+- Accept.
+- Reject.
+- Request Amendment.
+- Add Comments.
+
+Maintain:
+- Partner Approval Date.
+- Approved Version.
+- User Identity.
+- Signature Record.
+- Timestamp.
+- IP / security audit information, where legally appropriate.
+
+If electronic signature integration is added, use a real supported provider and clearly distinguish an e-signature from a scanned signature image.
+
+Do not simulate legal signatures.
+
+---
+
+# 15. PARTNERSHIP ACCOUNTING INTEGRATION
+
+Integrate with existing Finance & Accounts.
+
+Create or map accounting ledgers:
+
+- Partner Capital Account.
+- Partner Current Account.
+- Partner Loan Account.
+- Partner Drawings Account.
+- Partner Remuneration Expense.
+- Partner Commission Expense.
+- Profit Distribution Payable.
+- Loss Allocation Account.
+- Partner Settlement Account.
+
+Support individual partner ledgers.
+
+Every approved financial posting must generate appropriate accounting entries.
+
+Example:
+
+When a partner contributes Rs. 500,000 in cash:
+
+Debit: Cash / Bank Rs. 500,000.
+
+Credit: Partner A Capital Account Rs. 500,000.
+
+For an approved profit distribution:
+
+Debit: Retained Earnings / Appropriation Account.
+
+Credit: Partner Profit Distribution Payable.
+
+Actual accounting treatment must be configurable according to the selected entity type and accountant-approved chart of accounts.
+
+Do not post draft or unapproved distributions to the general ledger.
+
+Use double-entry accounting and balanced journal validation.
+
+---
+
+# 16. PARTNER PAYMENTS AND SETTLEMENTS
+
+Create a Partner Payment Management module.
+
+Payment types:
+
+- Profit Distribution.
+- Monthly Remuneration.
+- Commission.
+- Capital Return.
+- Loan Repayment.
+- Expense Reimbursement.
+- Other Approved Payment.
+
+Fields:
+
+- Payment Voucher Number.
+- Partnership.
+- Partner.
+- Payment Type.
+- Payment Date.
+- Amount.
+- Currency.
+- Bank / Cash Account.
+- Transaction Reference.
+- Supporting Document.
+- Approval Status.
+- Journal Reference.
+
+Show:
+
+- Total Payable.
+- Total Paid.
+- Outstanding Payable.
+- Advance Paid.
+- Pending Settlement.
+- Partner Current Balance.
+
+Provide partner-wise payment history.
+
+---
+
+# 17. PARTNER PERFORMANCE AND BUSINESS CONTRIBUTION
+
+Create Partner Performance Reports.
+
+Track, where relevant:
+
+- Sales Generated.
+- Procurement Managed.
+- Projects Managed.
+- Capital Invested.
+- Operational Contribution.
+- Department Performance.
+- Target Achievement.
+- Assigned Responsibilities.
+- Approved Incentives.
+
+Do not automatically change legal profit-sharing percentages based on performance.
+
+Any change must require an approved agreement amendment.
+
+---
+
+# 18. REPORTING ENGINE
+
+Create the following detailed reports.
+
+## Partnership Reports
+1. Partnership Master Register.
+2. Active Partnership List.
+3. Partnership Agreement Register.
+4. Partnership Expiry Report.
+5. Partner Information Register.
+6. Partner Status Report.
+
+## Capital Reports
+7. Partner Capital Contribution.
+8. Partner Capital Ledger.
+9. Capital Withdrawal Report.
+10. Asset Contribution Report.
+11. Partner Loan Report.
+
+## Profit & Loss Reports
+12. Partnership Profit & Loss.
+13. Partner-wise Profit Allocation.
+14. Partner-wise Loss Allocation.
+15. Profit Distribution Statement.
+16. Unallocated Profit Report.
+17. Profit Sharing Percentage Report.
+18. Fixed Payment Report.
+19. Commission Report.
+
+## Financial Reports
+20. Partner Current Account.
+21. Partner Balance Sheet Schedule.
+22. Partner Payment Register.
+23. Outstanding Partner Payables.
+24. Partner Drawings Report.
+25. Partner Settlement Report.
+
+## Governance Reports
+26. Partner Voting Report.
+27. Partnership Resolution Register.
+28. Agreement Approval Report.
+29. Agreement Amendment History.
+30. Pending Signatures Report.
+31. Dispute Register.
+
+All reports must support:
+- Date filters.
+- Partnership filters.
+- Partner filters.
+- Financial year.
+- Export to Excel.
+- Export to PDF.
+- Print.
+- Search.
+- Sorting.
+- Column selection.
+- Drill-down to source transactions.
+
+---
+
+# 19. REAL-TIME OPERATION AND DATA VALIDATION
+
+This module must work with actual application data.
+
+Use Firebase Firestore real-time listeners where appropriate.
+
+Use server-side functions for critical financial calculations and approvals.
+
+Implement:
+
+- Real-time partnership updates.
+- Real-time partner balances.
+- Real-time capital balances.
+- Real-time profit calculation previews.
+- Real-time pending approvals.
+- Real-time payment status.
+- Real-time agreement status.
+
+Use transactions or atomic operations for sensitive updates.
+
+Implement idempotency for financial postings and payment processing.
+
+Maintain version numbers and prevent accidental overwriting of another user's changes.
+
+If two authorized users edit the same agreement, detect conflicts and ask them to review the latest version.
+
+Do not silently overwrite important partnership terms.
+
+---
+
+# 20. DATABASE STRUCTURE
+
+Inspect the existing Firestore database before creating new collections.
+
+Reuse existing company and tenant structures.
+
+Create or extend:
+
+- partnerships
+- partnershipPartners
+- partnerProfiles
+- partnerContributions
+- partnerCapitalAccounts
+- partnershipSharingRules
+- partnershipProfitCalculations
+- partnershipLossAllocations
+- partnerEntitlements
+- partnerRemunerations
+- partnerCommissions
+- partnershipAgreements
+- partnershipAgreementVersions
+- partnershipDocuments
+- partnershipApprovals
+- partnershipSignatures
+- partnershipResolutions
+- partnershipVotingRecords
+- partnerPayments
+- partnerSettlements
+- partnershipJournalEntries
+- partnershipReports
+- partnershipAuditLogs
+
+Every tenant-owned record must include:
+- tenantId
+- companyId
+- partnershipId where applicable
+- createdAt
+- createdBy
+- updatedAt
+- updatedBy
+- status
+
+Use secure Firestore rules and server-side authorization.
+
+Only authorized users can access the relevant partnership records.
+
+---
+
+# 21. USER ROLES AND PERMISSIONS
+
+Support these permission groups:
+
+- Company Administrator.
+- Managing Partner.
+- Finance Manager.
+- Partnership Manager.
+- Accountant.
+- Partner.
+- Legal Reviewer.
+- Auditor.
+- Read-Only User.
+
+Permissions must be configurable.
+
+Example:
+
+Managing Partner:
+- View partnership.
+- Manage assigned responsibilities.
+- Approve permitted operations.
+
+Finance Manager:
+- View capital accounts.
+- Prepare profit calculations.
+- Prepare distribution statements.
+
+Accountant:
+- Prepare journals.
+- Reconcile payments.
+- Generate financial reports.
+
+Partner:
+- View their own approved partnership information.
+- Review assigned agreements.
+- Submit approvals.
+- View their own contribution and payment statements.
+
+A partner must not automatically receive access to every other partner's private documents or personal details.
+
+---
+
+# 22. USER INTERFACE AND DESIGN
+
+Use the existing MTS ERP design system.
+
+Create a professional enterprise-level interface.
+
+Sidebar:
+
+**Partnership Management**
+- Dashboard.
+- Partnership Master.
+- Partner Master.
+- Capital Contributions.
+- Profit & Loss Sharing.
+- Partner Remuneration.
+- Commission Management.
+- Roles & Responsibilities.
+- Partnership Agreements.
+- Document Management.
+- Approvals & Signatures.
+- Partner Payments.
+- Partner Settlements.
+- Partnership Reports.
+- Settings.
+
+Provide:
+- Responsive layouts.
+- Searchable tables.
+- Professional forms.
+- Dynamic calculations.
+- Validation messages.
+- Confirmation dialogs.
+- Approval workflows.
+- Document previews.
+- Print-friendly agreements.
+
+Do not use decorative buttons that do nothing.
+
+---
+
+# 23. TESTING AND ACCEPTANCE CRITERIA
+
+Test these complete workflows.
+
+### Test A – Two Partners
+
+- Create a partnership.
+- Add two partners.
+- Add capital contributions.
+- Set profit percentages to 60% and 40%.
+- Set loss percentages independently.
+- Generate agreement.
+- Approve the agreement.
+- Calculate profit.
+- Generate partner distribution.
+- Approve payments.
+- Post accounting entries.
+
+### Test B – Three Partners
+
+- Add three partners.
+- Configure 50%, 30%, 20% profit sharing.
+- Enter Rs. 1,000,000 distributable profit.
+- Confirm the allocation:
+  - Partner A: Rs. 500,000.
+  - Partner B: Rs. 300,000.
+  - Partner C: Rs. 200,000.
+
+### Test C – Fixed and Percentage Combination
+
+- Add monthly remuneration for Partner A.
+- Add fixed amount for Partner B.
+- Add percentage-based profit distribution.
+- Confirm that remuneration is treated separately.
+- Prevent duplicate deductions.
+
+### Test D – Percentage Validation
+
+- Enter 40%, 30%, 20%.
+- Show that 10% is unallocated.
+- Do not silently distribute it.
+- Require a permitted allocation rule or correction.
+
+### Test E – Contract Amendment
+
+- Change a partner's sharing percentage.
+- Create a new agreement version.
+- Obtain required approvals.
+- Preserve previous agreement.
+- Apply new percentage only from the approved effective date.
+
+### Test F – Tenant Security
+
+- Ensure one company cannot access another company's partnerships.
+- Ensure partner access is restricted.
+- Ensure confidential documents are protected.
+
+### Test G – Real-Time Financial Integrity
+
+- Verify profit calculations from actual approved transactions.
+- Prevent duplicate journal entries.
+- Prevent unauthorized financial posting.
+- Verify audit logs.
+
+---
+
+# 24. FINAL IMPLEMENTATION INSTRUCTIONS
+
+Do not build only a partnership form.
+
+Build a complete working Partnership Management System integrated with the existing ERP.
+
+Do not hardcode partner names, percentages, investment amounts or sample profits into production.
+
+All partner details must be entered by authorized users.
+
+All sharing percentages and fixed amounts must be configurable.
+
+All calculations must use saved agreement rules.
+
+All financial postings must follow approved accounting workflows.
+
+All contract clauses must be editable.
+
+All agreements must maintain version history.
+
+All partner approvals must be recorded.
+
+All documents must be stored securely.
+
+All financial transactions must be traceable.
+
+Do not claim legal registration or valid execution without the required legal process.
+
+Do not claim a real-time integration is active until the Firebase connection and corresponding operations have actually been tested.
+
+**FINAL RESULT: Deliver a fully functional, real-time, enterprise-level Partnership Management, Partner Accounting, Profit & Loss Sharing, Capital Contribution, Partnership Deed Generation, Document Management, Approval, Signature and Settlement System inside the existing MTS ERP FUTURE SOLUTIONS application.**

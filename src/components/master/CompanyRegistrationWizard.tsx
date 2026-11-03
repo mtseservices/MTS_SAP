@@ -35,14 +35,15 @@ import {
   Zap
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
-import { IndustryPackage, ThemePalette, ThemeMode, LoginTemplateId, TableDensity } from '../../types/erp';
+import { IndustryPackage, ThemePalette, ThemeMode, LoginTemplateId, TableDensity, SubscriptionPlan } from '../../types/erp';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../../services/firebaseConfig';
-import { getDefaultDepartmentIdsForIndustry } from '../../services/departmentCategoryMapper';
+import { getDefaultDepartmentIdsForIndustry, getDefaultModulesForIndustry } from '../../services/departmentCategoryMapper';
 import { COMPLETE_DEPARTMENTS_CATALOGUE } from '../../services/departmentCatalogueData';
 import { PAKISTAN_PROVINCES_CITIES, getCitiesForProvince } from '../../services/pakistanRegions';
 import { PAKISTANI_BANKS_LIST } from '../../services/pakistaniBanks';
 import { SearchableSelect } from '../common/SearchableSelect';
+import { getSubscriptionPlans } from '../../services/subscriptionPlansService';
 
 interface CompanyRegistrationWizardProps {
   onSuccess: (slug: string) => void;
@@ -125,13 +126,25 @@ export const CompanyRegistrationWizard: React.FC<CompanyRegistrationWizardProps>
     backgroundUrl: ''
   });
 
-  // Auto-selection logic
+  const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
+
+  // Load persistent master subscription plans
+  useEffect(() => {
+    getSubscriptionPlans().then((loadedPlans) => {
+      if (loadedPlans && loadedPlans.length > 0) {
+        setSubscriptionPlans(loadedPlans);
+      }
+    });
+  }, []);
+
+  // Auto-selection logic whenever Industry Core changes
   useEffect(() => {
     const autoDepts = getDefaultDepartmentIdsForIndustry(formData.industry, formData.category);
+    const autoModules = getDefaultModulesForIndustry(formData.industry);
     setFormData(prev => ({ 
       ...prev, 
       assignedDepartmentIds: autoDepts,
-      // Also auto-select relevant modules based on industry if needed
+      activeModules: autoModules
     }));
   }, [formData.industry]);
 
@@ -207,7 +220,8 @@ export const CompanyRegistrationWizard: React.FC<CompanyRegistrationWizardProps>
   };
 
   const calculateBill = () => {
-    const base = PLAN_PRICING[formData.subscriptionPlan] || 0;
+    const matchedPlan = subscriptionPlans.find(p => p.name === formData.subscriptionPlan);
+    const base = matchedPlan ? matchedPlan.pricePKR : (PLAN_PRICING[formData.subscriptionPlan] || 85000);
     const cycleMultiplier = formData.billingCycle === 'Yearly' ? 10 : 1; // 2 months free for yearly
     const taxRate = 0.16; // 16% PRA/FBR
     const subtotal = base * cycleMultiplier;
@@ -561,40 +575,85 @@ Password: ${createdCompanyDetails.password}`;
                         sublabel: 'AI auto-module preset available'
                       }))}
                       value={formData.industry}
-                      onChange={(val) => setFormData({ ...formData, industry: val as IndustryPackage })}
+                      onChange={(val) => {
+                        const newInd = val as IndustryPackage;
+                        const presetModules = getDefaultModulesForIndustry(newInd);
+                        const presetDepts = getDefaultDepartmentIdsForIndustry(newInd, formData.category);
+                        setFormData((prev) => ({
+                          ...prev,
+                          industry: newInd,
+                          activeModules: presetModules,
+                          assignedDepartmentIds: presetDepts
+                        }));
+                      }}
                       placeholder="Search Industry Core..."
                       searchPlaceholder="Filter 16+ Industry Core Packages..."
                     />
                   </div>
-                  <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20">
-                    <h3 className="text-[10px] font-black text-amber-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                      <Sparkles className="w-3 h-3" /> Auto-Selected
+                  <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20 space-y-2">
+                    <h3 className="text-[10px] font-black text-amber-500 uppercase tracking-wider flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-400" /> AI Auto-Selected Modules ({getDefaultModulesForIndustry(formData.industry).length})
                     </h3>
                     <div className="text-[10px] text-slate-400 leading-relaxed font-medium">
-                      Standardized departments and reports for <span className="text-amber-200">{formData.industry}</span> have been auto-connected.
+                      Industry-tailored modules auto-connected for <span className="text-amber-200 font-bold">{formData.industry}</span>:
+                    </div>
+                    <div className="space-y-1 max-h-36 overflow-y-auto pr-1">
+                      {getDefaultModulesForIndustry(formData.industry).map((modName) => (
+                        <div key={modName} className="text-[10px] text-amber-200/90 font-mono flex items-center gap-1.5 bg-slate-950 p-1.5 rounded-lg border border-amber-500/20">
+                          <Check className="w-3 h-3 text-emerald-400 shrink-0" />
+                          <span className="truncate">{modName}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
 
                 <div className="md:col-span-2 space-y-3">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block">Active ERP Modules</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {availableModules.map((mod) => {
+                  <div className="flex items-center justify-between">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block">
+                      Active ERP Modules ({formData.activeModules.length} Selected)
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const preset = getDefaultModulesForIndustry(formData.industry);
+                        setFormData(prev => ({ ...prev, activeModules: preset }));
+                      }}
+                      className="text-[10px] font-mono text-amber-400 hover:underline flex items-center gap-1"
+                    >
+                      <RotateCcw className="w-3 h-3" /> Reset to {formData.industry} AI Presets
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 max-h-[380px] overflow-y-auto pr-1">
+                    {Array.from(new Set([...getDefaultModulesForIndustry(formData.industry), ...availableModules])).map((mod) => {
                       const isChecked = formData.activeModules.includes(mod);
+                      const isPreset = getDefaultModulesForIndustry(formData.industry).includes(mod);
                       return (
                         <button
                           type="button"
                           key={mod}
                           onClick={() => {
-                            const next = isChecked ? formData.activeModules.filter(m => m !== mod) : [...formData.activeModules, mod];
+                            const next = isChecked
+                              ? formData.activeModules.filter((m) => m !== mod)
+                              : [...formData.activeModules, mod];
                             setFormData({ ...formData, activeModules: next });
                           }}
-                          className={`p-3 rounded-xl border text-left text-[10px] font-bold uppercase flex items-center justify-between transition-all ${
-                            isChecked ? 'bg-amber-500/10 border-amber-500/40 text-amber-100 shadow-lg shadow-amber-900/10' : 'bg-slate-950 border-slate-800 text-slate-600 hover:border-slate-700'
+                          className={`p-3 rounded-xl border text-left text-[10px] font-bold uppercase flex items-center justify-between transition-all cursor-pointer ${
+                            isChecked
+                              ? 'bg-amber-500/10 border-amber-500/40 text-amber-100 shadow-lg shadow-amber-900/10'
+                              : 'bg-slate-950 border-slate-800 text-slate-600 hover:border-slate-700'
                           }`}
                         >
-                          {mod}
-                          {isChecked && <Check className="w-3 h-3" />}
+                          <div className="flex flex-col truncate pr-1">
+                            <span className="truncate">{mod}</span>
+                            {isPreset && (
+                              <span className="text-[8px] text-amber-400/80 font-mono tracking-tighter">
+                                AI Preset ({formData.industry})
+                              </span>
+                            )}
+                          </div>
+                          {isChecked && <Check className="w-3.5 h-3.5 text-amber-400 shrink-0 ml-1" />}
                         </button>
                       );
                     })}
@@ -614,29 +673,106 @@ Password: ${createdCompanyDetails.password}`;
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-6">
                   <div className="space-y-3">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block">Select Enterprise Plan</label>
-                    <div className="grid grid-cols-1 gap-2.5">
-                      {Object.keys(PLAN_PRICING).map((plan) => (
-                        <button
-                          type="button"
-                          key={plan}
-                          onClick={() => setFormData({ ...formData, subscriptionPlan: plan })}
-                          className={`p-4 rounded-2xl border text-left flex items-center justify-between transition-all ${
-                            formData.subscriptionPlan === plan ? 'bg-rose-500/10 border-rose-500/50 text-rose-100 ring-2 ring-rose-500/20' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${formData.subscriptionPlan === plan ? 'bg-rose-500 text-white' : 'bg-slate-800 text-slate-500'}`}>
-                              <Briefcase className="w-4 h-4" />
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block">
+                      Select Master Subscription Plan ({subscriptionPlans.length > 0 ? subscriptionPlans.length : 'Default'} Plans Configured)
+                    </label>
+                    <div className="grid grid-cols-1 gap-3 max-h-[360px] overflow-y-auto pr-1">
+                      {(subscriptionPlans.length > 0
+                        ? subscriptionPlans
+                        : Object.keys(PLAN_PRICING).map((pName) => ({
+                            id: pName,
+                            name: pName,
+                            pricePKR: PLAN_PRICING[pName],
+                            billingCycle: 'Monthly' as const,
+                            maxUsers: 50,
+                            maxBranches: 5,
+                            smsQuota: 5000,
+                            whatsappAlertsEnabled: true,
+                            vendorPortalLogins: 50,
+                            businessCategories: ['All Businesses'],
+                            includedModules: ['ALL'],
+                            isPopular: false
+                          }))
+                      ).map((plan) => {
+                        const isSelected = formData.subscriptionPlan === plan.name;
+                        return (
+                          <button
+                            type="button"
+                            key={plan.id || plan.name}
+                            onClick={() => {
+                              setFormData((prev) => ({
+                                ...prev,
+                                subscriptionPlan: plan.name,
+                                userLimit: plan.maxUsers || 50,
+                                branchLimit: plan.maxBranches || 5,
+                                smsQuota: plan.smsQuota || 5000,
+                                whatsappAlertsEnabled: plan.whatsappAlertsEnabled ?? true,
+                                billingCycle: plan.billingCycle === 'Yearly' ? 'Yearly' : 'Monthly'
+                              }));
+                            }}
+                            className={`p-4 rounded-2xl border text-left flex flex-col gap-2.5 transition-all cursor-pointer ${
+                              isSelected
+                                ? 'bg-rose-500/10 border-rose-500/60 text-rose-100 ring-2 ring-rose-500/20 shadow-xl'
+                                : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div
+                                  className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                                    isSelected ? 'bg-rose-500 text-white' : 'bg-slate-800 text-slate-500'
+                                  }`}
+                                >
+                                  <Briefcase className="w-4 h-4" />
+                                </div>
+                                <div>
+                                  <div className="text-xs font-black uppercase text-slate-100 flex items-center gap-2">
+                                    <span>{plan.name}</span>
+                                    {plan.isPopular && (
+                                      <span className="px-1.5 py-0.2 rounded text-[9px] bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">
+                                        POPULAR
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-[11px] text-rose-400 font-mono font-bold">
+                                    PKR {plan.pricePKR.toLocaleString()} / {plan.billingCycle}
+                                  </div>
+                                </div>
+                              </div>
+                              {isSelected && <CheckCircle2 className="w-5 h-5 text-rose-500 shrink-0" />}
                             </div>
-                            <div>
-                              <div className="text-xs font-black uppercase">{plan}</div>
-                              <div className="text-[10px] text-slate-500">PKR {PLAN_PRICING[plan].toLocaleString()} / Month</div>
+
+                            {/* Quotas & Attributes Badges */}
+                            <div className="grid grid-cols-3 gap-1.5 text-[10px] font-mono bg-slate-900/80 p-2 rounded-xl border border-slate-800/80">
+                              <div>
+                                <span className="text-slate-500 block">Max Users:</span>
+                                <span className="text-slate-200 font-bold">{plan.maxUsers || 10} Users</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-500 block">Max Branches:</span>
+                                <span className="text-slate-200 font-bold">{plan.maxBranches || 1} Branches</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-500 block">SMS Quota:</span>
+                                <span className="text-slate-200 font-bold">{(plan.smsQuota || 500).toLocaleString()} SMS</span>
+                              </div>
                             </div>
-                          </div>
-                          {formData.subscriptionPlan === plan && <CheckCircle2 className="w-5 h-5 text-rose-500" />}
-                        </button>
-                      ))}
+
+                            <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1">
+                              <div className="truncate max-w-[200px]">
+                                <strong>Suitability:</strong>{' '}
+                                {Array.isArray(plan.businessCategories)
+                                  ? plan.businessCategories.join(', ')
+                                  : 'All Businesses'}
+                              </div>
+                              <div className="flex items-center gap-2 font-mono shrink-0">
+                                <span>WhatsApp: {plan.whatsappAlertsEnabled ? '✅ Yes' : '❌ No'}</span>
+                                <span>Vendors: {plan.vendorPortalLogins || 0}</span>
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                   <div className="flex gap-4">

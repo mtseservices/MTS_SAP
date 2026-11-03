@@ -546,6 +546,7 @@ export interface MasterBankAccount {
   isActive: boolean;
   instructions?: string;
   createdAt?: string;
+  lastReconciledAt?: string;
 }
 
 export interface ReconciliationRule {

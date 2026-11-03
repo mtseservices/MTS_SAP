@@ -47,6 +47,7 @@ import { DataTable } from '../common/DataTable';
 import { TTSButton } from '../common/TTSButton';
 import { getMasterBankAccounts, saveMasterBankAccounts } from '../../services/masterBankAccountsService';
 import { PAKISTANI_BANKS_LIST } from '../../services/pakistaniBanks';
+import { getSubscriptionPlans, saveSubscriptionPlans } from '../../services/subscriptionPlansService';
 
 export const SubscriptionBillingManager: React.FC = () => {
   const { allCompanies, setAllCompanies, updateCompanySubscription } = useAuthTenant();
@@ -92,6 +93,9 @@ export const SubscriptionBillingManager: React.FC = () => {
   useEffect(() => {
     getMasterBankAccounts().then((accounts) => {
       setMasterAccounts(accounts);
+    });
+    getSubscriptionPlans().then((loadedPlans) => {
+      setPlans(loadedPlans);
     });
   }, []);
 
@@ -270,8 +274,9 @@ export const SubscriptionBillingManager: React.FC = () => {
     const categoriesArray = planBusinessCategories.split(',').map(s => s.trim()).filter(Boolean) as IndustryPackage[];
     const modulesArray = planIncludedModules.split(',').map(s => s.trim()).filter(Boolean);
 
+    let updatedPlans: SubscriptionPlan[];
     if (editingPlan) {
-      setPlans(prev => prev.map(p => p.id === editingPlan.id ? {
+      updatedPlans = plans.map(p => p.id === editingPlan.id ? {
         ...p,
         name: planName,
         pricePKR: Number(planPrice),
@@ -284,7 +289,7 @@ export const SubscriptionBillingManager: React.FC = () => {
         vendorPortalLogins: Number(planVendorLogins),
         customLayoutThemes: planCustomThemes,
         includedModules: modulesArray
-      } : p));
+      } : p);
     } else {
       const newPlan: SubscriptionPlan = {
         id: `plan_${Date.now()}`,
@@ -301,8 +306,10 @@ export const SubscriptionBillingManager: React.FC = () => {
         customLayoutThemes: planCustomThemes,
         supportedThemeModes: ['light', 'slate-gray', 'dark']
       };
-      setPlans([newPlan, ...plans]);
+      updatedPlans = [newPlan, ...plans];
     }
+    setPlans(updatedPlans);
+    saveSubscriptionPlans(updatedPlans);
     setShowPlanModal(false);
     setEditingPlan(null);
   };
