@@ -31,8 +31,9 @@ import {
   BudgetItem
 } from '../../services/firebaseAccounting';
 import { BankReconciliationReport } from './BankReconciliationReport';
+import { AutomatedStatementParser } from './AutomatedStatementParser';
 
-type SubTab = 'vouchers' | 'coa' | 'gl' | 'subledger' | 'trialBalance' | 'pnl' | 'balanceSheet' | 'budget' | 'newVoucher' | 'bankReconciliation';
+type SubTab = 'vouchers' | 'coa' | 'gl' | 'subledger' | 'trialBalance' | 'pnl' | 'balanceSheet' | 'budget' | 'newVoucher' | 'bankReconciliation' | 'statementParser';
 
 export const FinanceAccountsModule: React.FC = () => {
   const { currentCompany } = useAuthTenant();
@@ -52,6 +53,7 @@ export const FinanceAccountsModule: React.FC = () => {
     if (['budget', 'budgets', 'budget_planning'].includes(tabParam)) return 'budget';
     if (tabParam === 'newVoucher') return 'newVoucher';
     if (['bank_reconciliation', 'bankReconciliation'].includes(tabParam)) return 'bankReconciliation';
+    if (['statement_parser', 'statementParser', 'parser'].includes(tabParam)) return 'statementParser';
 
     return 'vouchers';
   };
@@ -308,7 +310,8 @@ export const FinanceAccountsModule: React.FC = () => {
           { id: 'pnl', label: 'Profit & Loss (P&L)', icon: TrendingUp },
           { id: 'balanceSheet', label: 'Balance Sheet', icon: PieChart },
           { id: 'budget', label: 'Budget Planning', icon: Target },
-          { id: 'bankReconciliation', label: 'Bank Reconciliation', icon: Scale }
+          { id: 'bankReconciliation', label: 'Bank Reconciliation', icon: Scale },
+          { id: 'statementParser', label: 'Automated Statement Parser', icon: FileSpreadsheet }
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeSubTab === tab.id;
@@ -1028,6 +1031,11 @@ export const FinanceAccountsModule: React.FC = () => {
       {/* Tab: Bank Reconciliation Summary */}
       {activeSubTab === 'bankReconciliation' && (
         <BankReconciliationReport vouchers={vouchers} />
+      )}
+
+      {/* Tab: Automated Statement Parser */}
+      {activeSubTab === 'statementParser' && (
+        <AutomatedStatementParser vouchers={vouchers} />
       )}
 
       {/* Allocate New Budget Modal */}

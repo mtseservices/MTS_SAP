@@ -282,6 +282,196 @@ export const INDUSTRY_DEPARTMENT_PRESETS: Record<string, string[]> = {
   ]
 };
 
+export const INDUSTRY_MODULE_PRESETS: Record<string, string[]> = {
+  'Textile': [
+    'Finance & Accounts',
+    'Procurement & Purchasing',
+    'Yarn & Dyeing Inventory',
+    'Textile Production & Weaving',
+    'Export & LC Management',
+    'HR & Payroll',
+    'Quality Control (QC)'
+  ],
+  'Manufacturing': [
+    'Finance & Accounts',
+    'Production & BOM Costing',
+    'Procurement & Sourcing',
+    'Inventory & Warehouse',
+    'Sales & Order Dispatch',
+    'HR & Payroll',
+    'Plant Maintenance'
+  ],
+  'Food & Beverage': [
+    'Finance & Accounts',
+    'Recipe & Batch Production',
+    'Expiry & Cold Storage Inventory',
+    'Procurement & POS Billing',
+    'HACCP Quality Inspection',
+    'HR & Payroll'
+  ],
+  'Solar & Electrical': [
+    'Finance & Accounts',
+    'Project Engineering & Quotations',
+    'Solar Inventory & Serial Tracking',
+    'Procurement & Import Duty',
+    'CRM & Installation Teams',
+    'HR & Payroll'
+  ],
+  'Construction': [
+    'Finance & Accounts',
+    'Project Estimation & Site Billing',
+    'Heavy Equipment & Plant Inventory',
+    'Subcontractor Procurement',
+    'HR & Site Labour Payroll'
+  ],
+  'Wholesale': [
+    'Finance & Accounts',
+    'Bulk Sales & Credit Control',
+    'Warehouse & Multi-Branch Inventory',
+    'Procurement & Vendor Portal',
+    'CRM & Route Sales'
+  ],
+  'Retail & POS': [
+    'Finance & Accounts',
+    'POS Counter Billing & Barcode',
+    'Retail Inventory & Stock Reorder',
+    'Procurement & Suppliers',
+    'CRM & Customer Loyalty'
+  ],
+  'Supermarket': [
+    'Finance & Accounts',
+    'Multi-Lane POS & Barcode Scanner',
+    'FMCG Inventory & Batch Expiry',
+    'Procurement & Vendor Billing',
+    'HR & Shift Roster'
+  ],
+  'Import & Export': [
+    'Finance & Accounts',
+    'Import LC & Customs Duty Clearing',
+    'Export Documentation & Rebates',
+    'Freight Logistics & Cargo Tracking',
+    'Supply Chain & SCM',
+    'Multi-Currency Ledger'
+  ],
+  'Pharmaceutical': [
+    'Finance & Accounts',
+    'Pharma Batch Manufacturing & QC',
+    'Drug Batch Expiry & Cold Chain',
+    'Procurement & Regulatory Compliance',
+    'Medical Rep Sales & CRM'
+  ],
+  'Services': [
+    'Finance & Accounts',
+    'Service Contracts & Invoicing',
+    'Client CRM & Pipeline',
+    'HR & Consultant Payroll',
+    'Helpdesk & Support Tickets'
+  ],
+  'Healthcare': [
+    'Finance & Accounts',
+    'Hospital Patient Billing & OPD',
+    'Medical Store & Pharmacy Inventory',
+    'Doctor Appointments & HR',
+    'Diagnostic Lab Reports'
+  ],
+  'Education': [
+    'Finance & Fee Collection',
+    'Student Admission & Portal',
+    'Faculty Payroll & HR',
+    'Library & Campus Inventory',
+    'Exam Grading & Report Cards'
+  ],
+  'Banking': [
+    'Finance & Treasury Ledger',
+    'Loan Approval & Credit Scoring',
+    'Branch Cash Vault Audit',
+    'Regulatory SBP Compliance',
+    'HR & Executive Compensation'
+  ],
+  'NGO': [
+    'Grant Accounting & Donor Funds',
+    'Project Budget & Field Disbursement',
+    'Procurement & Audit Trail',
+    'HR & Volunteer Management'
+  ],
+  'Import/Export': [
+    'Finance & Accounts',
+    'Import LC & Customs Clearance',
+    'Export Freight & Rebates',
+    'SCM & Warehouse Inventory',
+    'Multi-Currency Ledger'
+  ],
+  'Hotel Management': [
+    'Finance & Night Audit Invoicing',
+    'Room Reservations & Front Desk',
+    'Restaurant POS & Banquet Billing',
+    'Housekeeping & Linen Inventory',
+    'HR & Guest Relations CRM'
+  ],
+  'Shopping Malls': [
+    'Finance & Lease Revenue',
+    'Tenant Lease & Maintenance Billing',
+    'Mall Visitor Parking POS',
+    'Facility Management & Utilities',
+    'HR & Security Management'
+  ],
+  'Retail Store': [
+    'Finance & Accounts',
+    'POS Billing & Thermal Printing',
+    'Stock Inventory & Barcodes',
+    'Vendor Purchases & Returns',
+    'CRM & Discount Vouchers'
+  ],
+  'Wholesale Shops': [
+    'Finance & Accounts',
+    'Wholesale Credit Invoicing',
+    'Bulk Stock & Godown Inventory',
+    'Vendor Accounts & Payments',
+    'CRM & Order Booking'
+  ],
+  'Trading': [
+    'Finance & Accounts',
+    'Trader Invoicing & Margin Analysis',
+    'Procurement & Sourcing',
+    'Godown Inventory Control',
+    'CRM & Sales Rep Tracking'
+  ],
+  'Courier Services': [
+    'Finance & Cash on Delivery (COD)',
+    'Parcel Dispatch & Waybill Tracking',
+    'Rider Fleet & Route Optimization',
+    'Branch Cargo Operations',
+    'HR & Commission Payroll'
+  ],
+  'IT Services': [
+    'Finance & Project Invoicing',
+    'Agile Sprint & Milestone Tracking',
+    'Software Time Logs & Hourly Rates',
+    'Client CRM & SLA Helpdesk',
+    'HR & Engineer Payroll'
+  ],
+  'HR Services': [
+    'Finance & Client Invoicing',
+    'Talent Acquisition & Headhunting',
+    'Outsourced Employee Payroll',
+    'Attendance & Biometric Sync',
+    'CRM & Corporate Accounts'
+  ]
+};
+
+export function getDefaultModulesForIndustry(industry?: string): string[] {
+  if (industry && industry in INDUSTRY_MODULE_PRESETS) {
+    return INDUSTRY_MODULE_PRESETS[industry];
+  }
+  return [
+    'Finance & Accounts',
+    'Procurement & Purchasing',
+    'Inventory & Warehouse Control',
+    'Sales & POS Counter',
+    'HR & Payroll Management'
+  ];
+}
+
 // Fallback baseline for any unknown industry
 export const DEFAULT_CORE_DEPARTMENT_IDS: string[] = [
   'dept_1', // Accounts & Finance

@@ -881,15 +881,23 @@ export const MasterBankAccountManager: React.FC = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-300">Bank Name *</label>
-                  <input
-                    type="text"
+                  <label className="text-xs font-medium text-slate-300">Bank Name (Standardized Pakistani Bank) *</label>
+                  <select
                     required
                     value={bankName}
-                    onChange={(e) => setBankName(e.target.value)}
-                    placeholder="e.g. Meezan Bank Limited"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 text-sm focus:outline-none focus:border-emerald-500"
-                  />
+                    onChange={(e) => {
+                      setBankName(e.target.value);
+                      handleBankTemplateChange(e.target.value);
+                    }}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 text-sm focus:outline-none focus:border-emerald-500 font-semibold"
+                  >
+                    <option value="">-- Select Standard Pakistani Bank --</option>
+                    {PAKISTANI_BANKS_LIST.map((b) => (
+                      <option key={b.name} value={b.name}>
+                        [{b.code}] {b.name} — {b.category || 'Bank'}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="space-y-1.5">

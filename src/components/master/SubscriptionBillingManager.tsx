@@ -224,26 +224,82 @@ export const SubscriptionBillingManager: React.FC = () => {
   const [planName, setPlanName] = useState('New Enterprise Tier');
   const [planPrice, setPlanPrice] = useState(85000);
   const [planCycle, setPlanCycle] = useState<SubscriptionCycle>('Monthly');
+  const [planBusinessCategories, setPlanBusinessCategories] = useState<string>('Manufacturing, Services, Trading');
+  const [planMaxUsers, setPlanMaxUsers] = useState<number>(35);
+  const [planMaxBranches, setPlanMaxBranches] = useState<number>(5);
+  const [planSmsQuota, setPlanSmsQuota] = useState<number>(5000);
+  const [planWhatsappAlerts, setPlanWhatsappAlerts] = useState<boolean>(true);
+  const [planVendorLogins, setPlanVendorLogins] = useState<number>(50);
+  const [planCustomThemes, setPlanCustomThemes] = useState<boolean>(true);
+  const [planIncludedModules, setPlanIncludedModules] = useState<string>('Finance, Procurement, Inventory, Sales, HR, Reports');
+
+  const handleOpenAddPlan = () => {
+    setEditingPlan(null);
+    setPlanName('New Custom Enterprise Plan');
+    setPlanPrice(120000);
+    setPlanCycle('Monthly');
+    setPlanBusinessCategories('Manufacturing, Wholesale, Retail, Services');
+    setPlanMaxUsers(50);
+    setPlanMaxBranches(10);
+    setPlanSmsQuota(10000);
+    setPlanWhatsappAlerts(true);
+    setPlanVendorLogins(100);
+    setPlanCustomThemes(true);
+    setPlanIncludedModules('Finance, Procurement, Inventory, Sales, HR, Production, Reports');
+    setShowPlanModal(true);
+  };
+
+  const handleOpenEditPlan = (p: SubscriptionPlan) => {
+    setEditingPlan(p);
+    setPlanName(p.name);
+    setPlanPrice(p.pricePKR);
+    setPlanCycle(p.billingCycle);
+    setPlanBusinessCategories(Array.isArray(p.businessCategories) ? p.businessCategories.join(', ') : 'All Businesses');
+    setPlanMaxUsers(p.maxUsers || 25);
+    setPlanMaxBranches(p.maxBranches || 3);
+    setPlanSmsQuota(p.smsQuota || 1000);
+    setPlanWhatsappAlerts(p.whatsappAlertsEnabled || false);
+    setPlanVendorLogins(p.vendorPortalLogins || 10);
+    setPlanCustomThemes(p.customLayoutThemes || false);
+    setPlanIncludedModules(Array.isArray(p.includedModules) ? p.includedModules.join(', ') : 'Finance, Sales, Inventory');
+    setShowPlanModal(true);
+  };
 
   const handleSavePlan = (e: React.FormEvent) => {
     e.preventDefault();
+    const categoriesArray = planBusinessCategories.split(',').map(s => s.trim()).filter(Boolean) as IndustryPackage[];
+    const modulesArray = planIncludedModules.split(',').map(s => s.trim()).filter(Boolean);
+
     if (editingPlan) {
-      setPlans(prev => prev.map(p => p.id === editingPlan.id ? { ...p, name: planName, pricePKR: planPrice, billingCycle: planCycle } : p));
+      setPlans(prev => prev.map(p => p.id === editingPlan.id ? {
+        ...p,
+        name: planName,
+        pricePKR: Number(planPrice),
+        billingCycle: planCycle,
+        businessCategories: categoriesArray,
+        maxUsers: Number(planMaxUsers),
+        maxBranches: Number(planMaxBranches),
+        smsQuota: Number(planSmsQuota),
+        whatsappAlertsEnabled: planWhatsappAlerts,
+        vendorPortalLogins: Number(planVendorLogins),
+        customLayoutThemes: planCustomThemes,
+        includedModules: modulesArray
+      } : p));
     } else {
       const newPlan: SubscriptionPlan = {
         id: `plan_${Date.now()}`,
         name: planName,
-        pricePKR: planPrice,
+        pricePKR: Number(planPrice),
         billingCycle: planCycle,
-        businessCategories: ['Manufacturing', 'Services'],
-        includedModules: ['Finance', 'Sales', 'Inventory', 'Reports'],
-        maxUsers: 20,
-        maxBranches: 3,
-        smsQuota: 1000,
-        whatsappAlertsEnabled: false,
-        vendorPortalLogins: 10,
-        customLayoutThemes: false,
-        supportedThemeModes: ['light', 'slate-gray']
+        businessCategories: categoriesArray,
+        includedModules: modulesArray,
+        maxUsers: Number(planMaxUsers),
+        maxBranches: Number(planMaxBranches),
+        smsQuota: Number(planSmsQuota),
+        whatsappAlertsEnabled: planWhatsappAlerts,
+        vendorPortalLogins: Number(planVendorLogins),
+        customLayoutThemes: planCustomThemes,
+        supportedThemeModes: ['light', 'slate-gray', 'dark']
       };
       setPlans([newPlan, ...plans]);
     }
@@ -492,12 +548,7 @@ export const SubscriptionBillingManager: React.FC = () => {
             </button>
           ) : (
             <button
-              onClick={() => {
-                setEditingPlan(null);
-                setPlanName('Custom Executive Tier');
-                setPlanPrice(95000);
-                setShowPlanModal(true);
-              }}
+              onClick={handleOpenAddPlan}
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-lg shadow-purple-600/30 transition-all cursor-pointer"
             >
               <Plus className="w-4 h-4" />
@@ -902,13 +953,7 @@ export const SubscriptionBillingManager: React.FC = () => {
 
               <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
                 <button
-                  onClick={() => {
-                    setEditingPlan(p);
-                    setPlanName(p.name);
-                    setPlanPrice(p.pricePKR);
-                    setPlanCycle(p.billingCycle);
-                    setShowPlanModal(true);
-                  }}
+                  onClick={() => handleOpenEditPlan(p)}
                   className="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1 border border-slate-700"
                 >
                   <Edit2 className="w-3.5 h-3.5 text-purple-400" /> Edit Plan
@@ -1143,49 +1188,150 @@ export const SubscriptionBillingManager: React.FC = () => {
       {/* Edit Plan Modal */}
       {showPlanModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl animate-in zoom-in-95">
-            <h2 className="text-sm font-bold text-slate-100 uppercase tracking-wider text-purple-400">
-              {editingPlan ? 'Edit Subscription Plan' : 'Create New Subscription Plan'}
-            </h2>
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-xl w-full space-y-4 shadow-2xl animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h2 className="text-sm font-bold text-slate-100 uppercase tracking-wider text-purple-400">
+                {editingPlan ? 'Edit Subscription Plan & Limits' : 'Create New Subscription Plan'}
+              </h2>
+              <button onClick={() => setShowPlanModal(false)} className="text-slate-400 hover:text-slate-200">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
 
-            <form onSubmit={handleSavePlan} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Plan Name</label>
-                <input
-                  type="text"
-                  value={planName}
-                  onChange={(e) => setPlanName(e.target.value)}
-                  required
-                  className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100"
-                />
+            <form onSubmit={handleSavePlan} className="space-y-4 text-xs">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Plan Name *</label>
+                  <input
+                    type="text"
+                    value={planName}
+                    onChange={(e) => setPlanName(e.target.value)}
+                    required
+                    className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Billing Cycle *</label>
+                  <select
+                    value={planCycle}
+                    onChange={(e) => setPlanCycle(e.target.value as SubscriptionCycle)}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-semibold"
+                  >
+                    <option value="Monthly">Monthly</option>
+                    <option value="Six-Monthly">Six-Monthly (Bi-Annual)</option>
+                    <option value="Yearly">Yearly (Annual)</option>
+                    <option value="One-Time">One-Time Lifetime Perpetual</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Price in PKR *</label>
+                  <input
+                    type="number"
+                    value={planPrice}
+                    onChange={(e) => setPlanPrice(Number(e.target.value))}
+                    required
+                    className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-mono font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Business Suitability (Comma Separated)</label>
+                  <input
+                    type="text"
+                    value={planBusinessCategories}
+                    onChange={(e) => setPlanBusinessCategories(e.target.value)}
+                    placeholder="Manufacturing, Services, Trading..."
+                    className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Max Users *</label>
+                  <input
+                    type="number"
+                    value={planMaxUsers}
+                    onChange={(e) => setPlanMaxUsers(Number(e.target.value))}
+                    required
+                    className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Max Branches *</label>
+                  <input
+                    type="number"
+                    value={planMaxBranches}
+                    onChange={(e) => setPlanMaxBranches(Number(e.target.value))}
+                    required
+                    className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">SMS Quota *</label>
+                  <input
+                    type="number"
+                    value={planSmsQuota}
+                    onChange={(e) => setPlanSmsQuota(Number(e.target.value))}
+                    required
+                    className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-cyan-300 font-mono font-bold"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Vendor Portal Logins</label>
+                  <input
+                    type="number"
+                    value={planVendorLogins}
+                    onChange={(e) => setPlanVendorLogins(Number(e.target.value))}
+                    required
+                    className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-purple-300 font-mono"
+                  />
+                </div>
+
+                <div className="flex items-center gap-4 pt-5">
+                  <label className="flex items-center gap-2 cursor-pointer text-slate-300">
+                    <input
+                      type="checkbox"
+                      checked={planWhatsappAlerts}
+                      onChange={(e) => setPlanWhatsappAlerts(e.target.checked)}
+                      className="rounded bg-slate-800 border-slate-700 text-emerald-500"
+                    />
+                    <span>WhatsApp Alerts</span>
+                  </label>
+
+                  <label className="flex items-center gap-2 cursor-pointer text-slate-300">
+                    <input
+                      type="checkbox"
+                      checked={planCustomThemes}
+                      onChange={(e) => setPlanCustomThemes(e.target.checked)}
+                      className="rounded bg-slate-800 border-slate-700 text-purple-500"
+                    />
+                    <span>Custom Layout Themes</span>
+                  </label>
+                </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Price in PKR</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Included Modules (Comma Separated)</label>
                 <input
-                  type="number"
-                  value={planPrice}
-                  onChange={(e) => setPlanPrice(Number(e.target.value))}
-                  required
+                  type="text"
+                  value={planIncludedModules}
+                  onChange={(e) => setPlanIncludedModules(e.target.value)}
+                  placeholder="Finance, Procurement, Inventory, Sales, HR, Reports"
                   className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 font-mono"
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Billing Cycle</label>
-                <select
-                  value={planCycle}
-                  onChange={(e) => setPlanCycle(e.target.value as SubscriptionCycle)}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100"
-                >
-                  <option value="Monthly">Monthly</option>
-                  <option value="Six-Monthly">Six-Monthly (Bi-Annual)</option>
-                  <option value="Yearly">Yearly (Annual)</option>
-                  <option value="One-Time">One-Time Lifetime Perpetual</option>
-                </select>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
                 <button
                   type="button"
                   onClick={() => setShowPlanModal(false)}
@@ -1197,7 +1343,7 @@ export const SubscriptionBillingManager: React.FC = () => {
                   type="submit"
                   className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-lg shadow-purple-600/30 cursor-pointer"
                 >
-                  Save Subscription Plan
+                  Save Plan &amp; Update Limits
                 </button>
               </div>
             </form>

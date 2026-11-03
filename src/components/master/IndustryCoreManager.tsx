@@ -8,7 +8,7 @@ import {
   Building2,
   Trash2
 } from 'lucide-react';
-import { INDUSTRY_DEPARTMENT_PRESETS } from '../../services/departmentCategoryMapper';
+import { INDUSTRY_DEPARTMENT_PRESETS, getDefaultModulesForIndustry } from '../../services/departmentCategoryMapper';
 import { COMPLETE_DEPARTMENTS_CATALOGUE } from '../../services/departmentCatalogueData';
 
 export const IndustryCoreManager: React.FC = () => {
@@ -46,6 +46,7 @@ export const IndustryCoreManager: React.FC = () => {
 
   const assignedDeptIds = INDUSTRY_DEPARTMENT_PRESETS[selectedIndustry] || ['dept_1', 'dept_2', 'dept_4', 'dept_3', 'dept_5'];
   const assignedDepts = COMPLETE_DEPARTMENTS_CATALOGUE.filter(d => assignedDeptIds.includes(d.id));
+  const autoSelectedModules = getDefaultModulesForIndustry(selectedIndustry);
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto pb-24">
@@ -137,12 +138,13 @@ export const IndustryCoreManager: React.FC = () => {
               <h3 className="text-[11px] font-black text-cyan-400 uppercase tracking-wider flex items-center gap-2">
                 <Layers className="w-4 h-4" /> AI Auto-Selected Modules
               </h3>
-              <div className="space-y-2 text-xs font-mono">
-                <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-200">✓ Finance &amp; Accounts (General Ledger)</div>
-                <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-200">✓ Procurement &amp; Purchasing</div>
-                <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-200">✓ Inventory &amp; Warehouse Control</div>
-                <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-200">✓ Sales &amp; POS Counter</div>
-                <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-200">✓ HR &amp; Payroll Management</div>
+              <div className="space-y-2 text-xs font-mono max-h-64 overflow-y-auto pr-1">
+                {autoSelectedModules.map((mod) => (
+                  <div key={mod} className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 flex items-center gap-2">
+                    <span className="text-emerald-400 font-bold">✓</span>
+                    <span>{mod}</span>
+                  </div>
+                ))}
               </div>
             </div>
 
