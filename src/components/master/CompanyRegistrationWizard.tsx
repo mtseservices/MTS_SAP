@@ -320,15 +320,7 @@ export const CompanyRegistrationWizard: React.FC<CompanyRegistrationWizardProps>
       return;
     }
 
-    setIsSubmitting(true);
-    setProvisionStepMsg('Validating SECP & legal identity payload...');
-    setProvisionProgress(25);
-
     try {
-      await new Promise(r => setTimeout(r, 250));
-      setProvisionStepMsg('Sanitizing multi-tenant database fields...');
-      setProvisionProgress(50);
-
       const finalName = formData.name.trim() || 'Enterprise Client Company';
       const finalSlug = formData.slug.trim() || finalName.toLowerCase().replace(/[^a-z0-9]/g, '') || `company${Date.now().toString().slice(-4)}`;
       const liveUrl = `https://mts-sap.vercel.app?company=${finalSlug}`;
@@ -347,13 +339,17 @@ export const CompanyRegistrationWizard: React.FC<CompanyRegistrationWizardProps>
         adminPassword: finalPassword
       };
 
+      // Instant Optimistic Registration in React State Memory
       const created = registerNewCompany(rawCompData);
 
-      setProvisionStepMsg('Connecting to Firebase Firestore & saving tenant schema...');
-      setProvisionProgress(75);
-      await new Promise(r => setTimeout(r, 250));
+      // Instant LocalStorage Sync
+      try {
+        localStorage.setItem(`mts_branches_${created.id}`, JSON.stringify(formData.branches));
+      } catch (stErr) {
+        console.warn('LocalStorage write note:', stErr);
+      }
 
-      // Deep Sanitize & Serialize State Object for Firestore write
+      // Deep Sanitize Payload
       const rawTenantPayload = {
         ...created,
         adminName: formData.adminName.trim() || `${finalName} Administrator`,
@@ -373,21 +369,15 @@ export const CompanyRegistrationWizard: React.FC<CompanyRegistrationWizardProps>
 
       const cleanPayload = sanitizeForFirestore(rawTenantPayload);
 
-      // Sync Company Record & Branches to LocalStorage
-      try {
-        localStorage.setItem(`mts_branches_${created.id}`, JSON.stringify(formData.branches));
-      } catch (stErr) {
-        console.warn('LocalStorage write note:', stErr);
-      }
+      // Concurrent Background Firestore Sync (Non-Blocking)
+      Promise.all([
+        setDoc(doc(db, 'tenants', created.tenantId), cleanPayload, { merge: true }),
+        setDoc(doc(db, 'companies', created.id), cleanPayload, { merge: true })
+      ]).catch(err => {
+        console.warn('Background Firestore sync notice:', err);
+      });
 
-      // Sync Company Record & Branches to Firebase Firestore
-      await setDoc(doc(db, 'tenants', created.tenantId), cleanPayload, { merge: true });
-      await setDoc(doc(db, 'companies', created.id), cleanPayload, { merge: true });
-
-      setProvisionStepMsg('Workspace Provisioned Successfully! Preparing launch...');
-      setProvisionProgress(100);
-      await new Promise(r => setTimeout(r, 400));
-
+      // Instant UI transition to success view
       setCreatedCompanyDetails({
         slug: created.slug,
         name: created.name,
@@ -397,9 +387,7 @@ export const CompanyRegistrationWizard: React.FC<CompanyRegistrationWizardProps>
       });
     } catch (err: any) {
       console.error('Company registration submission error:', err);
-      setErrorMsg(err?.message || 'Database write failed. Please verify form inputs and retry.');
-    } finally {
-      setIsSubmitting(false);
+      setErrorMsg(err?.message || 'Registration error. Please verify form inputs and retry.');
     }
   };
 

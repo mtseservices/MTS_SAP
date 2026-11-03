@@ -782,18 +782,26 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   };
 
   const permanentDeleteCompany = async (companyId: string, tenantId?: string): Promise<void> => {
-    // 1. Add to permanent deleted list in localStorage
-    const deleted = getDeletedCompanyIds();
-    if (!deleted.includes(companyId)) {
-      deleted.push(companyId);
-      localStorage.setItem('mts_deleted_companies', JSON.stringify(deleted));
-    }
+    // 1. INSTANT Optimistic React state memory removal (< 5ms)
+    setAllCompanies(prev => {
+      const remaining = prev.filter(c => c.id !== companyId);
+      if (currentCompany.id === companyId && remaining.length > 0) {
+        setCurrentCompany(remaining[0]);
+      }
+      return remaining;
+    });
 
-    // 2. Remove from custom companies if present and purge auxiliary keys
-    const custom = getCustomCompanies().filter(c => c.id !== companyId);
-    localStorage.setItem('mts_custom_companies', JSON.stringify(custom));
-
+    // 2. INSTANT LocalStorage purge
     try {
+      const deleted = getDeletedCompanyIds();
+      if (!deleted.includes(companyId)) {
+        deleted.push(companyId);
+        localStorage.setItem('mts_deleted_companies', JSON.stringify(deleted));
+      }
+
+      const custom = getCustomCompanies().filter(c => c.id !== companyId);
+      localStorage.setItem('mts_custom_companies', JSON.stringify(custom));
+
       localStorage.removeItem(`mts_sub_${companyId}`);
       localStorage.removeItem(`mts_roles_${companyId}`);
       localStorage.removeItem(`mts_depts_${companyId}`);
@@ -802,23 +810,13 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       console.warn('Storage purge error:', e);
     }
 
-    // 3. Delete from Firestore permanently (both companies collection and tenants collection)
-    try {
-      await deleteDoc(doc(db, 'companies', companyId));
-      if (tenantId) {
-        await deleteDoc(doc(db, 'tenants', tenantId));
-      }
-    } catch (e) {
-      console.warn('Firestore company delete error:', e);
+    // 3. Non-blocking parallel background Firestore deletion
+    const delPromises = [deleteDoc(doc(db, 'companies', companyId))];
+    if (tenantId) {
+      delPromises.push(deleteDoc(doc(db, 'tenants', tenantId)));
     }
-
-    // 4. Update memory state
-    setAllCompanies(prev => {
-      const remaining = prev.filter(c => c.id !== companyId);
-      if (currentCompany.id === companyId && remaining.length > 0) {
-        setCurrentCompany(remaining[0]);
-      }
-      return remaining;
+    Promise.all(delPromises).catch(e => {
+      console.warn('Background Firestore deletion notice:', e);
     });
   };
 

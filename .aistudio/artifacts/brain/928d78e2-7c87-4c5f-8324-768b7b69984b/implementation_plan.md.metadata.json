@@ -1,6 +1,6 @@
 {
-  "summary": "Complete implementation plan for company archiving, undo/restore, and permanent deletion with explicit confirmation modal.",
-  "updatedAt": "2026-11-03T08:28:35.052435653Z",
+  "summary": "Performance optimization plan for instant optimistic company creation, registration redirect, and near-instant single and bulk permanent deletion.",
+  "updatedAt": "2026-11-03T08:54:38.372929933Z",
   "requestFeedback": true,
   "userFacing": true
 }
