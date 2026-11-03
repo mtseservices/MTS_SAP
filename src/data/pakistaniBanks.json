@@ -1,0 +1,252 @@
+[
+  {
+    "id": "meezan",
+    "name": "Meezan Bank Limited",
+    "code": "MEZN",
+    "swiftCode": "MEZNPKKA",
+    "sbpCode": "0201",
+    "ibanPrefix": "PK36MEZN",
+    "category": "Islamic Commercial",
+    "helpline": "111-331-331"
+  },
+  {
+    "id": "hbl",
+    "name": "Habib Bank Limited (HBL)",
+    "code": "HBL",
+    "swiftCode": "HABBPAKX",
+    "sbpCode": "1092",
+    "ibanPrefix": "PK42HABB",
+    "category": "Commercial Bank",
+    "helpline": "111-111-425"
+  },
+  {
+    "id": "ubl",
+    "name": "United Bank Limited (UBL)",
+    "code": "UBL",
+    "swiftCode": "UNILPKKA",
+    "sbpCode": "0041",
+    "ibanPrefix": "PK68UNIL",
+    "category": "Commercial Bank",
+    "helpline": "111-825-888"
+  },
+  {
+    "id": "mcb",
+    "name": "MCB Bank Limited",
+    "code": "MCB",
+    "swiftCode": "MUCBPKKA",
+    "sbpCode": "0016",
+    "ibanPrefix": "PK48MUCB",
+    "category": "Commercial Bank",
+    "helpline": "111-000-622"
+  },
+  {
+    "id": "abl",
+    "name": "Allied Bank Limited (ABL)",
+    "code": "ABL",
+    "swiftCode": "ABLKPKKA",
+    "sbpCode": "0005",
+    "ibanPrefix": "PK20ABLK",
+    "category": "Commercial Bank",
+    "helpline": "111-225-225"
+  },
+  {
+    "id": "nbp",
+    "name": "National Bank of Pakistan (NBP)",
+    "code": "NBP",
+    "swiftCode": "NBPAPKKA",
+    "sbpCode": "0001",
+    "ibanPrefix": "PK50NBPA",
+    "category": "Public Sector Bank",
+    "helpline": "111-627-627"
+  },
+  {
+    "id": "bafl",
+    "name": "Bank Alfalah Limited",
+    "code": "BAFL",
+    "swiftCode": "ALFAPKK1",
+    "sbpCode": "5501",
+    "ibanPrefix": "PK19ALFH",
+    "category": "Commercial Bank",
+    "helpline": "111-225-111"
+  },
+  {
+    "id": "fbl",
+    "name": "Faysal Bank Limited",
+    "code": "FBL",
+    "swiftCode": "FAYSPKKA",
+    "sbpCode": "0231",
+    "ibanPrefix": "PK89FAYS",
+    "category": "Islamic Commercial",
+    "helpline": "111-060-606"
+  },
+  {
+    "id": "akbl",
+    "name": "Askari Bank Limited",
+    "code": "AKBL",
+    "swiftCode": "ASKLPKKA",
+    "sbpCode": "0185",
+    "ibanPrefix": "PK09ASKL",
+    "category": "Commercial Bank",
+    "helpline": "111-000-787"
+  },
+  {
+    "id": "bahl",
+    "name": "Bank AL Habib Limited",
+    "code": "BAHL",
+    "swiftCode": "BAHLPKKA",
+    "sbpCode": "0172",
+    "ibanPrefix": "PK22BAHL",
+    "category": "Commercial Bank",
+    "helpline": "111-014-014"
+  },
+  {
+    "id": "scb",
+    "name": "Standard Chartered Bank (Pakistan) Limited",
+    "code": "SCB",
+    "swiftCode": "SCBLPKKA",
+    "sbpCode": "0025",
+    "ibanPrefix": "PK11SCBL",
+    "category": "Foreign Commercial",
+    "helpline": "111-002-002"
+  },
+  {
+    "id": "dib",
+    "name": "Dubai Islamic Bank Pakistan Limited",
+    "code": "DIB",
+    "swiftCode": "DIBKPKKA",
+    "sbpCode": "0250",
+    "ibanPrefix": "PK94DIBK",
+    "category": "Islamic Commercial",
+    "helpline": "111-786-342"
+  },
+  {
+    "id": "jsbl",
+    "name": "JS Bank Limited",
+    "code": "JSBL",
+    "swiftCode": "JSBLPKKA",
+    "sbpCode": "0280",
+    "ibanPrefix": "PK76JSBL",
+    "category": "Commercial Bank",
+    "helpline": "111-654-321"
+  },
+  {
+    "id": "snbl",
+    "name": "Soneri Bank Limited",
+    "code": "SNBL",
+    "swiftCode": "SNBLPKKA",
+    "sbpCode": "0190",
+    "ibanPrefix": "PK33SNBL",
+    "category": "Commercial Bank",
+    "helpline": "111-568-568"
+  },
+  {
+    "id": "bipl",
+    "name": "BankIslami Pakistan Limited",
+    "code": "BIPL",
+    "swiftCode": "BIPLPKKA",
+    "sbpCode": "0240",
+    "ibanPrefix": "PK55BIPL",
+    "category": "Islamic Commercial",
+    "helpline": "111-475-264"
+  },
+  {
+    "id": "bop",
+    "name": "The Bank of Punjab (BOP)",
+    "code": "BOP",
+    "swiftCode": "BPKAPKKA",
+    "sbpCode": "0160",
+    "ibanPrefix": "PK88BPKA",
+    "category": "Provincial Commercial",
+    "helpline": "111-267-200"
+  },
+  {
+    "id": "bok",
+    "name": "The Bank of Khyber (BOK)",
+    "code": "BOK",
+    "swiftCode": "BOKKPKKA",
+    "sbpCode": "0150",
+    "ibanPrefix": "PK12BOKK",
+    "category": "Provincial Commercial",
+    "helpline": "111-959-595"
+  },
+  {
+    "id": "hmb",
+    "name": "Habib Metropolitan Bank Limited",
+    "code": "HMB",
+    "swiftCode": "HMBLPKKA",
+    "sbpCode": "0178",
+    "ibanPrefix": "PK45HMBL",
+    "category": "Commercial Bank",
+    "helpline": "111-141-414"
+  },
+  {
+    "id": "sndb",
+    "name": "Sindh Bank Limited",
+    "code": "SNDB",
+    "swiftCode": "SNDBPKKA",
+    "sbpCode": "0310",
+    "ibanPrefix": "PK29SNDB",
+    "category": "Provincial Commercial",
+    "helpline": "111-333-225"
+  },
+  {
+    "id": "fwbl",
+    "name": "First Women Bank Limited",
+    "code": "FWBL",
+    "swiftCode": "FWBLPKKA",
+    "sbpCode": "0130",
+    "ibanPrefix": "PK03FWBL",
+    "category": "Public Sector Bank",
+    "helpline": "111-111-555"
+  },
+  {
+    "id": "samba",
+    "name": "Samba Bank Limited",
+    "code": "SAMBA",
+    "swiftCode": "SAMBPKKA",
+    "sbpCode": "0270",
+    "ibanPrefix": "PK61SAMB",
+    "category": "Foreign Commercial",
+    "helpline": "111-172-622"
+  },
+  {
+    "id": "easypaisa",
+    "name": "Telenor Microfinance Bank (Easypaisa)",
+    "code": "TMFB",
+    "swiftCode": "TMFBPKKA",
+    "sbpCode": "0501",
+    "ibanPrefix": "PK85TMFB",
+    "category": "Microfinance & EMI",
+    "helpline": "3737"
+  },
+  {
+    "id": "mobilink",
+    "name": "Mobilink Microfinance Bank (JazzCash)",
+    "code": "MMFB",
+    "swiftCode": "MMFBPKKA",
+    "sbpCode": "0502",
+    "ibanPrefix": "PK91MMFB",
+    "category": "Microfinance & EMI",
+    "helpline": "4444"
+  },
+  {
+    "id": "sadapay",
+    "name": "SadaPay Electronic Money Institution",
+    "code": "SADA",
+    "swiftCode": "SADAPKKA",
+    "sbpCode": "0801",
+    "ibanPrefix": "PK00SADA",
+    "category": "EMI Wallet",
+    "helpline": "0800-111-11"
+  },
+  {
+    "id": "nayapay",
+    "name": "NayaPay Private Limited",
+    "code": "NAYA",
+    "swiftCode": "NAYAPKKA",
+    "sbpCode": "0802",
+    "ibanPrefix": "PK00NAYA",
+    "category": "EMI Wallet",
+    "helpline": "021-111-111-629"
+  }
+]

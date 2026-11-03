@@ -561,6 +561,23 @@ export interface ReconciliationRule {
   createdAt: string;
 }
 
+export interface BankAuditEntry {
+  id: string;
+  action: 'ADD_BANK' | 'EDIT_BANK' | 'DELETE_BANK' | 'SET_DEFAULT_BANK' | 'ADD_RULE' | 'EDIT_RULE' | 'DELETE_RULE';
+  bankId?: string;
+  bankName?: string;
+  adminId: string;
+  adminName: string;
+  details: string;
+  changes?: {
+    field: string;
+    oldValue: string;
+    newValue: string;
+  }[];
+  timestamp: string;
+  ipAddress: string;
+}
+
 // --- CENTRALIZED NOTIFICATION SYSTEM TYPES ---
 
 export type NotificationType = 'APPROVAL' | 'LOW_STOCK' | 'PAYMENT_DUE' | 'SYSTEM';

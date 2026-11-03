@@ -19,20 +19,26 @@ import {
   Landmark,
   Sliders,
   FileText,
+  History,
+  User,
+  ShieldAlert,
+  Clock,
   X
 } from 'lucide-react';
-import { MasterBankAccount, ReconciliationRule } from '../../types/erp';
+import { MasterBankAccount, ReconciliationRule, BankAuditEntry } from '../../types/erp';
 import {
   getMasterBankAccounts,
   saveMasterBankAccounts,
   getMasterReconciliationRules,
-  saveMasterReconciliationRules
+  saveMasterReconciliationRules,
+  getMasterBankAuditLogs,
+  logBankAuditAction
 } from '../../services/masterBankAccountsService';
 import { PAKISTANI_BANKS_LIST, PakistaniBankInfo } from '../../services/pakistaniBanks';
 import { TTSButton } from '../common/TTSButton';
 
 export const MasterBankAccountManager: React.FC = () => {
-  const [activeMainTab, setActiveMainTab] = useState<'accounts' | 'rules'>('accounts');
+  const [activeMainTab, setActiveMainTab] = useState<'accounts' | 'rules' | 'audit'>('accounts');
 
   // Bank Accounts State
   const [accounts, setAccounts] = useState<MasterBankAccount[]>([]);
@@ -70,6 +76,11 @@ export const MasterBankAccountManager: React.FC = () => {
   const [autoApprove, setAutoApprove] = useState(true);
   const [ruleActive, setRuleActive] = useState(true);
 
+  // Audit Logs State
+  const [auditLogs, setAuditLogs] = useState<BankAuditEntry[]>([]);
+  const [auditSearchQuery, setAuditSearchQuery] = useState('');
+  const [auditActionFilter, setAuditActionFilter] = useState<string>('ALL');
+
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [notification, setNotification] = useState<string | null>(null);
 
@@ -82,6 +93,8 @@ export const MasterBankAccountManager: React.FC = () => {
     setAccounts(bankData);
     const ruleData = await getMasterReconciliationRules();
     setRules(ruleData);
+    const logs = await getMasterBankAuditLogs();
+    setAuditLogs(logs);
   };
 
   const showToast = (msg: string) => {
@@ -127,8 +140,10 @@ export const MasterBankAccountManager: React.FC = () => {
     if (found) {
       setBankName(found.name);
       setSwiftCode(found.swiftCode);
-      setIban(`PK36${found.code}00` + Math.floor(10000000000000 + Math.random() * 90000000000000));
-      setBranchCode(String(Math.floor(1000 + Math.random() * 9000)));
+      const prefix = found.ibanPrefix || `PK36${found.code}`;
+      const randomAcc = String(Math.floor(10000000000000 + Math.random() * 90000000000000));
+      setIban(`${prefix}${randomAcc}`);
+      setBranchCode(found.sbpCode || String(Math.floor(1000 + Math.random() * 9000)));
     } else {
       setBankName(bankInfoName);
     }
@@ -166,6 +181,12 @@ export const MasterBankAccountManager: React.FC = () => {
           : a
       );
       showToast('Master Bank Account updated successfully.');
+      await logBankAuditAction(
+        'EDIT_BANK',
+        `Modified Master Bank Account "${bankName}" (IBAN: ${iban}, Account No: ${accountNumber})`,
+        editingAccountId,
+        bankName
+      );
     } else {
       const newAcc: MasterBankAccount = {
         id: 'acc_' + Date.now(),
@@ -185,23 +206,41 @@ export const MasterBankAccountManager: React.FC = () => {
       if (updated.length === 0) newAcc.isDefault = true;
       updated.push(newAcc);
       showToast('New Master Bank Account added successfully.');
+      await logBankAuditAction(
+        'ADD_BANK',
+        `Added new Master Bank Account "${bankName}" (IBAN: ${iban}, Account No: ${accountNumber})`,
+        newAcc.id,
+        bankName
+      );
     }
 
     await saveMasterBankAccounts(updated);
     setAccounts(updated);
+    const logs = await getMasterBankAuditLogs();
+    setAuditLogs(logs);
     setShowAccountModal(false);
   };
 
   const handleDeleteAccount = async (id: string) => {
+    const acc = accounts.find((a) => a.id === id);
     if (window.confirm('Are you sure you want to delete this master bank account?')) {
       const updated = accounts.filter((a) => a.id !== id);
       await saveMasterBankAccounts(updated);
       setAccounts(updated);
       showToast('Bank account removed.');
+      await logBankAuditAction(
+        'DELETE_BANK',
+        `Deleted Master Bank Account "${acc?.bankName || id}" (IBAN: ${acc?.iban || 'N/A'})`,
+        id,
+        acc?.bankName
+      );
+      const logs = await getMasterBankAuditLogs();
+      setAuditLogs(logs);
     }
   };
 
   const handleToggleDefault = async (id: string) => {
+    const acc = accounts.find((a) => a.id === id);
     const updated = accounts.map((a) => ({
       ...a,
       isDefault: a.id === id
@@ -209,6 +248,14 @@ export const MasterBankAccountManager: React.FC = () => {
     await saveMasterBankAccounts(updated);
     setAccounts(updated);
     showToast('Default receiving account updated.');
+    await logBankAuditAction(
+      'SET_DEFAULT_BANK',
+      `Set "${acc?.bankName || id}" as primary default gateway for automated SBP/1Link reconciliation`,
+      id,
+      acc?.bankName
+    );
+    const logs = await getMasterBankAuditLogs();
+    setAuditLogs(logs);
   };
 
   // --- Reconciliation Rules Handlers ---
@@ -263,6 +310,10 @@ export const MasterBankAccountManager: React.FC = () => {
           : r
       );
       showToast('Reconciliation rule updated successfully.');
+      await logBankAuditAction(
+        'EDIT_RULE',
+        `Modified Reconciliation Rule "${ruleName}" (Pattern: ${refPattern}, Mode: ${matchingMode})`
+      );
     } else {
       const newRule: ReconciliationRule = {
         id: 'rule_' + Date.now(),
@@ -278,19 +329,32 @@ export const MasterBankAccountManager: React.FC = () => {
       };
       updated.push(newRule);
       showToast('New reconciliation rule created successfully.');
+      await logBankAuditAction(
+        'ADD_RULE',
+        `Created Reconciliation Rule "${ruleName}" (Pattern: ${refPattern}, Mode: ${matchingMode})`
+      );
     }
 
     await saveMasterReconciliationRules(updated);
     setRules(updated);
+    const logs = await getMasterBankAuditLogs();
+    setAuditLogs(logs);
     setShowRuleModal(false);
   };
 
   const handleDeleteRule = async (id: string) => {
+    const r = rules.find((item) => item.id === id);
     if (window.confirm('Are you sure you want to delete this reconciliation rule?')) {
-      const updated = rules.filter((r) => r.id !== id);
+      const updated = rules.filter((item) => item.id !== id);
       await saveMasterReconciliationRules(updated);
       setRules(updated);
       showToast('Reconciliation rule deleted.');
+      await logBankAuditAction(
+        'DELETE_RULE',
+        `Deleted Reconciliation Rule "${r?.ruleName || id}"`
+      );
+      const logs = await getMasterBankAuditLogs();
+      setAuditLogs(logs);
     }
   };
 
@@ -320,6 +384,18 @@ export const MasterBankAccountManager: React.FC = () => {
     r.referencePattern.toLowerCase().includes(ruleSearchQuery.toLowerCase())
   );
 
+  const filteredAuditLogs = auditLogs.filter((log) => {
+    const matchesQuery =
+      log.details.toLowerCase().includes(auditSearchQuery.toLowerCase()) ||
+      log.adminName.toLowerCase().includes(auditSearchQuery.toLowerCase()) ||
+      log.adminId.toLowerCase().includes(auditSearchQuery.toLowerCase()) ||
+      (log.bankName && log.bankName.toLowerCase().includes(auditSearchQuery.toLowerCase()));
+
+    if (!matchesQuery) return false;
+    if (auditActionFilter !== 'ALL' && log.action !== auditActionFilter) return false;
+    return true;
+  });
+
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       {/* Header */}
@@ -330,11 +406,11 @@ export const MasterBankAccountManager: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-slate-100">Master Bank Account & Reconciliation Setup</h1>
-              <TTSButton text="Master Bank Account and Reconciliation Setup. Maintain standardized Pakistani banks and automated statement processing rules." />
+              <h1 className="text-2xl font-bold text-slate-100">Master Bank Account Setup</h1>
+              <TTSButton text="Master Bank Account Setup with detailed audit tracking. Maintain standardized Pakistani banks, reconciliation rules, and master admin audit trails." />
             </div>
             <p className="text-sm text-slate-400 mt-1">
-              Configure official receiving bank accounts and automated statement matching criteria (Min Transaction Amount & Reference Patterns).
+              Configure official receiving bank accounts, automated reconciliation rules, and review tamper-proof admin audit records.
             </p>
           </div>
         </div>
@@ -346,7 +422,7 @@ export const MasterBankAccountManager: React.FC = () => {
             <RefreshCw className="w-4 h-4" />
             <span>Refresh</span>
           </button>
-          {activeMainTab === 'accounts' ? (
+          {activeMainTab === 'accounts' && (
             <button
               onClick={handleOpenAddAccountModal}
               className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl transition shadow-lg shadow-emerald-600/20"
@@ -354,7 +430,8 @@ export const MasterBankAccountManager: React.FC = () => {
               <Plus className="w-5 h-5" />
               <span>Add Bank Account</span>
             </button>
-          ) : (
+          )}
+          {activeMainTab === 'rules' && (
             <button
               onClick={handleOpenAddRuleModal}
               className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl transition shadow-lg shadow-emerald-600/20"
@@ -374,10 +451,10 @@ export const MasterBankAccountManager: React.FC = () => {
       )}
 
       {/* Main Tab Navigation */}
-      <div className="flex items-center gap-3 border-b border-slate-800 pb-2">
+      <div className="flex items-center gap-3 border-b border-slate-800 pb-2 overflow-x-auto">
         <button
           onClick={() => setActiveMainTab('accounts')}
-          className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition text-sm ${
+          className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition text-sm whitespace-nowrap ${
             activeMainTab === 'accounts'
               ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
               : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800'
@@ -389,7 +466,7 @@ export const MasterBankAccountManager: React.FC = () => {
 
         <button
           onClick={() => setActiveMainTab('rules')}
-          className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition text-sm ${
+          className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition text-sm whitespace-nowrap ${
             activeMainTab === 'rules'
               ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
               : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800'
@@ -397,6 +474,18 @@ export const MasterBankAccountManager: React.FC = () => {
         >
           <Sliders className="w-4 h-4" />
           <span>Reconciliation Rules ({rules.length})</span>
+        </button>
+
+        <button
+          onClick={() => setActiveMainTab('audit')}
+          className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition text-sm whitespace-nowrap ${
+            activeMainTab === 'audit'
+              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+              : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800'
+          }`}
+        >
+          <History className="w-4 h-4" />
+          <span>Audit Trail & Logs ({auditLogs.length})</span>
         </button>
       </div>
 
@@ -651,6 +740,105 @@ export const MasterBankAccountManager: React.FC = () => {
         </div>
       )}
 
+      {/* TAB 3: AUDIT TRAIL & LOGS */}
+      {activeMainTab === 'audit' && (
+        <div className="space-y-6">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="relative w-full md:w-96">
+              <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search audit logs by details, admin or bank..."
+                value={auditSearchQuery}
+                onChange={(e) => setAuditSearchQuery(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-slate-200 text-sm focus:outline-none focus:border-emerald-500 transition"
+              />
+            </div>
+
+            <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto">
+              {(['ALL', 'ADD_BANK', 'EDIT_BANK', 'DELETE_BANK', 'SET_DEFAULT_BANK', 'ADD_RULE', 'EDIT_RULE', 'DELETE_RULE'] as const).map((act) => (
+                <button
+                  key={act}
+                  onClick={() => setAuditActionFilter(act)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-medium transition whitespace-nowrap ${
+                    auditActionFilter === act
+                      ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'
+                  }`}
+                >
+                  {act}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-950 border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider">
+                    <th className="py-4 px-6 font-semibold">Timestamp / IP</th>
+                    <th className="py-4 px-6 font-semibold">Action</th>
+                    <th className="py-4 px-6 font-semibold">Master Admin ID & Name</th>
+                    <th className="py-4 px-6 font-semibold">Audit Activity Details</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800 text-sm">
+                  {filteredAuditLogs.map((log) => (
+                    <tr key={log.id} className="hover:bg-slate-850 transition">
+                      <td className="py-4 px-6">
+                        <div className="font-mono text-slate-200 text-xs font-semibold flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>{new Date(log.timestamp).toLocaleString()}</span>
+                        </div>
+                        <div className="text-[11px] font-mono text-slate-500 mt-0.5">IP: {log.ipAddress}</div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold font-mono uppercase tracking-wider ${
+                            log.action === 'ADD_BANK' || log.action === 'ADD_RULE'
+                              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                              : log.action === 'EDIT_BANK' || log.action === 'EDIT_RULE'
+                              ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                              : log.action === 'DELETE_BANK' || log.action === 'DELETE_RULE'
+                              ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                              : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                          }`}
+                        >
+                          {log.action}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <div>
+                            <div className="text-xs font-bold text-slate-200">{log.adminName}</div>
+                            <div className="text-[11px] font-mono text-slate-500">ID: {log.adminId}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="text-xs text-slate-300 leading-relaxed bg-slate-950/60 p-2.5 rounded-xl border border-slate-800">
+                          {log.details}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {filteredAuditLogs.length === 0 && (
+              <div className="p-12 text-center space-y-2">
+                <History className="w-10 h-10 text-slate-600 mx-auto" />
+                <h3 className="text-base font-bold text-slate-400">No Audit Logs Match Filter</h3>
+                <p className="text-xs text-slate-500">Log entries will automatically accumulate as Master Admins perform operations.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Add / Edit Bank Account Modal */}
       {showAccountModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 overflow-y-auto">
@@ -684,7 +872,7 @@ export const MasterBankAccountManager: React.FC = () => {
                   >
                     {PAKISTANI_BANKS_LIST.map((b) => (
                       <option key={b.name} value={b.name}>
-                        {b.name} (SWIFT: {b.swiftCode})
+                        [{b.code}] {b.name} — {b.category || 'Bank'} (SWIFT: {b.swiftCode})
                       </option>
                     ))}
                   </select>

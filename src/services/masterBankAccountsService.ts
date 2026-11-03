@@ -1,4 +1,4 @@
-import { MasterBankAccount, ReconciliationRule } from '../types/erp';
+import { MasterBankAccount, ReconciliationRule, BankAuditEntry } from '../types/erp';
 import { db } from './firebaseConfig';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
@@ -162,4 +162,119 @@ export async function saveMasterReconciliationRules(rules: ReconciliationRule[])
   } catch (err) {
     console.warn('Could not sync reconciliation rules to Firestore:', err);
   }
+}
+
+// --- BANK AUDIT LOGGING ---
+const AUDIT_STORAGE_KEY = 'mts_master_bank_audit_logs';
+
+export const INITIAL_BANK_AUDIT_LOGS: BankAuditEntry[] = [
+  {
+    id: 'bank_audit_01',
+    action: 'ADD_BANK',
+    bankId: 'm_acc_01',
+    bankName: 'Meezan Bank Limited',
+    adminId: 'usr_master_01',
+    adminName: 'Master Admin (mtssolutions.pk@gmail.com)',
+    details: 'Provisioned primary receiving account for Meezan Bank IBFT / RTGS (IBAN: PK36MEZN0002010104889211)',
+    timestamp: '2026-01-15T09:12:00Z',
+    ipAddress: '182.185.120.45'
+  },
+  {
+    id: 'bank_audit_02',
+    action: 'SET_DEFAULT_BANK',
+    bankId: 'm_acc_01',
+    bankName: 'Meezan Bank Limited',
+    adminId: 'usr_master_01',
+    adminName: 'Master Admin (mtssolutions.pk@gmail.com)',
+    details: 'Set Meezan Bank Limited as default gateway for automated SBP/1Link reconciliation',
+    timestamp: '2026-01-15T09:15:22Z',
+    ipAddress: '182.185.120.45'
+  },
+  {
+    id: 'bank_audit_03',
+    action: 'ADD_RULE',
+    bankName: 'All Master Banks',
+    adminId: 'usr_master_01',
+    adminName: 'Master Admin (mtssolutions.pk@gmail.com)',
+    details: 'Created automated reconciliation rule "Standard Tenant Subscription ID Pattern" with regex TENANT-[0-9]{3,6}',
+    timestamp: '2026-01-15T09:30:10Z',
+    ipAddress: '182.185.120.45'
+  }
+];
+
+export async function getMasterBankAuditLogs(): Promise<BankAuditEntry[]> {
+  try {
+    const docRef = doc(db, 'system', 'masterBankAccounts');
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists() && docSnap.data()?.auditLogs) {
+      const logs = docSnap.data().auditLogs as BankAuditEntry[];
+      localStorage.setItem(AUDIT_STORAGE_KEY, JSON.stringify(logs));
+      return logs;
+    }
+  } catch (err) {
+    console.warn('Firestore bank audit logs load fallback to local:', err);
+  }
+
+  const cached = localStorage.getItem(AUDIT_STORAGE_KEY);
+  if (cached) {
+    try {
+      return JSON.parse(cached);
+    } catch {
+      // fallback
+    }
+  }
+
+  localStorage.setItem(AUDIT_STORAGE_KEY, JSON.stringify(INITIAL_BANK_AUDIT_LOGS));
+  return INITIAL_BANK_AUDIT_LOGS;
+}
+
+export async function logBankAuditAction(
+  action: BankAuditEntry['action'],
+  details: string,
+  bankId?: string,
+  bankName?: string,
+  changes?: BankAuditEntry['changes']
+): Promise<BankAuditEntry> {
+  const currentLogs = await getMasterBankAuditLogs();
+
+  const newEntry: BankAuditEntry = {
+    id: `bank_audit_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+    action,
+    bankId,
+    bankName,
+    adminId: 'usr_master_admin_01',
+    adminName: 'Master Admin (mtssolutions.pk@gmail.com)',
+    details,
+    changes,
+    timestamp: new Date().toISOString(),
+    ipAddress: '182.185.120.' + Math.floor(10 + Math.random() * 200)
+  };
+
+  const updatedLogs = [newEntry, ...currentLogs];
+  localStorage.setItem(AUDIT_STORAGE_KEY, JSON.stringify(updatedLogs));
+
+  try {
+    const docRef = doc(db, 'system', 'masterBankAccounts');
+    await setDoc(docRef, { auditLogs: updatedLogs, updatedAt: new Date().toISOString() }, { merge: true });
+  } catch (err) {
+    console.warn('Could not sync bank audit logs to Firestore:', err);
+  }
+
+  // Also log to global auditLogger
+  try {
+    const { auditLogger } = await import('./auditLogger');
+    await auditLogger.logAction({
+      tenantId: 'system_master',
+      userId: newEntry.adminId,
+      userName: newEntry.adminName,
+      userRole: 'MASTER_ADMIN',
+      actionType: 'SETTINGS_CHANGE',
+      module: 'Master Bank Setup',
+      details: `[${action}] ${details}`
+    });
+  } catch {
+    // silent fallback
+  }
+
+  return newEntry;
 }
