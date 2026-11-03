@@ -32,6 +32,7 @@ import {
 } from '../../services/firebaseAccounting';
 import { BankReconciliationReport } from './BankReconciliationReport';
 import { AutomatedStatementParser } from './AutomatedStatementParser';
+import { SearchableSelect } from '../common/SearchableSelect';
 
 type SubTab = 'vouchers' | 'coa' | 'gl' | 'subledger' | 'trialBalance' | 'pnl' | 'balanceSheet' | 'budget' | 'newVoucher' | 'bankReconciliation' | 'statementParser';
 
@@ -780,24 +781,25 @@ export const FinanceAccountsModule: React.FC = () => {
               {items.map((item, idx) => (
                 <div key={idx} className="grid grid-cols-12 gap-2 items-center bg-slate-800/60 p-3 rounded-xl border border-slate-700">
                   <div className="col-span-4">
-                    <select
+                    <SearchableSelect
+                      options={accounts.map((acc) => ({
+                        value: acc.id,
+                        label: `${acc.code} - ${acc.name}`,
+                        sublabel: `Category: ${acc.category} | Type: ${acc.type}`,
+                        category: acc.type
+                      }))}
                       value={item.accountId}
-                      onChange={(e) => {
-                        const acc = accounts.find((a) => a.id === e.target.value);
+                      onChange={(selectedId) => {
+                        const acc = accounts.find((a) => a.id === selectedId);
                         if (acc) {
                           const updated = [...items];
                           updated[idx] = { ...updated[idx], accountId: acc.id, accountCode: acc.code, accountName: acc.name };
                           setItems(updated);
                         }
                       }}
-                      className="w-full px-2 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-100"
-                    >
-                      {accounts.map((acc) => (
-                        <option key={acc.id} value={acc.id}>
-                          {acc.code} - {acc.name}
-                        </option>
-                      ))}
-                    </select>
+                      placeholder="Select COA Account Head..."
+                      searchPlaceholder="Search account name or code..."
+                    />
                   </div>
 
                   <div className="col-span-3">

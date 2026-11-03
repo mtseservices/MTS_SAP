@@ -54,6 +54,7 @@ import { QrScannerModal, ScannedItemPayload } from '../common/QrScannerModal';
 import { SubscriptionTrialModal } from '../common/SubscriptionTrialModal';
 import { INITIAL_INVENTORY, INITIAL_ACCOUNTS } from '../../services/mockData';
 import { PerformanceMetricsDashboard } from './PerformanceMetricsDashboard';
+import { LiquidityOverviewWidget } from './LiquidityOverviewWidget';
 
 interface ClientDashboardProps {
   onNavigateTab: (tab: ActiveTab) => void;
@@ -116,7 +117,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ onNavigateTab 
   const [newWidgetType, setNewWidgetType] = useState<'metric' | 'bar' | 'pie'>('bar');
 
   // Widget Reordering & Personalization State
-  const baseDefaultWidgets = ['topBanner', 'countdownBanner', 'expiringAlert', 'performanceMetrics', 'kpiCards', 'financialSummary', 'actionHub'];
+  const baseDefaultWidgets = ['topBanner', 'countdownBanner', 'expiringAlert', 'liquidityOverview', 'performanceMetrics', 'kpiCards', 'financialSummary', 'actionHub'];
   const defaultWidgets = [...baseDefaultWidgets, ...customWidgets.map(w => w.id)];
 
   const [widgetOrder, setWidgetOrder] = useState<string[]>(() => {
@@ -562,6 +563,9 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ onNavigateTab 
               </button>
             </div>
           );
+
+        case 'liquidityOverview':
+          return <LiquidityOverviewWidget companyId={currentCompany.id} onNavigateTab={onNavigateTab} />;
 
         case 'performanceMetrics':
           return <PerformanceMetricsDashboard />;

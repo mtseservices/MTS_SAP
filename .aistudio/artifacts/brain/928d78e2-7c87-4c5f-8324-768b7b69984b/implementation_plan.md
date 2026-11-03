@@ -1,30 +1,33 @@
-# Implementation Plan - Bank Statement Parser, Industry Core AI Auto-Modules & Comprehensive Subscription Plan Editor
+# Implementation Plan - Client Dashboard 'Liquidity Overview' Widget
 
-Build the Automated Statement Parser in the Finance module, implement industry-tailored AI module & department mappings for all 24+ business types in Industry Core Manager, and expand the Subscription Plan Editor with all missed properties (Business Suitability, Users, Branches, Quotas, Alerts, Logins).
+Implement a real-time 'Liquidity Overview' widget on the main **Client Dashboard** (`ClientDashboard.tsx`) that aggregates live balances from the master receiving bank accounts (`MasterBankAccountManager` / `masterBankAccountsService`) synchronized with company General Ledger bank accounts (`subscribeCompanyAccounts`).
 
-## 1. Automated Statement Parser in Finance Module
-- **Component**: Create `src/components/client/AutomatedStatementParser.tsx` and integrate it as a subtab in `FinanceAccountsModule.tsx`.
-- **Bank Selection**: Provide a dropdown listing all major Pakistani banks (HBL, MCB, UBL, Meezan, Bank Alfalah, Allied Bank, Faysal, Askari, etc.) from `PAKISTANI_BANKS_LIST`.
-- **File Upload & Column Mapper**: Allow uploading statement files (CSV/Excel/PDF simulation) with automatic header detection and manual column mapping override (Date, Description/Narration, Deposit/Credit, Withdrawal/Debit, Reference/Cheque No).
-- **Rule Matching Engine**: Evaluate mapped rows against Master Reconciliation Rules (min/max transaction amount, reference pattern matching, auto-approve) to generate GL vouchers or flag discrepancies.
+---
 
-## 2. Industry Core Manager - Distinct AI Auto-Selected Modules & Mapped Departments
-- **Service**: Update `src/services/departmentCategoryMapper.ts` and `src/components/master/IndustryCoreManager.tsx`.
-- **Industry Presets**: Ensure each of the 24+ business types (Import/Export, Hotel Management, Shopping Malls, Retail Store, Wholesale Shops, Trading, Courier Services, IT Services, HR Services, Manufacturing, Food & Beverage, Textile, Solar, Healthcare, etc.) has distinct, tailored active ERP modules and mapped departmental catalogs.
-- **Dynamic UI**: In `IndustryCoreManager.tsx`, when selecting or creating any industry package, dynamically auto-populate its unique AI recommended active modules and mapped departments instead of showing identical defaults.
+## User Requirements & Architecture
 
-## 3. Comprehensive Subscription Plan Editor
-- **Full Property Editing**: In `SubscriptionBillingManager.tsx`, ensure creating a new plan or editing an existing plan includes input fields for ALL properties:
-  - Plan Name, Price (PKR), Billing Cycle (Monthly, Yearly, One-Time)
-  - Business Suitability (Multi-select industry tags)
-  - Max Users & Max Branches
-  - SMS Quota & WhatsApp Alerts toggle
-  - Vendor Portal Logins
-  - Included Modules selection & Custom Layout Theme toggles
-- **Sync**: Ensure edited/new subscription plans persist to local state/Firestore and seamlessly feed into the Company Registration Wizard (`CompanyRegistrationWizard.tsx`).
+1. **Total Available Liquidity KPI**: Display net combined cash & bank liquid funds in PKR with status indicators (e.g. SBP/1Link Reconciled).
+2. **Individual Bank Account Breakdown**: Display each Master Bank Account (e.g. Meezan Bank, HBL, UBL, MCB) with account title, masked account/IBAN number, branch details, and current reconciled balance calculated from GL transactions.
+3. **Primary Default Tag**: Highlight the primary default gateway account designated for client invoice collection.
+4. **Quick Reconcile Action**: Direct navigation button triggering the Bank Reconciliation Report / Statement Parser subtabs in Finance & Accounts module.
 
-## Verification Plan
-1. **Compilation**: Run `compile_applet` and `lint_applet` to ensure zero build or TypeScript errors.
-2. **Finance Module Test**: Verify uploading bank statement files, selecting a Pakistani bank, mapping columns, and running auto-reconciliation.
-3. **Industry Core Test**: Switch between business types in Industry Core Manager to confirm unique AI module selections and mapped departments for each.
-4. **Subscription Plan Test**: Edit and create subscription plans with all fields (Users, Branches, SMS Quota, WhatsApp Alerts, Vendor Logins) and verify registration wizard reflection.
+---
+
+## Technical Tasks
+
+### 1. Data Retrieval & Service Integration
+- Load Master Bank Accounts using `getMasterBankAccounts()` from `masterBankAccountsService.ts`.
+- Connect real-time Firebase listener `subscribeCompanyAccounts(companyId)` in `ClientDashboard.tsx` to map GL balances to corresponding master bank accounts by account name or bank code.
+
+### 2. Client Dashboard Component Update (`src/components/client/ClientDashboard.tsx`)
+- Add new `Liquidity Overview` section at the top of the dashboard financial KPI row.
+- Render total liquid capital, individual bank cards/list with logos, IBAN display, default gateway badge, and "Quick Reconcile" button routing to the Finance module.
+
+### 3. Verification & Build
+- Run `compile_applet` and `lint_applet` to ensure zero compilation or linter errors.
+
+---
+
+## User Review Request
+
+Please review this plan and click **Proceed** to implement the Liquidity Overview widget.

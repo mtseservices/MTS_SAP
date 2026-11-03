@@ -20,6 +20,7 @@ import { ReconciliationRule, JournalVoucher } from '../../types/erp';
 import { postVoucherToFirebase, subscribeCompanyAccounts } from '../../services/firebaseAccounting';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { TTSButton } from '../common/TTSButton';
+import { SearchableSelect } from '../common/SearchableSelect';
 
 interface ParsedStatementRow {
   id: string;
@@ -248,18 +249,20 @@ export const AutomatedStatementParser: React.FC<{ vouchers: JournalVoucher[] }> 
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-300">Bank Name Dropdown *</label>
-            <select
+            <SearchableSelect
+              label="Bank Name Dropdown"
+              required
+              options={PAKISTANI_BANKS_LIST.map((bank) => ({
+                value: bank.name,
+                label: `[${bank.code}] ${bank.name}`,
+                sublabel: `SWIFT: ${bank.swiftCode} | Category: ${bank.category || 'Bank'}`,
+                category: bank.category || 'Pakistani Banks'
+              }))}
               value={selectedBankName}
-              onChange={(e) => setSelectedBankName(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-100 text-sm focus:outline-none focus:border-emerald-500"
-            >
-              {PAKISTANI_BANKS_LIST.map((bank) => (
-                <option key={bank.name} value={bank.name}>
-                  [{bank.code}] {bank.name} ({bank.category || 'Bank'})
-                </option>
-              ))}
-            </select>
+              onChange={(val) => setSelectedBankName(val)}
+              placeholder="Search or Select Pakistani Bank..."
+              searchPlaceholder="Filter banks by name or SBP code..."
+            />
             <p className="text-[11px] text-slate-500 mt-1">
               Select target bank to apply specific SBP & 1Link clearing rules and column formats.
             </p>

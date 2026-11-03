@@ -41,6 +41,8 @@ import { db } from '../../services/firebaseConfig';
 import { getDefaultDepartmentIdsForIndustry } from '../../services/departmentCategoryMapper';
 import { COMPLETE_DEPARTMENTS_CATALOGUE } from '../../services/departmentCatalogueData';
 import { PAKISTAN_PROVINCES_CITIES, getCitiesForProvince } from '../../services/pakistanRegions';
+import { PAKISTANI_BANKS_LIST } from '../../services/pakistaniBanks';
+import { SearchableSelect } from '../common/SearchableSelect';
 
 interface CompanyRegistrationWizardProps {
   onSuccess: (slug: string) => void;
@@ -434,12 +436,19 @@ Password: ${createdCompanyDetails.password}`;
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Corporate Bank Name</label>
-                  <input
-                    type="text"
+                  <SearchableSelect
+                    label="Corporate Bank Name"
+                    allowCustom
+                    options={PAKISTANI_BANKS_LIST.map((b) => ({
+                      value: b.name,
+                      label: `[${b.code}] ${b.name}`,
+                      sublabel: `Category: ${b.category || 'Bank'} | SWIFT: ${b.swiftCode}`,
+                      category: b.category || 'Pakistani Banks'
+                    }))}
                     value={formData.bankName}
-                    onChange={(e) => setFormData({ ...formData, bankName: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-100"
+                    onChange={(val) => setFormData({ ...formData, bankName: val })}
+                    placeholder="Select or type bank name..."
+                    searchPlaceholder="Filter 25+ Pakistani Banks..."
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -464,32 +473,35 @@ Password: ${createdCompanyDetails.password}`;
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Province / Territory</label>
-                  <select
+                  <SearchableSelect
+                    label="Province / Territory"
+                    options={PAKISTAN_PROVINCES_CITIES.map((p) => ({
+                      value: p.province,
+                      label: p.province,
+                      sublabel: `${p.cities.length} major cities`
+                    }))}
                     value={formData.province}
-                    onChange={(e) => {
-                      const newProv = e.target.value;
+                    onChange={(newProv) => {
                       const cities = getCitiesForProvince(newProv);
                       setFormData({ ...formData, province: newProv, city: cities[0] || '' });
                     }}
-                    className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-purple-300 font-bold"
-                  >
-                    {PAKISTAN_PROVINCES_CITIES.map(p => (
-                      <option key={p.province} value={p.province}>{p.province}</option>
-                    ))}
-                  </select>
+                    placeholder="Search Province / Territory..."
+                    searchPlaceholder="Type province name..."
+                  />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Primary City</label>
-                  <select
+                  <SearchableSelect
+                    label="Primary City"
+                    options={getCitiesForProvince(formData.province).map((c) => ({
+                      value: c,
+                      label: c,
+                      sublabel: formData.province
+                    }))}
                     value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-100 font-bold"
-                  >
-                    {getCitiesForProvince(formData.province).map(c => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
+                    onChange={(val) => setFormData({ ...formData, city: val })}
+                    placeholder={`Search City in ${formData.province}...`}
+                    searchPlaceholder="Type city name..."
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Contact Phone</label>
@@ -524,29 +536,35 @@ Password: ${createdCompanyDetails.password}`;
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-4">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Industry Core</label>
-                    <select
+                    <SearchableSelect
+                      label="Industry Core"
+                      options={[
+                        'Manufacturing',
+                        'Textile',
+                        'Food & Beverage',
+                        'Import/Export',
+                        'Hotel Management',
+                        'Shopping Malls',
+                        'Retail Store',
+                        'Wholesale Shops',
+                        'Trading',
+                        'Courier Services',
+                        'IT Services',
+                        'HR Services',
+                        'Education',
+                        'Healthcare',
+                        'Solar & Electrical',
+                        'Construction'
+                      ].map((ind) => ({
+                        value: ind,
+                        label: ind,
+                        sublabel: 'AI auto-module preset available'
+                      }))}
                       value={formData.industry}
-                      onChange={(e) => setFormData({ ...formData, industry: e.target.value as IndustryPackage })}
-                      className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-amber-400 font-bold"
-                    >
-                      <option value="Manufacturing">Manufacturing</option>
-                      <option value="Textile">Textile</option>
-                      <option value="Food & Beverage">Food & Beverage</option>
-                      <option value="Import/Export">Import/Export</option>
-                      <option value="Hotel Management">Hotel Management</option>
-                      <option value="Shopping Malls">Shopping Malls</option>
-                      <option value="Retail Store">Retail Store</option>
-                      <option value="Wholesale Shops">Wholesale Shops</option>
-                      <option value="Trading">Trading</option>
-                      <option value="Courier Services">Courier Services</option>
-                      <option value="IT Services">IT Services</option>
-                      <option value="HR Services">HR Services</option>
-                      <option value="Education">Education</option>
-                      <option value="Healthcare">Healthcare</option>
-                      <option value="Solar & Electrical">Solar & Electrical</option>
-                      <option value="Construction">Construction</option>
-                    </select>
+                      onChange={(val) => setFormData({ ...formData, industry: val as IndustryPackage })}
+                      placeholder="Search Industry Core..."
+                      searchPlaceholder="Filter 16+ Industry Core Packages..."
+                    />
                   </div>
                   <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20">
                     <h3 className="text-[10px] font-black text-amber-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">

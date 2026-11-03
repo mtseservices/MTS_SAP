@@ -35,6 +35,7 @@ import {
   logBankAuditAction
 } from '../../services/masterBankAccountsService';
 import { PAKISTANI_BANKS_LIST, PakistaniBankInfo } from '../../services/pakistaniBanks';
+import { SearchableSelect } from '../common/SearchableSelect';
 import { TTSButton } from '../common/TTSButton';
 
 export const MasterBankAccountManager: React.FC = () => {
@@ -863,41 +864,43 @@ export const MasterBankAccountManager: React.FC = () => {
             <form onSubmit={handleSaveAccount} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
               {!editingAccountId && (
                 <div className="space-y-1.5 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
-                  <label className="text-xs font-semibold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <label className="text-xs font-semibold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5 mb-1">
                     <Sparkles className="w-3.5 h-3.5" /> Quick Select Pakistani Bank Template
                   </label>
-                  <select
-                    onChange={(e) => handleBankTemplateChange(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 text-sm focus:outline-none focus:border-emerald-500 transition"
-                  >
-                    {PAKISTANI_BANKS_LIST.map((b) => (
-                      <option key={b.name} value={b.name}>
-                        [{b.code}] {b.name} — {b.category || 'Bank'} (SWIFT: {b.swiftCode})
-                      </option>
-                    ))}
-                  </select>
+                  <SearchableSelect
+                    options={PAKISTANI_BANKS_LIST.map((b) => ({
+                      value: b.name,
+                      label: `[${b.code}] ${b.name}`,
+                      sublabel: `Category: ${b.category || 'Bank'} | SWIFT: ${b.swiftCode} | IBAN: ${b.ibanPrefix}`,
+                      category: b.category || 'Standard Banks'
+                    }))}
+                    value={bankName}
+                    onChange={(val) => handleBankTemplateChange(val)}
+                    placeholder="Search Pakistani Bank by name or SBP code..."
+                    searchPlaceholder="Type bank name or SBP code (e.g. Meezan, HBL, UBL)..."
+                  />
                 </div>
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-300">Bank Name (Standardized Pakistani Bank) *</label>
-                  <select
+                  <SearchableSelect
+                    label="Bank Name (Standardized Pakistani Bank)"
                     required
+                    options={PAKISTANI_BANKS_LIST.map((b) => ({
+                      value: b.name,
+                      label: `[${b.code}] ${b.name}`,
+                      sublabel: `Category: ${b.category || 'Bank'} | SWIFT: ${b.swiftCode}`,
+                      category: b.category || 'Standard Banks'
+                    }))}
                     value={bankName}
-                    onChange={(e) => {
-                      setBankName(e.target.value);
-                      handleBankTemplateChange(e.target.value);
+                    onChange={(val) => {
+                      setBankName(val);
+                      handleBankTemplateChange(val);
                     }}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 text-sm focus:outline-none focus:border-emerald-500 font-semibold"
-                  >
-                    <option value="">-- Select Standard Pakistani Bank --</option>
-                    {PAKISTANI_BANKS_LIST.map((b) => (
-                      <option key={b.name} value={b.name}>
-                        [{b.code}] {b.name} — {b.category || 'Bank'}
-                      </option>
-                    ))}
-                  </select>
+                    placeholder="Select or Search Pakistani Bank..."
+                    searchPlaceholder="Search 25+ SBP Registered Banks..."
+                  />
                 </div>
 
                 <div className="space-y-1.5">
