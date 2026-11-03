@@ -12,7 +12,10 @@ import {
   Maximize2,
   Minimize2,
   Lock,
-  AppWindow
+  AppWindow,
+  Sparkles,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { ThemeMode, TableDensity, LoginTemplateId } from '../../types/erp';
@@ -28,12 +31,80 @@ export const StylePreviewDrawer: React.FC<StylePreviewDrawerProps> = ({ isOpen, 
   const currentMode = currentCompany.themeMode || 'dark';
   const currentDensity = currentCompany.tableDensity || 'standard';
   const currentLoginTemplate = currentCompany.loginTemplateId || 'split';
+  const currentPrimaryColor = currentCompany.branding?.primaryColor;
+
+  const [carouselIndex, setCarouselIndex] = useState(0);
 
   const modes: { id: ThemeMode; label: string; icon: any; color: string }[] = [
     { id: 'dark', label: 'Deep Obsidian', icon: Moon, color: 'bg-slate-950' },
     { id: 'slate-gray', label: 'Corporate Slate', icon: Monitor, color: 'bg-slate-900' },
     { id: 'light', label: 'Crisp Light', icon: Sun, color: 'bg-white' }
   ];
+
+  const presetThemes = [
+    {
+      id: 'royal-gold',
+      label: 'Royal Black & Gold Luxury',
+      description: 'Opulent dark palette with gold accents',
+      themeMode: 'dark' as ThemeMode,
+      branding: {
+        primaryColor: '#d4af37',
+        secondaryColor: '#111827',
+        fontFamily: 'serif',
+        borderRadius: 12
+      },
+      accentGradient: 'from-amber-400 to-yellow-600'
+    },
+    {
+      id: 'corporate-blue',
+      label: 'Corporate Executive Blue',
+      description: 'Professional deep Navy & Azure blue',
+      themeMode: 'dark' as ThemeMode,
+      branding: {
+        primaryColor: '#2563eb',
+        secondaryColor: '#1e293b',
+        fontFamily: 'sans-serif',
+        borderRadius: 8
+      },
+      accentGradient: 'from-blue-600 to-cyan-500'
+    },
+    {
+      id: 'emerald-green',
+      label: 'Emerald Textile Green',
+      description: 'Lush forest green & mint for trade',
+      themeMode: 'dark' as ThemeMode,
+      branding: {
+        primaryColor: '#059669',
+        secondaryColor: '#064e3b',
+        fontFamily: 'sans-serif',
+        borderRadius: 8
+      },
+      accentGradient: 'from-emerald-500 to-teal-600'
+    },
+    {
+      id: 'crimson-steel',
+      label: 'Crimson Industrial Steel',
+      description: 'High-contrast manufacturing steel',
+      themeMode: 'dark' as ThemeMode,
+      branding: {
+        primaryColor: '#dc2626',
+        secondaryColor: '#1c1917',
+        fontFamily: 'monospace',
+        borderRadius: 6
+      },
+      accentGradient: 'from-red-600 to-amber-600'
+    }
+  ];
+
+  const activePreset = presetThemes[carouselIndex];
+
+  const handleNextSlide = () => {
+    setCarouselIndex((prev) => (prev + 1) % presetThemes.length);
+  };
+
+  const handlePrevSlide = () => {
+    setCarouselIndex((prev) => (prev - 1 + presetThemes.length) % presetThemes.length);
+  };
 
   const densities: { id: TableDensity; label: string; icon: any; description: string }[] = [
     { id: 'standard', label: 'Comfortable', icon: Maximize2, description: 'Standard row spacing for visibility' },
@@ -49,7 +120,6 @@ export const StylePreviewDrawer: React.FC<StylePreviewDrawerProps> = ({ isOpen, 
 
   const handleModeChange = (mode: ThemeMode) => {
     updateCompanyBranding(currentCompany.id, { themeMode: mode });
-    // Root level class update for Tailwind dark mode
     if (mode === 'light') {
       document.documentElement.classList.remove('dark');
       document.documentElement.classList.remove('slate-gray');
@@ -60,6 +130,14 @@ export const StylePreviewDrawer: React.FC<StylePreviewDrawerProps> = ({ isOpen, 
       document.documentElement.classList.add('dark');
       document.documentElement.classList.remove('slate-gray');
     }
+  };
+
+  const handleApplyPreset = (preset: typeof presetThemes[0]) => {
+    updateCompanyBranding(currentCompany.id, {
+      themeMode: preset.themeMode,
+      branding: preset.branding
+    });
+    handleModeChange(preset.themeMode);
   };
 
   const handleDensityChange = (density: TableDensity) => {
@@ -96,6 +174,120 @@ export const StylePreviewDrawer: React.FC<StylePreviewDrawerProps> = ({ isOpen, 
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-8">
+          {/* Visual Carousel for Preset Professional Themes */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-400" />
+                <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Preset Theme Carousel</h3>
+              </div>
+              <div className="flex items-center gap-1">
+                <button 
+                  onClick={handlePrevSlide}
+                  className="p-1 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors cursor-pointer"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={handleNextSlide}
+                  className="p-1 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors cursor-pointer"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Carousel Card */}
+            <div className="relative bg-slate-950/80 border border-slate-800 rounded-2xl p-4 overflow-hidden shadow-xl">
+              {/* Thumbnail Mockup */}
+              <div 
+                className="w-full h-36 rounded-xl mb-3 p-3 flex flex-col justify-between border shadow-inner transition-all duration-300"
+                style={{
+                  backgroundColor: activePreset.branding.secondaryColor,
+                  borderColor: activePreset.branding.primaryColor + '55',
+                  borderRadius: `${activePreset.branding.borderRadius * 1.5}px`,
+                  fontFamily: activePreset.branding.fontFamily
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div 
+                      className="w-3 h-3 rounded-full" 
+                      style={{ backgroundColor: activePreset.branding.primaryColor }} 
+                    />
+                    <span className="text-[10px] font-bold text-slate-200 tracking-wider uppercase">Dashboard Preview</span>
+                  </div>
+                  <span className="text-[9px] px-2 py-0.5 rounded-full font-mono text-white" style={{ backgroundColor: activePreset.branding.primaryColor }}>
+                    {activePreset.label.split(' ')[0]}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="bg-slate-900/60 p-2 rounded border border-slate-800 text-[9px] text-slate-400">
+                    <div className="text-slate-200 font-bold text-xs">$24,800</div>
+                    <div>Revenue</div>
+                  </div>
+                  <div className="bg-slate-900/60 p-2 rounded border border-slate-800 text-[9px] text-slate-400">
+                    <div className="text-slate-200 font-bold text-xs">142 Orders</div>
+                    <div>Active</div>
+                  </div>
+                  <div className="bg-slate-900/60 p-2 rounded border border-slate-800 text-[9px] text-slate-400">
+                    <div className="text-slate-200 font-bold text-xs">99.8%</div>
+                    <div>Uptime</div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <div 
+                    className="h-2 w-16 rounded-full" 
+                    style={{ backgroundColor: activePreset.branding.primaryColor }} 
+                  />
+                </div>
+              </div>
+
+              {/* Details & Action */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-black text-slate-100">{activePreset.label}</h4>
+                  <span className="text-[9px] text-slate-400 font-mono">Slide {carouselIndex + 1} of {presetThemes.length}</span>
+                </div>
+                <p className="text-[10px] text-slate-400 leading-relaxed">{activePreset.description}</p>
+                
+                <button
+                  onClick={() => handleApplyPreset(activePreset)}
+                  className={`w-full py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 ${
+                    currentPrimaryColor === activePreset.branding.primaryColor
+                      ? 'bg-emerald-600 text-white shadow-emerald-900/20'
+                      : 'bg-slate-800 text-slate-100 hover:bg-slate-700'
+                  }`}
+                >
+                  {currentPrimaryColor === activePreset.branding.primaryColor ? (
+                    <>
+                      <Check className="w-3.5 h-3.5" /> Applied Theme
+                    </>
+                  ) : (
+                    'Apply Preset Theme'
+                  )}
+                </button>
+              </div>
+
+              {/* Dot Navigation */}
+              <div className="flex items-center justify-center gap-1.5 mt-3 pt-3 border-t border-slate-800/60">
+                {presetThemes.map((p, idx) => (
+                  <button
+                    key={p.id}
+                    onClick={() => setCarouselIndex(idx)}
+                    className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                      carouselIndex === idx 
+                        ? 'w-6 bg-cyan-400 shadow-sm' 
+                        : 'w-1.5 bg-slate-700 hover:bg-slate-600'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
           {/* Theme Mode Section */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
@@ -194,28 +386,6 @@ export const StylePreviewDrawer: React.FC<StylePreviewDrawerProps> = ({ isOpen, 
                   </button>
                 );
               })}
-            </div>
-          </div>
-
-          {/* Static Preview Mock */}
-          <div className="pt-6 mt-6 border-t border-slate-800">
-            <div className="bg-slate-950/40 rounded-2xl p-4 border border-slate-800/50 text-[10px] space-y-3">
-              <div className="flex items-center justify-between text-slate-500 font-mono italic">
-                <span>Layout Preview (Mock)</span>
-                <Layout className="w-3 h-3" />
-              </div>
-              
-              <div className="flex gap-2">
-                <div className="w-1/3 aspect-[3/4] rounded-lg bg-slate-800 border border-slate-700 animate-pulse" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-2 w-3/4 bg-slate-800 rounded-full" />
-                  <div className="h-2 w-full bg-slate-800 rounded-full" />
-                  <div className="h-2 w-1/2 bg-slate-800 rounded-full" />
-                </div>
-              </div>
-              <p className="text-slate-600 leading-relaxed">
-                Changes are applied instantly to the enterprise tenant instance. Shared portals (Vendor/Client) follow these styling guidelines.
-              </p>
             </div>
           </div>
         </div>

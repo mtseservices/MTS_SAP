@@ -5,6 +5,7 @@ import { Sidebar, ActiveTab } from './components/common/Sidebar';
 import { GeminiChatbotDrawer } from './components/common/GeminiChatbotDrawer';
 import { AuditLogViewer } from './components/common/AuditLogViewer';
 import { StylePreviewDrawer } from './components/common/StylePreviewDrawer';
+import { OfflineToast } from './components/common/OfflineToast';
 
 // Master Admin Views
 import { MasterDashboard } from './components/master/MasterDashboard';
@@ -231,6 +232,9 @@ function MainLayout() {
         isOpen={isStyleDrawerOpen} 
         onClose={() => setIsStyleDrawerOpen(false)} 
       />
+
+      {/* Offline/Online Status Indicator Toast */}
+      <OfflineToast />
     </div>
   );
 }

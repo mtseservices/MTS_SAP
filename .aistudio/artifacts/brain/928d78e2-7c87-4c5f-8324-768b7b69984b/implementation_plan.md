@@ -1,34 +1,15 @@
-# Implementation Plan - Firebase Google Authentication & Tenant Profile Auto-Linking
-
-Expose a native `loginWithGoogle` method in `AuthTenantProvider`, allowing client users to authenticate via Google Firebase OAuth (`signInWithPopup`), auto-linking Google credentials directly to the client company's tenant admin profile and persisting active sessions to Firestore.
+# Implementation Plan - Robust Tenant Slug Parsing & Keyword-Based Auto-Provisioning
 
 ## Proposed Changes
 
-### 1. Context Extension in `AuthTenantContext.tsx`
-#### `src/context/AuthTenantContext.tsx`
-- Add `loginWithGoogle: (companySlug?: string) => Promise<void>` to `AuthTenantContextType` interface and provider context.
-- Implement `loginWithGoogle` logic:
-  - Invokes `signInWithPopup(auth, googleProvider)`.
-  - Extracts Google user metadata (`uid`, `email`, `displayName`, `photoURL`).
-  - Resolves target company by `companySlug` or active `currentCompany`.
-  - Links Google account as `CLIENT_ADMIN` for that specific tenant company.
-  - Persists active session document in Firebase Firestore (`sessions` collection) and local storage.
-  - Logs audit log entry: `Google Authentication for tenant {companyName}`.
+### 1. `src/components/common/TenantRouteHandler.tsx`
+- Refine slug extraction and parsing logic to cleanly handle `/login/:slug`, `/company/:slug`, `/tenant/:slug`, and query parameters (`?company=...` or `?tenant=...`).
+- Implement robust validation and automated invocation of `ensureCompanyExists` for any valid non-empty slug.
 
-### 2. UI Button Integration in `MasterLoginModal.tsx`
-#### `src/components/common/MasterLoginModal.tsx`
-- Connect the **"Continue with Google Account"** button directly to `loginWithGoogle(activeSlug)`.
-- Show loading indicator while Google popup is active.
-- Handle popup cancellations or errors gracefully with clear user feedback.
+### 2. `src/context/AuthTenantContext.tsx`
+- Enhance `ensureCompanyExists` to scan slug keywords (e.g. `food`, `textile`, `steel`, `pharma`, `tech`, `trading`) and dynamically assign tailored industry profiles, categories, and default active modules upon auto-provisioning.
 
----
-
-## User Verification Instructions
-1. **Google Sign-In Execution Test**:
-   - Open client login page (e.g. `/login/fusionfoodfaisalabad` or `/login/crest`).
-   - Click "Continue with Google Account".
-2. **Profile Linking Verification**:
-   - Complete Google login via popup.
-   - Verify that you are signed in as `CLIENT_ADMIN` for that specific tenant with your Google name & email displayed in the header.
-3. **Session Persistence Test**:
-   - Refresh the page and verify that your authenticated Google tenant session remains active.
+## Verification Plan
+- Run `lint_applet` to check TypeScript correctness.
+- Run `compile_applet` to ensure successful build.
+- Test accessing `/login/fusionfoodfaisalabad` to verify it auto-provisions with Food & Beverage industry profile and opens the client login page successfully.

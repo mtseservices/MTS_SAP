@@ -79,6 +79,14 @@ interface AuthTenantContextType {
       themeMode?: ThemeMode;
       loginTemplateId?: LoginTemplateId;
       tableDensity?: TableDensity;
+      branding?: {
+        primaryColor?: string;
+        secondaryColor?: string;
+        fontFamily?: string;
+        borderRadius?: number;
+        logoUrl?: string;
+        faviconUrl?: string;
+      };
     }
   ) => Promise<void>;
   login: (type?: 'MASTER' | 'CLIENT', companySlug?: string, role?: string) => void;
@@ -90,6 +98,7 @@ interface AuthTenantContextType {
   secondsRemaining: number;
   resetInactivityTimer: () => void;
   isLoading: boolean;
+  ensureCompanyExists: (slug: string) => ClientCompany;
 }
 
 const MASTER_USER: UserProfile = {
@@ -519,16 +528,24 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const updateCompanyBranding = async (
     companyId: string,
-    branding: {
+    brandingUpdate: {
       themeMode?: ThemeMode;
       loginTemplateId?: LoginTemplateId;
       tableDensity?: TableDensity;
+      branding?: {
+        primaryColor?: string;
+        secondaryColor?: string;
+        fontFamily?: string;
+        borderRadius?: number;
+        logoUrl?: string;
+        faviconUrl?: string;
+      };
     }
   ): Promise<void> => {
     // 1. Update Firestore
     try {
       const companyDocRef = doc(db, 'companies', companyId);
-      await setDoc(companyDocRef, branding, { merge: true });
+      await setDoc(companyDocRef, brandingUpdate, { merge: true });
     } catch (e) {
       console.warn('Firestore branding update error:', e);
     }
@@ -537,14 +554,22 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setAllCompanies(prev =>
       prev.map(c => {
         if (c.id === companyId) {
-          return { ...c, ...branding };
+          const newBranding = brandingUpdate.branding 
+            ? { ...(c.branding || { primaryColor: '#6366f1', secondaryColor: '#ec4899', fontFamily: 'sans-serif', borderRadius: 8 }), ...brandingUpdate.branding }
+            : c.branding;
+          return { ...c, ...brandingUpdate, branding: newBranding };
         }
         return c;
       })
     );
 
     if (currentCompany.id === companyId) {
-      setCurrentCompany(prev => ({ ...prev, ...branding }));
+      setCurrentCompany(prev => {
+        const newBranding = brandingUpdate.branding 
+          ? { ...(prev.branding || { primaryColor: '#6366f1', secondaryColor: '#ec4899', fontFamily: 'sans-serif', borderRadius: 8 }), ...brandingUpdate.branding }
+          : prev.branding;
+        return { ...prev, ...brandingUpdate, branding: newBranding };
+      });
     }
   };
 
@@ -877,6 +902,33 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     return newCompany;
   };
 
+  const ensureCompanyExists = (slug: string): ClientCompany => {
+    const cleanSlug = slug.trim().toLowerCase();
+    const existing = allCompanies.find(c => c.slug.toLowerCase() === cleanSlug);
+    if (existing) {
+      return existing;
+    }
+    const formattedName = cleanSlug
+      .replace(/[-_]/g, ' ')
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+
+    const newComp = registerNewCompany({
+      name: formattedName || 'Client Enterprise',
+      slug: cleanSlug,
+      code: cleanSlug.substring(0, 4).toUpperCase() + '01',
+      industry: 'Manufacturing',
+      category: 'Enterprise Solution',
+      adminName: 'Organization Administrator',
+      adminEmail: `admin@${cleanSlug}.pk`,
+      themeMode: 'dark',
+      loginTemplateId: 'split'
+    });
+    return newComp;
+  };
+
   const updateCompanyDepartments = async (companyId: string, departmentIds: string[]): Promise<void> => {
     // 1. Save locally for instant persistence
     try {
@@ -1115,6 +1167,7 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         setTheme,
         switchTenantBySlug,
         registerNewCompany,
+        ensureCompanyExists,
         permanentDeleteCompany,
         updateCompanySubscription,
         updateCompanyCustomRoles,
