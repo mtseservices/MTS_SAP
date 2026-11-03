@@ -47,6 +47,9 @@ export const TenantManagement: React.FC = () => {
   const [editDeptSearch, setEditDeptSearch] = useState('');
   const [editDeptView, setEditDeptView] = useState<'RECOMMENDED' | 'ALL'>('RECOMMENDED');
 
+  const [deletingCompanyModal, setDeletingCompanyModal] = useState<ClientCompany | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const toggleStatus = (id: string) => {
     setAllCompanies(prev =>
       prev.map(c => {
@@ -97,8 +100,31 @@ export const TenantManagement: React.FC = () => {
     });
   };
 
-  const handlePermanentDelete = async (id: string) => {
-    await permanentDeleteCompany(id);
+  const handleConfirmPermanentDelete = async () => {
+    if (!deletingCompanyModal) return;
+    setIsDeleting(true);
+    const targetComp = deletingCompanyModal;
+
+    try {
+      await permanentDeleteCompany(targetComp.id, targetComp.tenantId);
+
+      await auditLogger.logAction({
+        tenantId: 'system_master',
+        userId: currentUser.id,
+        userName: currentUser.name,
+        userRole: currentUser.role,
+        actionType: 'SETTINGS_CHANGE',
+        module: 'Tenant Management',
+        details: `Permanently deleted company document & data: ${targetComp.name} (${targetComp.code})`
+      });
+
+      setDeletingCompanyModal(null);
+    } catch (err) {
+      console.error('Permanent delete error:', err);
+      alert('Permanent deletion error. Please retry.');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   // Master Admin approves or rejects Client Admin limit increase request
@@ -243,11 +269,26 @@ export const TenantManagement: React.FC = () => {
       {/* TAB 1: TENANTS LIST */}
       {activeTab === 'tenants' && (
         <div className="grid grid-cols-1 gap-4 animate-in fade-in">
-          {allCompanies.filter(c => !c.isArchived).map((comp) => (
-            <div
-              key={comp.id}
-              className="p-5 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl space-y-4"
-            >
+          {allCompanies.filter(c => !c.isArchived).length === 0 ? (
+            <div className="text-center py-12 text-slate-500 text-xs bg-slate-900 border border-slate-800 rounded-2xl space-y-3">
+              <div className="w-12 h-12 rounded-full bg-slate-800/60 border border-slate-700 flex items-center justify-center mx-auto text-slate-400">
+                <Building2 className="w-6 h-6 text-purple-400" />
+              </div>
+              <p className="font-bold text-slate-300">No active companies found.</p>
+              <p className="text-[11px] text-slate-500">All companies are currently stored in the Archive Vault or have been deleted.</p>
+              <button
+                onClick={() => setActiveTab('archive')}
+                className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-lg shadow-purple-600/30 inline-flex items-center gap-2 transition cursor-pointer"
+              >
+                View Archived Companies ({allCompanies.filter(c => c.isArchived).length})
+              </button>
+            </div>
+          ) : (
+            allCompanies.filter(c => !c.isArchived).map((comp) => (
+              <div
+                key={comp.id}
+                className="p-5 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl space-y-4"
+              >
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center font-black text-purple-300 text-sm">
@@ -319,11 +360,7 @@ export const TenantManagement: React.FC = () => {
                   </button>
 
                   <button
-                    onClick={async () => {
-                      if (window.confirm(`Permanently delete "${comp.name}"? This will permanently remove the company, its settings, and sample data from storage.`)) {
-                        await handlePermanentDelete(comp.id);
-                      }
-                    }}
+                    onClick={() => setDeletingCompanyModal(comp)}
                     className="p-1.5 px-3 rounded-xl bg-rose-600/20 hover:bg-rose-600/40 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer"
                     title="Permanently Delete Company"
                   >
@@ -351,20 +388,30 @@ export const TenantManagement: React.FC = () => {
                 </div>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </div>
+    )}
 
       {/* TAB: ARCHIVE & PERMANENT DELETE */}
       {activeTab === 'archive' && (
         <div className="space-y-4 animate-in fade-in">
-          <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-xs text-slate-300">
-            <strong>Archived Sample & Client Companies Vault:</strong> Master User can restore archived companies using Undo, or permanently delete them from database storage.
+          <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-xs text-slate-300 flex items-center justify-between">
+            <div>
+              <strong>Archived Companies Vault:</strong> Archived companies remain stored safely in this vault until you click <strong>"↩️ Undo / Restore"</strong> or permanently delete them.
+            </div>
+            <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 font-mono font-bold text-xs">
+              {allCompanies.filter(c => c.isArchived).length} Archived
+            </span>
           </div>
 
           {allCompanies.filter(c => c.isArchived).length === 0 ? (
-            <div className="text-center py-12 text-slate-500 text-xs bg-slate-900 border border-slate-800 rounded-2xl">
-              No archived companies found. Click "Archive" on any tenant card to move it here.
+            <div className="text-center py-12 text-slate-500 text-xs bg-slate-900 border border-slate-800 rounded-2xl space-y-2">
+              <div className="w-12 h-12 rounded-full bg-slate-800/60 border border-slate-700 flex items-center justify-center mx-auto text-slate-400">
+                <Trash2 className="w-6 h-6" />
+              </div>
+              <p className="font-bold text-slate-300">No archived companies currently in vault.</p>
+              <p className="text-[11px] text-slate-500">Click "Archive" on any tenant card in the Tenant List to move it here.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4">
@@ -386,7 +433,7 @@ export const TenantManagement: React.FC = () => {
                           </span>
                         </h3>
                         <div className="text-xs text-slate-400 font-mono mt-0.5">
-                          Tenant ID: {comp.tenantId} • Code: {comp.code}
+                          Tenant ID: {comp.tenantId} • Code: {comp.code} • Subdomain: <span className="text-purple-300">{comp.subdomain}</span>
                         </div>
                       </div>
                     </div>
@@ -394,18 +441,16 @@ export const TenantManagement: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleRestoreCompany(comp)}
-                        className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-300 border border-emerald-500/30 text-xs font-bold transition-all cursor-pointer"
+                        className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-300 border border-emerald-500/30 text-xs font-bold transition-all cursor-pointer shadow-lg shadow-emerald-950/20"
+                        title="Restore company to active Tenant List"
                       >
-                        ↩️ Undo / Restore
+                        <RotateCcw className="w-3.5 h-3.5" /> Undo / Restore
                       </button>
 
                       <button
-                        onClick={() => {
-                          if (confirm(`Permanently delete company ${comp.name}? This action cannot be undone.`)) {
-                            handlePermanentDelete(comp.id);
-                          }
-                        }}
+                        onClick={() => setDeletingCompanyModal(comp)}
                         className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-all cursor-pointer shadow-lg shadow-rose-600/20"
+                        title="Permanently delete company from Firestore & local storage"
                       >
                         <Trash2 className="w-3.5 h-3.5" /> Permanent Delete
                       </button>
@@ -728,6 +773,85 @@ export const TenantManagement: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* PERMANENT DELETE CONFIRMATION MODAL */}
+      {deletingCompanyModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-slate-900 border border-rose-500/40 rounded-3xl p-6 max-w-lg w-full space-y-6 shadow-2xl relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-rose-500/10 via-transparent to-rose-950/20 pointer-events-none" />
+
+            <div className="flex items-center gap-3 border-b border-slate-800 pb-4 relative z-10">
+              <div className="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 shrink-0">
+                <AlertTriangle className="w-6 h-6 animate-pulse" />
+              </div>
+              <div>
+                <span className="text-[10px] font-black uppercase text-rose-400 tracking-widest block font-mono">
+                  ⚠️ Irreversible Permanent Deletion
+                </span>
+                <h3 className="text-base font-black text-white">
+                  Permanently Delete {deletingCompanyModal.name}?
+                </h3>
+              </div>
+            </div>
+
+            <div className="space-y-3 text-xs relative z-10">
+              <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 font-mono">
+                <div className="flex justify-between items-center text-slate-400">
+                  <span>Company Code:</span>
+                  <span className="text-white font-bold">{deletingCompanyModal.code}</span>
+                </div>
+                <div className="flex justify-between items-center text-slate-400">
+                  <span>Tenant ID:</span>
+                  <span className="text-cyan-400 font-bold">{deletingCompanyModal.tenantId}</span>
+                </div>
+                <div className="flex justify-between items-center text-slate-400">
+                  <span>Subdomain:</span>
+                  <span className="text-purple-300 font-bold">{deletingCompanyModal.subdomain}</span>
+                </div>
+                <div className="flex justify-between items-center text-slate-400">
+                  <span>Industry &amp; Plan:</span>
+                  <span className="text-emerald-400 font-bold">{deletingCompanyModal.industry} ({deletingCompanyModal.subscriptionPlan})</span>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-200/90 leading-relaxed text-[11px]">
+                <strong className="text-rose-400 block mb-1 font-bold uppercase">Database &amp; Storage Impact Notice:</strong>
+                This action will 100% permanently remove the company document from <strong>Firebase Firestore</strong> (`companies` &amp; `tenants` collections), clear all local storage credentials, and purge user seat settings. This company will <strong>NEVER</strong> appear again in either the Tenant List or the Archive Vault.
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-slate-800 relative z-10">
+              <button
+                type="button"
+                onClick={() => setDeletingCompanyModal(null)}
+                disabled={isDeleting}
+                className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition cursor-pointer"
+              >
+                Cancel / Keep Company
+              </button>
+
+              <button
+                type="button"
+                onClick={handleConfirmPermanentDelete}
+                disabled={isDeleting}
+                className="px-6 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-black transition shadow-xl shadow-rose-600/30 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {isDeleting ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Deleting Document...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    Confirm Permanent Delete
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

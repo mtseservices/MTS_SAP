@@ -285,6 +285,32 @@ export const CompanyRegistrationWizard: React.FC<CompanyRegistrationWizardProps>
   };
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [provisionStepMsg, setProvisionStepMsg] = useState('Initializing tenant metadata & legal identity...');
+  const [provisionProgress, setProvisionProgress] = useState(10);
+  const [redirectCountdown, setRedirectCountdown] = useState<number | null>(null);
+
+  const handleLaunchWorkspace = (slug: string) => {
+    login('CLIENT', slug, 'CLIENT_ADMIN');
+    switchTenantBySlug(slug);
+    onSuccess(slug);
+  };
+
+  // Auto-redirect countdown effect upon success
+  useEffect(() => {
+    if (!createdCompanyDetails) return;
+    setRedirectCountdown(1.5);
+    const interval = setInterval(() => {
+      setRedirectCountdown((prev) => {
+        if (prev === null || prev <= 0.1) {
+          clearInterval(interval);
+          handleLaunchWorkspace(createdCompanyDetails.slug);
+          return 0;
+        }
+        return Math.max(0, +(prev - 0.1).toFixed(1));
+      });
+    }, 100);
+    return () => clearInterval(interval);
+  }, [createdCompanyDetails]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -295,8 +321,14 @@ export const CompanyRegistrationWizard: React.FC<CompanyRegistrationWizardProps>
     }
 
     setIsSubmitting(true);
+    setProvisionStepMsg('Validating SECP & legal identity payload...');
+    setProvisionProgress(25);
 
     try {
+      await new Promise(r => setTimeout(r, 250));
+      setProvisionStepMsg('Sanitizing multi-tenant database fields...');
+      setProvisionProgress(50);
+
       const finalName = formData.name.trim() || 'Enterprise Client Company';
       const finalSlug = formData.slug.trim() || finalName.toLowerCase().replace(/[^a-z0-9]/g, '') || `company${Date.now().toString().slice(-4)}`;
       const liveUrl = `https://mts-sap.vercel.app?company=${finalSlug}`;
@@ -316,6 +348,10 @@ export const CompanyRegistrationWizard: React.FC<CompanyRegistrationWizardProps>
       };
 
       const created = registerNewCompany(rawCompData);
+
+      setProvisionStepMsg('Connecting to Firebase Firestore & saving tenant schema...');
+      setProvisionProgress(75);
+      await new Promise(r => setTimeout(r, 250));
 
       // Deep Sanitize & Serialize State Object for Firestore write
       const rawTenantPayload = {
@@ -347,6 +383,10 @@ export const CompanyRegistrationWizard: React.FC<CompanyRegistrationWizardProps>
       // Sync Company Record & Branches to Firebase Firestore
       await setDoc(doc(db, 'tenants', created.tenantId), cleanPayload, { merge: true });
       await setDoc(doc(db, 'companies', created.id), cleanPayload, { merge: true });
+
+      setProvisionStepMsg('Workspace Provisioned Successfully! Preparing launch...');
+      setProvisionProgress(100);
+      await new Promise(r => setTimeout(r, 400));
 
       setCreatedCompanyDetails({
         slug: created.slug,
@@ -384,9 +424,26 @@ Password: ${createdCompanyDetails.password}`;
             <CheckCircle2 className="w-10 h-10" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-black text-slate-100">Tenant Company Live!</h2>
-            <p className="text-xs text-slate-400">Enterprise workspace initialized with industry-specific modules and departments.</p>
+            <h2 className="text-2xl font-black text-slate-100">Tenant Workspace Live!</h2>
+            <p className="text-xs text-slate-400">Enterprise workspace initialized &amp; synchronized with Firestore database.</p>
           </div>
+
+          {/* Auto-redirect countdown bar */}
+          {redirectCountdown !== null && (
+            <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 space-y-2">
+              <div className="flex justify-between items-center text-xs font-mono text-emerald-400 font-bold">
+                <span>Auto Launching Workspace...</span>
+                <span>{redirectCountdown}s</span>
+              </div>
+              <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-emerald-500/30">
+                <div
+                  className="h-full bg-emerald-500 transition-all duration-100"
+                  style={{ width: `${(redirectCountdown / 1.5) * 100}%` }}
+                />
+              </div>
+            </div>
+          )}
+
           <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 text-left space-y-3 font-mono text-xs">
             <div className="flex justify-between items-center bg-slate-900 p-2 rounded-xl border border-slate-800">
               <span className="text-slate-400">URL:</span>
@@ -410,14 +467,10 @@ Password: ${createdCompanyDetails.password}`;
             </button>
           </div>
           <button
-            onClick={() => {
-              login('CLIENT', createdCompanyDetails.slug, 'CLIENT_ADMIN');
-              switchTenantBySlug(createdCompanyDetails.slug);
-              onSuccess(createdCompanyDetails.slug);
-            }}
+            onClick={() => handleLaunchWorkspace(createdCompanyDetails.slug)}
             className="w-full py-3.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-xl shadow-cyan-600/30 flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
-            Launch {createdCompanyDetails.name} ERP
+            Launch {createdCompanyDetails.name} ERP Now
           </button>
         </div>
       </div>
@@ -427,7 +480,45 @@ Password: ${createdCompanyDetails.password}`;
   const bill = calculateBill();
 
   return (
-    <div className="p-6 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 pb-24">
+    <div className="p-6 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 pb-24 relative">
+      {/* Full-screen Glassmorphism Submission Loading Overlay */}
+      {isSubmitting && (
+        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-xl flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-300">
+          <div className="max-w-md w-full bg-slate-900/90 border border-cyan-500/40 rounded-3xl p-8 shadow-2xl space-y-6 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/10 via-transparent to-emerald-500/10 pointer-events-none" />
+
+            {/* Glowing Spinning Rings */}
+            <div className="relative w-24 h-24 mx-auto flex items-center justify-center">
+              <div className="absolute inset-0 border-4 border-cyan-500/20 border-t-cyan-400 rounded-full animate-spin" />
+              <div className="absolute inset-2 border-4 border-emerald-500/20 border-b-emerald-400 rounded-full animate-spin [animation-duration:1.5s]" />
+              <Building2 className="w-10 h-10 text-cyan-300 animate-pulse" />
+            </div>
+
+            <div className="space-y-2 relative z-10">
+              <h3 className="text-xl font-black text-white tracking-wide">Provisioning Enterprise Tenant</h3>
+              <p className="text-xs text-cyan-400 font-mono font-bold">{provisionStepMsg}</p>
+            </div>
+
+            {/* Step Progress Bar */}
+            <div className="space-y-2 relative z-10">
+              <div className="w-full bg-slate-950 h-3 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                <div
+                  className="h-full bg-gradient-to-r from-cyan-500 via-indigo-500 to-emerald-500 rounded-full transition-all duration-300 shadow-[0_0_12px_rgba(6,182,212,0.6)]"
+                  style={{ width: `${provisionProgress}%` }}
+                />
+              </div>
+              <div className="flex justify-between items-center text-[10px] font-mono text-slate-500">
+                <span>Sanitizing &amp; Syncing</span>
+                <span>{provisionProgress}%</span>
+              </div>
+            </div>
+
+            <div className="text-[10px] text-slate-400 border-t border-slate-800/80 pt-4 font-mono">
+              Database: <span className="text-emerald-400 font-bold">Firebase Firestore</span> | Security Rules: <span className="text-indigo-400 font-bold">Hardened</span>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Main Wizard Form */}
       <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl space-y-8">
         <div className="flex items-center justify-between">
