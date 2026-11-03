@@ -22,6 +22,7 @@ import { BatchClientDataExport } from './components/master/BatchClientDataExport
 import { ApprovalWorkflowEditor } from './components/master/ApprovalWorkflowEditor';
 import { IndustryCoreManager } from './components/master/IndustryCoreManager';
 import { ConflictResolutionManager } from './components/master/ConflictResolutionManager';
+import { MasterBankAccountManager } from './components/master/MasterBankAccountManager';
 
 // Client Tenant ERP Views
 import { ClientDashboard } from './components/client/ClientDashboard';
@@ -59,7 +60,7 @@ function MainLayout() {
       'aiAssistant', 'auditLogs', 'companySettings', 'crm', 'performanceMetrics', 'masterDashboard',
       'masterCompanies', 'masterSubdomains', 'masterRegister',
       'masterSubscriptions', 'masterAudit', 'masterApiAudit', 'masterAuditInsights', 'masterSystemHealth', 'masterRateLimits',
-      'masterSettings', 'masterUserCreation', 'masterSystemSecurity', 'masterBatchExport', 'masterWorkflowEditor', 'masterIndustryCore', 'masterConflictResolution'
+      'masterSettings', 'masterUserCreation', 'masterSystemSecurity', 'masterBatchExport', 'masterWorkflowEditor', 'masterIndustryCore', 'masterConflictResolution', 'masterBankAccounts'
     ];
 
     const targetTab = (moduleParam && validTabs.includes(moduleParam))
@@ -190,6 +191,10 @@ function MainLayout() {
 
           {isMasterPortal && activeTab === 'masterConflictResolution' && (
             <ConflictResolutionManager />
+          )}
+
+          {isMasterPortal && activeTab === 'masterBankAccounts' && (
+            <MasterBankAccountManager />
           )}
 
           {/* Client Tenant ERP Views */}

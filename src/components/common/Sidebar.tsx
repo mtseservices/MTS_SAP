@@ -36,7 +36,8 @@ import {
   Download,
   GitCommit,
   Briefcase,
-  GitMerge
+  GitMerge,
+  Landmark
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -82,7 +83,8 @@ export type ActiveTab =
   | 'masterBatchExport'
   | 'masterWorkflowEditor'
   | 'masterIndustryCore'
-  | 'masterConflictResolution';
+  | 'masterConflictResolution'
+  | 'masterBankAccounts';
 
 interface SidebarProps {
   activeTab: ActiveTab;
@@ -159,6 +161,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
     { id: 'masterWorkflowEditor' as ActiveTab, label: 'Approval Workflow Editor', icon: GitCommit },
     { id: 'masterIndustryCore' as ActiveTab, label: 'Industry Core Manager', icon: Briefcase },
     { id: 'masterConflictResolution' as ActiveTab, label: 'Sync Conflict Resolution', icon: GitMerge },
+    { id: 'masterBankAccounts' as ActiveTab, label: 'Master Bank Account Setup', icon: Landmark },
   ];
 
   // Helper utility items (The isolated "130 Department Master" bottom link has been removed as requested)
