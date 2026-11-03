@@ -22,7 +22,13 @@ import {
   CheckSquare,
   Square,
   Search,
-  FileDown
+  FileDown,
+  MoreVertical,
+  Wrench,
+  KeyRound,
+  FileText,
+  ChevronDown,
+  Zap
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { auditLogger } from '../../services/auditLogger';
@@ -112,6 +118,68 @@ export const TenantManagement: React.FC = () => {
     }).catch(err => {
       console.warn('Bulk permanent delete background notice:', err);
     });
+  };
+
+  // Quick Actions Dropdown, Password Reset & Audit Log States
+  const [openQuickMenuId, setOpenQuickMenuId] = useState<string | null>(null);
+  const [resetPasswordCompany, setResetPasswordCompany] = useState<ClientCompany | null>(null);
+  const [newAdminPassword, setNewAdminPassword] = useState('Client@123');
+  const [viewAuditTenant, setViewAuditTenant] = useState<{ tenantId: string; name: string } | null>(null);
+
+  const handleToggleMaintenanceMode = async (comp: ClientCompany) => {
+    const isMaintenanceNow = comp.status === 'MAINTENANCE';
+    const newStatus: 'ACTIVE' | 'MAINTENANCE' = isMaintenanceNow ? 'ACTIVE' : 'MAINTENANCE';
+
+    const updatedComp = { ...comp, status: newStatus };
+
+    setAllCompanies(prev => prev.map(c => c.id === comp.id ? updatedComp : c));
+
+    try {
+      await setDoc(doc(db, 'companies', comp.id), updatedComp, { merge: true });
+    } catch (e) {
+      console.warn('Firebase maintenance toggle sync error:', e);
+    }
+
+    await auditLogger.logAction({
+      tenantId: 'system_master',
+      userId: currentUser.id,
+      userName: currentUser.name,
+      userRole: currentUser.role,
+      actionType: 'SETTINGS_CHANGE',
+      module: 'Tenant Management',
+      details: `${newStatus === 'MAINTENANCE' ? 'Enabled' : 'Disabled'} Maintenance Mode for company: ${comp.name} (${comp.code})`
+    });
+  };
+
+  const handleConfirmResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetPasswordCompany || !newAdminPassword.trim()) return;
+
+    const targetComp = resetPasswordCompany;
+    const cleanPass = newAdminPassword.trim();
+
+    const updatedComp = { ...targetComp, adminPassword: cleanPass };
+
+    setAllCompanies(prev => prev.map(c => c.id === targetComp.id ? updatedComp : c));
+
+    try {
+      await setDoc(doc(db, 'companies', targetComp.id), updatedComp, { merge: true });
+    } catch (e) {
+      console.warn('Firebase password reset sync error:', e);
+    }
+
+    await auditLogger.logAction({
+      tenantId: 'system_master',
+      userId: currentUser.id,
+      userName: currentUser.name,
+      userRole: currentUser.role,
+      actionType: 'SETTINGS_CHANGE',
+      module: 'Tenant Management',
+      details: `Reset admin password for company: ${targetComp.name} (${targetComp.code})`
+    });
+
+    setResetPasswordCompany(null);
+    alert(`Admin password for ${targetComp.name} successfully updated to: ${cleanPass}`);
   };
 
   const toggleStatus = (id: string) => {
@@ -442,12 +510,15 @@ export const TenantManagement: React.FC = () => {
                     <h3 className="font-bold text-slate-100 text-sm flex items-center gap-2">
                       {comp.name}
                       <span
-                        className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${
+                        className={`text-[10px] px-2 py-0.5 rounded-full font-bold border flex items-center gap-1 ${
                           comp.status === 'ACTIVE'
                             ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                            : comp.status === 'MAINTENANCE'
+                            ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
                             : 'bg-rose-500/20 text-rose-300 border-rose-500/30'
                         }`}
                       >
+                        {comp.status === 'MAINTENANCE' && <Wrench className="w-2.5 h-2.5 text-amber-400" />}
                         {comp.status}
                       </span>
                     </h3>
@@ -461,12 +532,80 @@ export const TenantManagement: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* Compact Quick Actions Dropdown */}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setOpenQuickMenuId(openQuickMenuId === comp.id ? null : comp.id)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/40 text-xs font-bold transition-all cursor-pointer shadow-md"
+                      title="Quick Shortcuts"
+                    >
+                      <Zap className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                      <span>Quick Actions</span>
+                      <ChevronDown className="w-3 h-3 text-purple-300" />
+                    </button>
+
+                    {openQuickMenuId === comp.id && (
+                      <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-slate-900 border border-purple-500/40 shadow-2xl z-30 p-1.5 space-y-1 animate-in zoom-in-95">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOpenQuickMenuId(null);
+                            setViewAuditTenant({ tenantId: comp.tenantId, name: comp.name });
+                          }}
+                          className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-200 hover:bg-purple-950/60 hover:text-purple-300 flex items-center gap-2.5 transition cursor-pointer"
+                        >
+                          <FileText className="w-4 h-4 text-cyan-400 shrink-0" />
+                          <div>
+                            <div className="font-bold">View Audit Logs</div>
+                            <div className="text-[10px] text-slate-400 font-normal">Security &amp; activity history</div>
+                          </div>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOpenQuickMenuId(null);
+                            setResetPasswordCompany(comp);
+                            setNewAdminPassword(comp.adminPassword || 'Client@123');
+                          }}
+                          className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-200 hover:bg-purple-950/60 hover:text-purple-300 flex items-center gap-2.5 transition cursor-pointer"
+                        >
+                          <KeyRound className="w-4 h-4 text-amber-400 shrink-0" />
+                          <div>
+                            <div className="font-bold">Reset Admin Password</div>
+                            <div className="text-[10px] text-slate-400 font-normal">Update client security password</div>
+                          </div>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOpenQuickMenuId(null);
+                            handleToggleMaintenanceMode(comp);
+                          }}
+                          className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-200 hover:bg-purple-950/60 hover:text-purple-300 flex items-center gap-2.5 transition cursor-pointer"
+                        >
+                          <Wrench className="w-4 h-4 text-amber-400 shrink-0" />
+                          <div>
+                            <div className="font-bold">
+                              {comp.status === 'MAINTENANCE' ? 'Disable Maintenance' : 'Enable Maintenance'}
+                            </div>
+                            <div className="text-[10px] text-slate-400 font-normal">
+                              {comp.status === 'MAINTENANCE' ? 'Restore live client access' : 'Show maintenance warning'}
+                            </div>
+                          </div>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
                   <button
                     onClick={() => handleStartEdit(comp)}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-all cursor-pointer"
                   >
-                    <Edit2 className="w-3.5 h-3.5 text-cyan-400" /> Edit Limits & Departments
+                    <Edit2 className="w-3.5 h-3.5 text-cyan-400" /> Edit Limits &amp; Depts
                   </button>
 
                   <button
@@ -1166,6 +1305,136 @@ export const TenantManagement: React.FC = () => {
                     Confirm Bulk Permanent Delete ({selectedArchivedIds.length})
                   </>
                 )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* RESET CLIENT ADMIN PASSWORD MODAL */}
+      {resetPasswordCompany && (
+        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 animate-in zoom-in-95">
+          <div className="bg-slate-900 border border-purple-500/40 rounded-3xl p-6 max-w-md w-full space-y-5 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  <KeyRound className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm text-slate-100">Reset Client Admin Password</h3>
+                  <div className="text-[11px] text-slate-400 font-mono">{resetPasswordCompany.name}</div>
+                </div>
+              </div>
+              <button
+                onClick={() => setResetPasswordCompany(null)}
+                className="p-1 text-slate-400 hover:text-white cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleConfirmResetPassword} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  New Admin Security Password
+                </label>
+                <input
+                  type="text"
+                  value={newAdminPassword}
+                  onChange={(e) => setNewAdminPassword(e.target.value)}
+                  required
+                  placeholder="e.g. Client@123"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-100 font-mono focus:outline-none focus:border-purple-500"
+                />
+                <span className="text-[10px] text-slate-500 mt-1 block">
+                  This updates the password used by company admin logins for this tenant.
+                </span>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setResetPasswordCompany(null)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-lg shadow-purple-600/30 flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Save className="w-4 h-4" /> Update Admin Password
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* TENANT AUDIT LOG VIEWER MODAL */}
+      {viewAuditTenant && (
+        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-slate-900 border border-slate-700 rounded-3xl p-6 max-w-4xl w-full space-y-4 shadow-2xl max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-purple-600/20 text-purple-300 border border-purple-500/30">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm text-slate-100">
+                    Audit Logs &amp; Activity History
+                  </h3>
+                  <div className="text-[11px] text-slate-400 font-mono">
+                    Tenant: <strong className="text-purple-300">{viewAuditTenant.name}</strong> • Tenant ID: <strong className="text-cyan-300">{viewAuditTenant.tenantId}</strong>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setViewAuditTenant(null)}
+                className="p-1 text-slate-400 hover:text-white cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+              {auditLogger.getLogs(viewAuditTenant.tenantId).length === 0 ? (
+                <div className="text-center py-12 text-slate-500 text-xs">
+                  No audit log entries recorded for this tenant company yet.
+                </div>
+              ) : (
+                <div className="space-y-2 font-mono text-xs">
+                  {auditLogger.getLogs(viewAuditTenant.tenantId).map((log) => (
+                    <div
+                      key={log.id}
+                      className="p-3 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                            {log.actionType}
+                          </span>
+                          <span className="text-slate-300 font-bold">{log.module}</span>
+                        </div>
+                        <div className="text-slate-400 text-[11px] font-sans">
+                          {log.details}
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0 text-[10px] text-slate-500">
+                        <div>User: <span className="text-slate-300">{log.userName}</span> ({log.userRole})</div>
+                        <div>{log.timestamp}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end pt-3 border-t border-slate-800">
+              <button
+                onClick={() => setViewAuditTenant(null)}
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs cursor-pointer"
+              >
+                Close Log Viewer
               </button>
             </div>
           </div>

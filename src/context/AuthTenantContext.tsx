@@ -348,6 +348,34 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   };
 
+  // Dynamic Browser Tab Favicon & Document Title Updater based on Client Company Metadata
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const logoUrl = currentCompany?.logoUrl || '/assets/aistudio/Untitled_design_4a7e39e2.png';
+    let link: HTMLLinkElement | null =
+      document.querySelector('#dynamic-app-favicon') ||
+      document.querySelector("link[rel*='icon']");
+
+    if (!link) {
+      link = document.createElement('link');
+      link.id = 'dynamic-app-favicon';
+      link.rel = 'icon';
+      link.type = 'image/png';
+      document.getElementsByTagName('head')[0].appendChild(link);
+    }
+
+    if (link.href !== logoUrl) {
+      link.href = logoUrl;
+    }
+
+    // Dynamically update page title for client company
+    if (currentCompany?.name && !isMasterPortal) {
+      document.title = `${currentCompany.name} | MTS ERP FUTURE SOLUTIONS`;
+    } else {
+      document.title = `MTS ERP FUTURE SOLUTIONS - Enterprise ERP & Accounting`;
+    }
+  }, [currentCompany?.logoUrl, currentCompany?.name, currentCompany?.id, isMasterPortal]);
+
   useEffect(() => {
     try {
       const url = new URL(window.location.href);

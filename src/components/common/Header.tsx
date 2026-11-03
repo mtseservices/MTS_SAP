@@ -108,7 +108,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Master vs Client Portal Toggle Pill (Strictly Master Admin Only) */}
-          {currentUser.isMaster && (
+          {currentUser.isMaster && currentUser.role === 'MASTER_ADMIN' && (
             <div className="hidden lg:flex items-center bg-slate-800/90 rounded-lg p-1 border border-slate-700">
               <button
                 onClick={() => {
@@ -141,26 +141,40 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           )}
 
-          {/* Active Company Selector Dropdown (No Create Company for Client Users) */}
+          {/* Active Company Display (Dropdown allowed ONLY for Master Admin) */}
           {!isMasterPortal && (
             <div className="relative">
-              <button
-                onClick={() => setShowCompanyMenu(!showCompanyMenu)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/90 border border-slate-700 hover:border-slate-600 text-slate-200 text-xs font-medium transition-all cursor-pointer"
-              >
-                <Building2 className="w-4 h-4 text-cyan-400" />
-                <div className="text-left">
-                  <div className="font-semibold text-slate-100 max-w-[140px] truncate">
-                    {currentCompany.name}
+              {currentUser.isMaster ? (
+                <button
+                  onClick={() => setShowCompanyMenu(!showCompanyMenu)}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/90 border border-slate-700 hover:border-slate-600 text-slate-200 text-xs font-medium transition-all cursor-pointer"
+                >
+                  <Building2 className="w-4 h-4 text-cyan-400" />
+                  <div className="text-left">
+                    <div className="font-semibold text-slate-100 max-w-[140px] truncate">
+                      {currentCompany.name}
+                    </div>
+                    <div className="text-[10px] text-cyan-400 font-mono">
+                      {currentCompany.code || currentCompany.slug} • FBR NTN: {currentCompany.ntn}
+                    </div>
                   </div>
-                  <div className="text-[10px] text-cyan-400 font-mono">
-                    {currentCompany.code || currentCompany.slug} • FBR NTN: {currentCompany.ntn}
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 ml-1" />
+                </button>
+              ) : (
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/60 border border-slate-700/60 text-slate-200 text-xs font-medium">
+                  <Building2 className="w-4 h-4 text-cyan-400" />
+                  <div className="text-left">
+                    <div className="font-semibold text-slate-100 max-w-[160px] truncate">
+                      {currentCompany.name}
+                    </div>
+                    <div className="text-[10px] text-cyan-400 font-mono">
+                      NTN: {currentCompany.ntn}
+                    </div>
                   </div>
                 </div>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400 ml-1" />
-              </button>
+              )}
 
-              {showCompanyMenu && (
+              {showCompanyMenu && currentUser.isMaster && (
                 <div className="absolute left-0 mt-2 w-72 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-2 z-50 animate-in fade-in">
                   <div className="px-3 py-1.5 text-[11px] font-semibold text-slate-400 border-b border-slate-800 uppercase tracking-wider">
                     Assigned Enterprise Company
@@ -191,21 +205,18 @@ export const Header: React.FC<HeaderProps> = ({
                     ))}
                   </div>
 
-                  {/* NOTE: Client users MUST NOT have create company option. Only Master Admin can create companies */}
-                  {currentUser.isMaster && (
-                    <div className="pt-2 mt-1 border-t border-slate-800">
-                      <button
-                        onClick={() => {
-                          setShowCompanyMenu(false);
-                          if (onOpenNewCompanyModal) onOpenNewCompanyModal();
-                        }}
-                        className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 text-xs font-medium border border-purple-500/30 transition-all cursor-pointer"
-                      >
-                        <PlusCircle className="w-3.5 h-3.5" />
-                        Register New Client Company
-                      </button>
-                    </div>
-                  )}
+                  <div className="pt-2 mt-1 border-t border-slate-800">
+                    <button
+                      onClick={() => {
+                        setShowCompanyMenu(false);
+                        if (onOpenNewCompanyModal) onOpenNewCompanyModal();
+                      }}
+                      className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 text-xs font-medium border border-purple-500/30 transition-all cursor-pointer"
+                    >
+                      <PlusCircle className="w-3.5 h-3.5" />
+                      Register New Client Company
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

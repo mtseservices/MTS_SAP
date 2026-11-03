@@ -99,7 +99,7 @@ export interface ClientCompany {
   branchLimit: number;
   activeModules: string[];
   assignedDepartmentIds?: string[];
-  status: 'ACTIVE' | 'SUSPENDED' | 'INACTIVE';
+  status: 'ACTIVE' | 'SUSPENDED' | 'INACTIVE' | 'MAINTENANCE';
   createdAt: string;
   adminName: string;
   adminEmail: string;
