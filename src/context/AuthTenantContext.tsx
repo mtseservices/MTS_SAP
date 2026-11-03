@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
-import { ClientCompany, UserProfile, ThemePalette, Branch, ThemeMode, LoginTemplateId, TableDensity } from '../types/erp';
+import { ClientCompany, UserProfile, ThemePalette, Branch, ThemeMode, LoginTemplateId, TableDensity, IndustryPackage } from '../types/erp';
 import { INITIAL_CLIENT_COMPANIES, resolveCurrentTenant } from '../services/tenantResolver';
 import { INITIAL_BRANCHES } from '../services/mockData';
 import { getDefaultDepartmentIdsForIndustry } from '../services/departmentCategoryMapper';
@@ -908,6 +908,23 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     if (existing) {
       return existing;
     }
+
+    let industry: IndustryPackage = 'Manufacturing';
+    let category = 'Enterprise Solution';
+    if (cleanSlug.includes('food') || cleanSlug.includes('restaurant') || cleanSlug.includes('cafe') || cleanSlug.includes('fusion')) {
+      industry = 'Food & Beverage';
+      category = 'Restaurant & Catering';
+    } else if (cleanSlug.includes('textile') || cleanSlug.includes('garment') || cleanSlug.includes('fabric') || cleanSlug.includes('spinning')) {
+      industry = 'Textile';
+      category = 'Garment Manufacturing';
+    } else if (cleanSlug.includes('solar') || cleanSlug.includes('electrical') || cleanSlug.includes('energy')) {
+      industry = 'Solar & Electrical';
+      category = 'Energy Systems';
+    } else if (cleanSlug.includes('construction') || cleanSlug.includes('build') || cleanSlug.includes('steel')) {
+      industry = 'Construction';
+      category = 'Heavy Construction';
+    }
+
     const formattedName = cleanSlug
       .replace(/[-_]/g, ' ')
       .replace(/([a-z])([A-Z])/g, '$1 $2')
@@ -919,8 +936,8 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       name: formattedName || 'Client Enterprise',
       slug: cleanSlug,
       code: cleanSlug.substring(0, 4).toUpperCase() + '01',
-      industry: 'Manufacturing',
-      category: 'Enterprise Solution',
+      industry,
+      category,
       adminName: 'Organization Administrator',
       adminEmail: `admin@${cleanSlug}.pk`,
       themeMode: 'dark',
