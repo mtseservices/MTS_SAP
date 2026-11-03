@@ -1,8 +1,9 @@
-import { MasterBankAccount } from '../types/erp';
+import { MasterBankAccount, ReconciliationRule } from '../types/erp';
 import { db } from './firebaseConfig';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 const STORAGE_KEY = 'mts_master_bank_accounts';
+const RULES_STORAGE_KEY = 'mts_master_reconciliation_rules';
 
 export const INITIAL_MASTER_BANK_ACCOUNTS: MasterBankAccount[] = [
   {
@@ -52,9 +53,47 @@ export const INITIAL_MASTER_BANK_ACCOUNTS: MasterBankAccount[] = [
   }
 ];
 
+export const INITIAL_RECONCILIATION_RULES: ReconciliationRule[] = [
+  {
+    id: 'rule_01',
+    ruleName: 'Standard Tenant Subscription ID Pattern',
+    bankId: 'ALL',
+    minTransactionAmount: 5000,
+    maxTransactionAmount: 10000000,
+    referencePattern: 'TENANT-[0-9]{3,6}',
+    matchingMode: 'EXACT_AMOUNT_AND_REF',
+    autoApprove: true,
+    isActive: true,
+    createdAt: '2026-01-15'
+  },
+  {
+    id: 'rule_02',
+    ruleName: 'Raast Instant Transfer Alias Match',
+    bankId: 'm_acc_01',
+    minTransactionAmount: 1000,
+    maxTransactionAmount: 500000,
+    referencePattern: 'RAAST|MTSERP',
+    matchingMode: 'RAAST_ALIAS_MATCH',
+    autoApprove: true,
+    isActive: true,
+    createdAt: '2026-02-01'
+  },
+  {
+    id: 'rule_03',
+    ruleName: 'High Value Corporate Wire Transfer Review',
+    bankId: 'ALL',
+    minTransactionAmount: 500000,
+    maxTransactionAmount: 50000000,
+    referencePattern: 'WIRE|RTGS|CORP',
+    matchingMode: 'REF_ONLY',
+    autoApprove: false,
+    isActive: true,
+    createdAt: '2026-03-10'
+  }
+];
+
 export async function getMasterBankAccounts(): Promise<MasterBankAccount[]> {
   try {
-    // Attempt Firestore load first
     const docRef = doc(db, 'system', 'masterBankAccounts');
     const docSnap = await getDoc(docRef);
     if (docSnap.exists() && docSnap.data()?.accounts) {
@@ -66,7 +105,6 @@ export async function getMasterBankAccounts(): Promise<MasterBankAccount[]> {
     console.warn('Firestore master bank accounts load fallback to local:', err);
   }
 
-  // Fallback to localStorage or initial
   const cached = localStorage.getItem(STORAGE_KEY);
   if (cached) {
     try {
@@ -81,14 +119,47 @@ export async function getMasterBankAccounts(): Promise<MasterBankAccount[]> {
 }
 
 export async function saveMasterBankAccounts(accounts: MasterBankAccount[]): Promise<void> {
-  // Save to local storage
   localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts));
-
-  // Save to Firestore
   try {
     const docRef = doc(db, 'system', 'masterBankAccounts');
-    await setDoc(docRef, { accounts, updatedAt: new Date().toISOString() });
+    await setDoc(docRef, { accounts, updatedAt: new Date().toISOString() }, { merge: true });
   } catch (err) {
     console.warn('Could not sync master bank accounts to Firestore:', err);
+  }
+}
+
+export async function getMasterReconciliationRules(): Promise<ReconciliationRule[]> {
+  try {
+    const docRef = doc(db, 'system', 'masterBankAccounts');
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists() && docSnap.data()?.rules) {
+      const rules = docSnap.data().rules as ReconciliationRule[];
+      localStorage.setItem(RULES_STORAGE_KEY, JSON.stringify(rules));
+      return rules;
+    }
+  } catch (err) {
+    console.warn('Firestore reconciliation rules load fallback to local:', err);
+  }
+
+  const cached = localStorage.getItem(RULES_STORAGE_KEY);
+  if (cached) {
+    try {
+      return JSON.parse(cached);
+    } catch {
+      // fallback
+    }
+  }
+
+  localStorage.setItem(RULES_STORAGE_KEY, JSON.stringify(INITIAL_RECONCILIATION_RULES));
+  return INITIAL_RECONCILIATION_RULES;
+}
+
+export async function saveMasterReconciliationRules(rules: ReconciliationRule[]): Promise<void> {
+  localStorage.setItem(RULES_STORAGE_KEY, JSON.stringify(rules));
+  try {
+    const docRef = doc(db, 'system', 'masterBankAccounts');
+    await setDoc(docRef, { rules, updatedAt: new Date().toISOString() }, { merge: true });
+  } catch (err) {
+    console.warn('Could not sync reconciliation rules to Firestore:', err);
   }
 }

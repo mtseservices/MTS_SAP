@@ -30,8 +30,9 @@ import {
   saveBudgetToFirebase,
   BudgetItem
 } from '../../services/firebaseAccounting';
+import { BankReconciliationReport } from './BankReconciliationReport';
 
-type SubTab = 'vouchers' | 'coa' | 'gl' | 'subledger' | 'trialBalance' | 'pnl' | 'balanceSheet' | 'budget' | 'newVoucher';
+type SubTab = 'vouchers' | 'coa' | 'gl' | 'subledger' | 'trialBalance' | 'pnl' | 'balanceSheet' | 'budget' | 'newVoucher' | 'bankReconciliation';
 
 export const FinanceAccountsModule: React.FC = () => {
   const { currentCompany } = useAuthTenant();
@@ -50,6 +51,7 @@ export const FinanceAccountsModule: React.FC = () => {
     if (['profit_loss', 'pnl'].includes(tabParam)) return 'pnl';
     if (['budget', 'budgets', 'budget_planning'].includes(tabParam)) return 'budget';
     if (tabParam === 'newVoucher') return 'newVoucher';
+    if (['bank_reconciliation', 'bankReconciliation'].includes(tabParam)) return 'bankReconciliation';
 
     return 'vouchers';
   };
@@ -305,7 +307,8 @@ export const FinanceAccountsModule: React.FC = () => {
           { id: 'trialBalance', label: 'Trial Balance', icon: Scale },
           { id: 'pnl', label: 'Profit & Loss (P&L)', icon: TrendingUp },
           { id: 'balanceSheet', label: 'Balance Sheet', icon: PieChart },
-          { id: 'budget', label: 'Budget Planning', icon: Target }
+          { id: 'budget', label: 'Budget Planning', icon: Target },
+          { id: 'bankReconciliation', label: 'Bank Reconciliation', icon: Scale }
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeSubTab === tab.id;
@@ -1020,6 +1023,11 @@ export const FinanceAccountsModule: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Tab: Bank Reconciliation Summary */}
+      {activeSubTab === 'bankReconciliation' && (
+        <BankReconciliationReport vouchers={vouchers} />
       )}
 
       {/* Allocate New Budget Modal */}

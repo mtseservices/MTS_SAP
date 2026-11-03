@@ -17,24 +17,31 @@ import {
   AlertCircle,
   Globe,
   Landmark,
+  Sliders,
+  FileText,
   X
 } from 'lucide-react';
-import { MasterBankAccount } from '../../types/erp';
-import { getMasterBankAccounts, saveMasterBankAccounts } from '../../services/masterBankAccountsService';
+import { MasterBankAccount, ReconciliationRule } from '../../types/erp';
+import {
+  getMasterBankAccounts,
+  saveMasterBankAccounts,
+  getMasterReconciliationRules,
+  saveMasterReconciliationRules
+} from '../../services/masterBankAccountsService';
 import { PAKISTANI_BANKS_LIST, PakistaniBankInfo } from '../../services/pakistaniBanks';
 import { TTSButton } from '../common/TTSButton';
 
 export const MasterBankAccountManager: React.FC = () => {
+  const [activeMainTab, setActiveMainTab] = useState<'accounts' | 'rules'>('accounts');
+
+  // Bank Accounts State
   const [accounts, setAccounts] = useState<MasterBankAccount[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'INACTIVE' | 'DEFAULT'>('ALL');
-  const [selectedBankTemplate, setSelectedBankTemplate] = useState<PakistaniBankInfo | null>(null);
+  const [showAccountModal, setShowAccountModal] = useState(false);
+  const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
 
-  // Modal State
-  const [showModal, setShowModal] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-
-  // Form Fields
+  // Bank Form Fields
   const [bankName, setBankName] = useState('');
   const [accountTitle, setAccountTitle] = useState('MTS ERP FUTURE SOLUTIONS (PVT) LIMITED');
   const [accountNumber, setAccountNumber] = useState('');
@@ -46,16 +53,35 @@ export const MasterBankAccountManager: React.FC = () => {
   const [isDefault, setIsDefault] = useState(false);
   const [isActive, setIsActive] = useState(true);
   const [instructions, setInstructions] = useState('');
+
+  // Reconciliation Rules State
+  const [rules, setRules] = useState<ReconciliationRule[]>([]);
+  const [ruleSearchQuery, setRuleSearchQuery] = useState('');
+  const [showRuleModal, setShowRuleModal] = useState(false);
+  const [editingRuleId, setEditingRuleId] = useState<string | null>(null);
+
+  // Rule Form Fields
+  const [ruleName, setRuleName] = useState('');
+  const [ruleBankId, setRuleBankId] = useState('ALL');
+  const [minAmount, setMinAmount] = useState<number>(5000);
+  const [maxAmount, setMaxAmount] = useState<number>(10000000);
+  const [refPattern, setRefPattern] = useState('TENANT-[0-9]{3,6}');
+  const [matchingMode, setMatchingMode] = useState<ReconciliationRule['matchingMode']>('EXACT_AMOUNT_AND_REF');
+  const [autoApprove, setAutoApprove] = useState(true);
+  const [ruleActive, setRuleActive] = useState(true);
+
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [notification, setNotification] = useState<string | null>(null);
 
   useEffect(() => {
-    loadAccounts();
+    loadData();
   }, []);
 
-  const loadAccounts = async () => {
-    const data = await getMasterBankAccounts();
-    setAccounts(data);
+  const loadData = async () => {
+    const bankData = await getMasterBankAccounts();
+    setAccounts(bankData);
+    const ruleData = await getMasterReconciliationRules();
+    setRules(ruleData);
   };
 
   const showToast = (msg: string) => {
@@ -63,8 +89,9 @@ export const MasterBankAccountManager: React.FC = () => {
     setTimeout(() => setNotification(null), 3500);
   };
 
-  const handleOpenAddModal = () => {
-    setEditingId(null);
+  // --- Bank Account Handlers ---
+  const handleOpenAddAccountModal = () => {
+    setEditingAccountId(null);
     setBankName(PAKISTANI_BANKS_LIST[0].name);
     setAccountTitle('MTS ERP FUTURE SOLUTIONS (PVT) LIMITED');
     setAccountNumber('');
@@ -76,12 +103,11 @@ export const MasterBankAccountManager: React.FC = () => {
     setIsDefault(accounts.length === 0);
     setIsActive(true);
     setInstructions('Transfer exact subscription or invoice funds mentioning your Tenant ID in remarks for automated SBP/1Link reconciliation.');
-    setSelectedBankTemplate(PAKISTANI_BANKS_LIST[0]);
-    setShowModal(true);
+    setShowAccountModal(true);
   };
 
-  const handleOpenEditModal = (acc: MasterBankAccount) => {
-    setEditingId(acc.id);
+  const handleOpenEditAccountModal = (acc: MasterBankAccount) => {
+    setEditingAccountId(acc.id);
     setBankName(acc.bankName);
     setAccountTitle(acc.accountTitle);
     setAccountNumber(acc.accountNumber);
@@ -93,13 +119,12 @@ export const MasterBankAccountManager: React.FC = () => {
     setIsDefault(acc.isDefault || false);
     setIsActive(acc.isActive);
     setInstructions(acc.instructions || '');
-    setShowModal(true);
+    setShowAccountModal(true);
   };
 
   const handleBankTemplateChange = (bankInfoName: string) => {
     const found = PAKISTANI_BANKS_LIST.find((b) => b.name === bankInfoName);
     if (found) {
-      setSelectedBankTemplate(found);
       setBankName(found.name);
       setSwiftCode(found.swiftCode);
       setIban(`PK36${found.code}00` + Math.floor(10000000000000 + Math.random() * 90000000000000));
@@ -118,13 +143,12 @@ export const MasterBankAccountManager: React.FC = () => {
 
     let updated = [...accounts];
     if (isDefault) {
-      // Unset other defaults
       updated = updated.map((a) => ({ ...a, isDefault: false }));
     }
 
-    if (editingId) {
+    if (editingAccountId) {
       updated = updated.map((a) =>
-        a.id === editingId
+        a.id === editingAccountId
           ? {
               ...a,
               bankName,
@@ -165,10 +189,10 @@ export const MasterBankAccountManager: React.FC = () => {
 
     await saveMasterBankAccounts(updated);
     setAccounts(updated);
-    setShowModal(false);
+    setShowAccountModal(false);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDeleteAccount = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this master bank account?')) {
       const updated = accounts.filter((a) => a.id !== id);
       await saveMasterBankAccounts(updated);
@@ -184,7 +208,90 @@ export const MasterBankAccountManager: React.FC = () => {
     }));
     await saveMasterBankAccounts(updated);
     setAccounts(updated);
-    showToast('Default receiving account updated for automated reconciliation.');
+    showToast('Default receiving account updated.');
+  };
+
+  // --- Reconciliation Rules Handlers ---
+  const handleOpenAddRuleModal = () => {
+    setEditingRuleId(null);
+    setRuleName('');
+    setRuleBankId('ALL');
+    setMinAmount(5000);
+    setMaxAmount(10000000);
+    setRefPattern('TENANT-[0-9]{3,6}');
+    setMatchingMode('EXACT_AMOUNT_AND_REF');
+    setAutoApprove(true);
+    setRuleActive(true);
+    setShowRuleModal(true);
+  };
+
+  const handleOpenEditRuleModal = (rule: ReconciliationRule) => {
+    setEditingRuleId(rule.id);
+    setRuleName(rule.ruleName);
+    setRuleBankId(rule.bankId);
+    setMinAmount(rule.minTransactionAmount);
+    setMaxAmount(rule.maxTransactionAmount);
+    setRefPattern(rule.referencePattern);
+    setMatchingMode(rule.matchingMode);
+    setAutoApprove(rule.autoApprove);
+    setRuleActive(rule.isActive);
+    setShowRuleModal(true);
+  };
+
+  const handleSaveRule = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ruleName || !refPattern) {
+      showToast('Please provide a rule name and reference pattern.');
+      return;
+    }
+
+    let updated = [...rules];
+    if (editingRuleId) {
+      updated = updated.map((r) =>
+        r.id === editingRuleId
+          ? {
+              ...r,
+              ruleName,
+              bankId: ruleBankId,
+              minTransactionAmount: Number(minAmount),
+              maxTransactionAmount: Number(maxAmount),
+              referencePattern: refPattern,
+              matchingMode,
+              autoApprove,
+              isActive: ruleActive
+            }
+          : r
+      );
+      showToast('Reconciliation rule updated successfully.');
+    } else {
+      const newRule: ReconciliationRule = {
+        id: 'rule_' + Date.now(),
+        ruleName,
+        bankId: ruleBankId,
+        minTransactionAmount: Number(minAmount),
+        maxTransactionAmount: Number(maxAmount),
+        referencePattern: refPattern,
+        matchingMode,
+        autoApprove,
+        isActive: ruleActive,
+        createdAt: new Date().toISOString().split('T')[0]
+      };
+      updated.push(newRule);
+      showToast('New reconciliation rule created successfully.');
+    }
+
+    await saveMasterReconciliationRules(updated);
+    setRules(updated);
+    setShowRuleModal(false);
+  };
+
+  const handleDeleteRule = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this reconciliation rule?')) {
+      const updated = rules.filter((r) => r.id !== id);
+      await saveMasterReconciliationRules(updated);
+      setRules(updated);
+      showToast('Reconciliation rule deleted.');
+    }
   };
 
   const copyToClipboard = (text: string, id: string) => {
@@ -208,6 +315,11 @@ export const MasterBankAccountManager: React.FC = () => {
     return true;
   });
 
+  const filteredRules = rules.filter((r) =>
+    r.ruleName.toLowerCase().includes(ruleSearchQuery.toLowerCase()) ||
+    r.referencePattern.toLowerCase().includes(ruleSearchQuery.toLowerCase())
+  );
+
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       {/* Header */}
@@ -218,29 +330,39 @@ export const MasterBankAccountManager: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-slate-100">Master Bank Account Setup</h1>
-              <TTSButton text="Master Bank Account Setup. Maintain standardized Pakistani banks with SWIFT, IBAN and Raast ID for automated payment reconciliation." />
+              <h1 className="text-2xl font-bold text-slate-100">Master Bank Account & Reconciliation Setup</h1>
+              <TTSButton text="Master Bank Account and Reconciliation Setup. Maintain standardized Pakistani banks and automated statement processing rules." />
             </div>
             <p className="text-sm text-slate-400 mt-1">
-              Maintain official software receiving bank accounts for SBP/1Link automated payment matching and tenant subscription settlements.
+              Configure official receiving bank accounts and automated statement matching criteria (Min Transaction Amount & Reference Patterns).
             </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
           <button
-            onClick={loadAccounts}
+            onClick={loadData}
             className="flex items-center gap-2 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium rounded-xl transition border border-slate-700 shadow-sm"
           >
             <RefreshCw className="w-4 h-4" />
             <span>Refresh</span>
           </button>
-          <button
-            onClick={handleOpenAddModal}
-            className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl transition shadow-lg shadow-emerald-600/20"
-          >
-            <Plus className="w-5 h-5" />
-            <span>Add Bank Account</span>
-          </button>
+          {activeMainTab === 'accounts' ? (
+            <button
+              onClick={handleOpenAddAccountModal}
+              className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl transition shadow-lg shadow-emerald-600/20"
+            >
+              <Plus className="w-5 h-5" />
+              <span>Add Bank Account</span>
+            </button>
+          ) : (
+            <button
+              onClick={handleOpenAddRuleModal}
+              className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl transition shadow-lg shadow-emerald-600/20"
+            >
+              <Plus className="w-5 h-5" />
+              <span>Add Reconciliation Rule</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -251,170 +373,286 @@ export const MasterBankAccountManager: React.FC = () => {
         </div>
       )}
 
-      {/* Filter & Search Bar */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="relative w-full md:w-96">
-          <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search by bank name, IBAN, branch or Raast ID..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-slate-200 text-sm focus:outline-none focus:border-emerald-500 transition"
-          />
-        </div>
+      {/* Main Tab Navigation */}
+      <div className="flex items-center gap-3 border-b border-slate-800 pb-2">
+        <button
+          onClick={() => setActiveMainTab('accounts')}
+          className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition text-sm ${
+            activeMainTab === 'accounts'
+              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+              : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800'
+          }`}
+        >
+          <CreditCard className="w-4 h-4" />
+          <span>Master Bank Accounts ({accounts.length})</span>
+        </button>
 
-        <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto">
-          {(['ALL', 'ACTIVE', 'DEFAULT', 'INACTIVE'] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setStatusFilter(tab)}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition whitespace-nowrap ${
-                statusFilter === tab
-                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'
-              }`}
-            >
-              {tab.charAt(0) + tab.slice(1).toLowerCase()}
-            </button>
-          ))}
-        </div>
+        <button
+          onClick={() => setActiveMainTab('rules')}
+          className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition text-sm ${
+            activeMainTab === 'rules'
+              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+              : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800'
+          }`}
+        >
+          <Sliders className="w-4 h-4" />
+          <span>Reconciliation Rules ({rules.length})</span>
+        </button>
       </div>
 
-      {/* Bank Accounts Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredAccounts.map((acc) => (
-          <div
-            key={acc.id}
-            className={`bg-slate-900 border rounded-2xl p-6 flex flex-col justify-between shadow-xl transition relative overflow-hidden ${
-              acc.isDefault
-                ? 'border-emerald-500/50 bg-gradient-to-b from-emerald-950/20 to-slate-900'
-                : 'border-slate-800 hover:border-slate-700'
-            }`}
-          >
-            {acc.isDefault && (
-              <div className="absolute top-0 right-0 bg-emerald-600 text-white text-[10px] uppercase tracking-wider font-bold px-3 py-1 rounded-bl-xl shadow-md">
-                Default Receiving Bank
-              </div>
-            )}
-
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="p-2.5 bg-slate-800 border border-slate-700 rounded-xl text-emerald-400 shrink-0">
-                  <CreditCard className="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-100 text-lg leading-tight">{acc.bankName}</h3>
-                  <p className="text-xs text-slate-400 font-medium mt-0.5">{acc.accountTitle}</p>
-                </div>
-              </div>
-
-              <div className="space-y-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80 text-sm">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400">Account No:</span>
-                  <div className="flex items-center gap-1.5 font-mono text-slate-200">
-                    <span>{acc.accountNumber}</span>
-                    <button
-                      onClick={() => copyToClipboard(acc.accountNumber, `acc_${acc.id}`)}
-                      className="text-slate-400 hover:text-emerald-400 transition"
-                      title="Copy Account Number"
-                    >
-                      {copiedId === `acc_${acc.id}` ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400">IBAN:</span>
-                  <div className="flex items-center gap-1.5 font-mono text-emerald-400 font-semibold">
-                    <span className="truncate max-w-[180px]" title={acc.iban}>{acc.iban}</span>
-                    <button
-                      onClick={() => copyToClipboard(acc.iban, `iban_${acc.id}`)}
-                      className="text-slate-400 hover:text-emerald-400 transition"
-                      title="Copy IBAN"
-                    >
-                      {copiedId === `iban_${acc.id}` ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                    </button>
-                  </div>
-                </div>
-
-                {acc.branchCode && (
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-400">Branch Code:</span>
-                    <span className="font-mono text-slate-300">{acc.branchCode} ({acc.branchName})</span>
-                  </div>
-                )}
-
-                {acc.swiftCode && (
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-400">SWIFT Code:</span>
-                    <span className="font-mono text-slate-300">{acc.swiftCode}</span>
-                  </div>
-                )}
-
-                {acc.raastId && (
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-400">RAAST ID / Alias:</span>
-                    <span className="font-mono text-emerald-300 font-bold">{acc.raastId}</span>
-                  </div>
-                )}
-              </div>
-
-              {acc.instructions && (
-                <p className="text-xs text-slate-400 italic bg-slate-800/40 p-2.5 rounded-lg border border-slate-800">
-                  "{acc.instructions}"
-                </p>
-              )}
+      {/* TAB 1: BANK ACCOUNTS */}
+      {activeMainTab === 'accounts' && (
+        <div className="space-y-6">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="relative w-full md:w-96">
+              <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search by bank name, IBAN, branch or Raast ID..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-slate-200 text-sm focus:outline-none focus:border-emerald-500 transition"
+              />
             </div>
 
-            <div className="pt-4 mt-4 border-t border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className={`w-2 h-2 rounded-full ${acc.isActive ? 'bg-emerald-500 animate-pulse' : 'bg-slate-500'}`} />
-                <span className="text-xs font-medium text-slate-300">{acc.isActive ? 'Active Gateway' : 'Inactive'}</span>
-              </div>
-
-              <div className="flex items-center gap-1.5">
-                {!acc.isDefault && (
-                  <button
-                    onClick={() => handleToggleDefault(acc.id)}
-                    className="px-2.5 py-1.5 bg-slate-800 hover:bg-emerald-600 hover:text-white text-slate-300 text-xs font-medium rounded-lg transition border border-slate-700"
-                    title="Set as Default Receiving Bank"
-                  >
-                    Set Default
-                  </button>
-                )}
+            <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto">
+              {(['ALL', 'ACTIVE', 'DEFAULT', 'INACTIVE'] as const).map((tab) => (
                 <button
-                  onClick={() => handleOpenEditModal(acc)}
-                  className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition border border-slate-700"
-                  title="Edit Account"
+                  key={tab}
+                  onClick={() => setStatusFilter(tab)}
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition whitespace-nowrap ${
+                    statusFilter === tab
+                      ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'
+                  }`}
                 >
-                  <Edit2 className="w-4 h-4" />
+                  {tab.charAt(0) + tab.slice(1).toLowerCase()}
                 </button>
-                <button
-                  onClick={() => handleDelete(acc.id)}
-                  className="p-1.5 bg-slate-800 hover:bg-rose-500/20 text-slate-300 hover:text-rose-400 rounded-lg transition border border-slate-700"
-                  title="Delete Account"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
+              ))}
             </div>
           </div>
-        ))}
-      </div>
 
-      {filteredAccounts.length === 0 && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center space-y-3">
-          <Landmark className="w-12 h-12 text-slate-600 mx-auto" />
-          <h3 className="text-lg font-bold text-slate-300">No Master Bank Accounts Found</h3>
-          <p className="text-sm text-slate-500 max-w-md mx-auto">
-            No bank accounts match your search query or filter. Click "Add Bank Account" to configure official Pakistani receiving accounts.
-          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredAccounts.map((acc) => (
+              <div
+                key={acc.id}
+                className={`bg-slate-900 border rounded-2xl p-6 flex flex-col justify-between shadow-xl transition relative overflow-hidden ${
+                  acc.isDefault
+                    ? 'border-emerald-500/50 bg-gradient-to-b from-emerald-950/20 to-slate-900'
+                    : 'border-slate-800 hover:border-slate-700'
+                }`}
+              >
+                {acc.isDefault && (
+                  <div className="absolute top-0 right-0 bg-emerald-600 text-white text-[10px] uppercase tracking-wider font-bold px-3 py-1 rounded-bl-xl shadow-md">
+                    Default Receiving Bank
+                  </div>
+                )}
+
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2.5 bg-slate-800 border border-slate-700 rounded-xl text-emerald-400 shrink-0">
+                      <CreditCard className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-slate-100 text-lg leading-tight">{acc.bankName}</h3>
+                      <p className="text-xs text-slate-400 font-medium mt-0.5">{acc.accountTitle}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80 text-sm">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-400">Account No:</span>
+                      <div className="flex items-center gap-1.5 font-mono text-slate-200">
+                        <span>{acc.accountNumber}</span>
+                        <button
+                          onClick={() => copyToClipboard(acc.accountNumber, `acc_${acc.id}`)}
+                          className="text-slate-400 hover:text-emerald-400 transition"
+                          title="Copy Account Number"
+                        >
+                          {copiedId === `acc_${acc.id}` ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-400">IBAN:</span>
+                      <div className="flex items-center gap-1.5 font-mono text-emerald-400 font-semibold">
+                        <span className="truncate max-w-[180px]" title={acc.iban}>{acc.iban}</span>
+                        <button
+                          onClick={() => copyToClipboard(acc.iban, `iban_${acc.id}`)}
+                          className="text-slate-400 hover:text-emerald-400 transition"
+                          title="Copy IBAN"
+                        >
+                          {copiedId === `iban_${acc.id}` ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {acc.branchCode && (
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-slate-400">Branch Code:</span>
+                        <span className="font-mono text-slate-300">{acc.branchCode} ({acc.branchName})</span>
+                      </div>
+                    )}
+
+                    {acc.swiftCode && (
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-slate-400">SWIFT Code:</span>
+                        <span className="font-mono text-slate-300">{acc.swiftCode}</span>
+                      </div>
+                    )}
+
+                    {acc.raastId && (
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-slate-400">RAAST ID / Alias:</span>
+                        <span className="font-mono text-emerald-300 font-bold">{acc.raastId}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {acc.instructions && (
+                    <p className="text-xs text-slate-400 italic bg-slate-800/40 p-2.5 rounded-lg border border-slate-800">
+                      "{acc.instructions}"
+                    </p>
+                  )}
+                </div>
+
+                <div className="pt-4 mt-4 border-t border-slate-800 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className={`w-2 h-2 rounded-full ${acc.isActive ? 'bg-emerald-500 animate-pulse' : 'bg-slate-500'}`} />
+                    <span className="text-xs font-medium text-slate-300">{acc.isActive ? 'Active Gateway' : 'Inactive'}</span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    {!acc.isDefault && (
+                      <button
+                        onClick={() => handleToggleDefault(acc.id)}
+                        className="px-2.5 py-1.5 bg-slate-800 hover:bg-emerald-600 hover:text-white text-slate-300 text-xs font-medium rounded-lg transition border border-slate-700"
+                        title="Set as Default Receiving Bank"
+                      >
+                        Set Default
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleOpenEditAccountModal(acc)}
+                      className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition border border-slate-700"
+                      title="Edit Account"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteAccount(acc.id)}
+                      className="p-1.5 bg-slate-800 hover:bg-rose-500/20 text-slate-300 hover:text-rose-400 rounded-lg transition border border-slate-700"
+                      title="Delete Account"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
-      {/* Add / Edit Modal */}
-      {showModal && (
+      {/* TAB 2: RECONCILIATION RULES */}
+      {activeMainTab === 'rules' && (
+        <div className="space-y-6">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="relative w-full md:w-96">
+              <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search reconciliation rules by name or pattern..."
+                value={ruleSearchQuery}
+                onChange={(e) => setRuleSearchQuery(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-slate-200 text-sm focus:outline-none focus:border-emerald-500 transition"
+              />
+            </div>
+            <div className="text-xs text-slate-400">
+              Automated rules parse bank statement file imports (CSV/MT940/API) to match payment slips with client tenant invoices.
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredRules.map((rule) => {
+              const targetBank = rule.bankId === 'ALL' ? 'All Master Banks' : accounts.find((a) => a.id === rule.bankId)?.bankName || 'Specific Bank';
+              return (
+                <div
+                  key={rule.id}
+                  className="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-6 flex flex-col justify-between shadow-xl transition"
+                >
+                  <div className="space-y-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 bg-slate-800 border border-slate-700 rounded-xl text-emerald-400">
+                          <Sliders className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-slate-100 text-base">{rule.ruleName}</h3>
+                          <span className="text-xs text-emerald-400 font-medium">{targetBank}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80 text-xs font-mono space-y-1.5">
+                      <div className="flex items-center justify-between text-slate-300">
+                        <span className="text-slate-400 font-sans">Matching Mode:</span>
+                        <span className="text-emerald-300 font-bold">{rule.matchingMode}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-slate-300">
+                        <span className="text-slate-400 font-sans">Min Amount:</span>
+                        <span>PKR {rule.minTransactionAmount.toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-slate-300">
+                        <span className="text-slate-400 font-sans">Max Amount:</span>
+                        <span>PKR {rule.maxTransactionAmount.toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-slate-300">
+                        <span className="text-slate-400 font-sans">Ref Pattern:</span>
+                        <span className="text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">{rule.referencePattern}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-xs text-slate-300 font-medium">
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] uppercase font-bold ${rule.autoApprove ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'}`}>
+                        {rule.autoApprove ? 'Auto-Approve Enabled' : 'Manual Review Required'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 mt-4 border-t border-slate-800 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${rule.isActive ? 'bg-emerald-500 animate-pulse' : 'bg-slate-500'}`} />
+                      <span className="text-xs font-medium text-slate-300">{rule.isActive ? 'Active Rule' : 'Inactive'}</span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => handleOpenEditRuleModal(rule)}
+                        className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition border border-slate-700"
+                        title="Edit Rule"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteRule(rule.id)}
+                        className="p-1.5 bg-slate-800 hover:bg-rose-500/20 text-slate-300 hover:text-rose-400 rounded-lg transition border border-slate-700"
+                        title="Delete Rule"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Add / Edit Bank Account Modal */}
+      {showAccountModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 overflow-y-auto">
           <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl animate-scale-up">
             <div className="flex items-center justify-between p-6 border-b border-slate-800 bg-slate-950">
@@ -423,11 +661,11 @@ export const MasterBankAccountManager: React.FC = () => {
                   <Landmark className="w-5 h-5" />
                 </div>
                 <h2 className="text-lg font-bold text-slate-100">
-                  {editingId ? 'Edit Master Bank Account' : 'Add New Master Bank Account'}
+                  {editingAccountId ? 'Edit Master Bank Account' : 'Add New Master Bank Account'}
                 </h2>
               </div>
               <button
-                onClick={() => setShowModal(false)}
+                onClick={() => setShowAccountModal(false)}
                 className="text-slate-400 hover:text-slate-200 p-1 rounded-lg transition"
               >
                 <X className="w-5 h-5" />
@@ -435,7 +673,7 @@ export const MasterBankAccountManager: React.FC = () => {
             </div>
 
             <form onSubmit={handleSaveAccount} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
-              {!editingId && (
+              {!editingAccountId && (
                 <div className="space-y-1.5 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
                   <label className="text-xs font-semibold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5" /> Quick Select Pakistani Bank Template
@@ -589,7 +827,7 @@ export const MasterBankAccountManager: React.FC = () => {
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
                 <button
                   type="button"
-                  onClick={() => setShowModal(false)}
+                  onClick={() => setShowAccountModal(false)}
                   className="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-xl transition text-sm"
                 >
                   Cancel
@@ -599,6 +837,151 @@ export const MasterBankAccountManager: React.FC = () => {
                   className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl transition text-sm shadow-lg shadow-emerald-600/20"
                 >
                   Save Bank Account
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add / Edit Reconciliation Rule Modal */}
+      {showRuleModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xl overflow-hidden shadow-2xl animate-scale-up">
+            <div className="flex items-center justify-between p-6 border-b border-slate-800 bg-slate-950">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400">
+                  <Sliders className="w-5 h-5" />
+                </div>
+                <h2 className="text-lg font-bold text-slate-100">
+                  {editingRuleId ? 'Edit Reconciliation Rule' : 'Create Reconciliation Rule'}
+                </h2>
+              </div>
+              <button
+                onClick={() => setShowRuleModal(false)}
+                className="text-slate-400 hover:text-slate-200 p-1 rounded-lg transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveRule} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-slate-300">Rule Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={ruleName}
+                  onChange={(e) => setRuleName(e.target.value)}
+                  placeholder="e.g. Standard Tenant Subscription ID Pattern"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 text-sm focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-slate-300">Target Bank Scope</label>
+                  <select
+                    value={ruleBankId}
+                    onChange={(e) => setRuleBankId(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 text-sm focus:outline-none focus:border-emerald-500"
+                  >
+                    <option value="ALL">All Master Banks (Global)</option>
+                    {accounts.map((acc) => (
+                      <option key={acc.id} value={acc.id}>
+                        {acc.bankName} ({acc.accountNumber.slice(-4)})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-slate-300">Matching Mode</label>
+                  <select
+                    value={matchingMode}
+                    onChange={(e) => setMatchingMode(e.target.value as any)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 text-sm focus:outline-none focus:border-emerald-500"
+                  >
+                    <option value="EXACT_AMOUNT_AND_REF">Exact Amount & Reference</option>
+                    <option value="REF_ONLY">Reference Pattern Only</option>
+                    <option value="AMOUNT_FUZZY">Amount Fuzzy Matching</option>
+                    <option value="RAAST_ALIAS_MATCH">Raast Alias & Mobile Match</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-slate-300">Min Transaction Amount (PKR)</label>
+                  <input
+                    type="number"
+                    required
+                    value={minAmount}
+                    onChange={(e) => setMinAmount(Number(e.target.value))}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 font-mono text-sm focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-slate-300">Max Transaction Amount (PKR)</label>
+                  <input
+                    type="number"
+                    required
+                    value={maxAmount}
+                    onChange={(e) => setMaxAmount(Number(e.target.value))}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 font-mono text-sm focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-slate-300">Reference Pattern / Regex *</label>
+                <input
+                  type="text"
+                  required
+                  value={refPattern}
+                  onChange={(e) => setRefPattern(e.target.value)}
+                  placeholder="e.g. TENANT-[0-9]{3,6} or RAAST"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 font-mono text-sm focus:outline-none focus:border-emerald-500"
+                />
+                <p className="text-[11px] text-slate-500">Regular expression or keyword substring searched in bank statement transaction particulars.</p>
+              </div>
+
+              <div className="flex items-center gap-6 pt-2">
+                <label className="flex items-center gap-2.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={autoApprove}
+                    onChange={(e) => setAutoApprove(e.target.checked)}
+                    className="w-4 h-4 accent-emerald-600 rounded bg-slate-950 border-slate-800"
+                  />
+                  <span className="text-sm font-medium text-slate-200">Auto-Approve Matching Transactions</span>
+                </label>
+
+                <label className="flex items-center gap-2.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={ruleActive}
+                    onChange={(e) => setRuleActive(e.target.checked)}
+                    className="w-4 h-4 accent-emerald-600 rounded bg-slate-950 border-slate-800"
+                  />
+                  <span className="text-sm font-medium text-slate-200">Active Rule</span>
+                </label>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setShowRuleModal(false)}
+                  className="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-xl transition text-sm"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl transition text-sm shadow-lg shadow-emerald-600/20"
+                >
+                  Save Rule
                 </button>
               </div>
             </form>

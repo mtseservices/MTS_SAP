@@ -548,6 +548,19 @@ export interface MasterBankAccount {
   createdAt?: string;
 }
 
+export interface ReconciliationRule {
+  id: string;
+  ruleName: string;
+  bankId: string; // 'ALL' or specific bank id
+  minTransactionAmount: number;
+  maxTransactionAmount: number;
+  referencePattern: string; // e.g. ^TENANT-[0-9]+ or ^SUB-[a-zA-Z0-9]+
+  matchingMode: 'EXACT_AMOUNT_AND_REF' | 'REF_ONLY' | 'AMOUNT_FUZZY' | 'RAAST_ALIAS_MATCH';
+  autoApprove: boolean;
+  isActive: boolean;
+  createdAt: string;
+}
+
 // --- CENTRALIZED NOTIFICATION SYSTEM TYPES ---
 
 export type NotificationType = 'APPROVAL' | 'LOW_STOCK' | 'PAYMENT_DUE' | 'SYSTEM';
