@@ -152,6 +152,8 @@ export interface ClientCompany {
   };
   // Advanced Pakistani Enterprise & Regulatory Metadata
   secpNumber?: string;
+  adminUsername?: string;
+  adminPassword?: string;
   entityType?: 'Local business' | 'Trader' | 'Private Limited' | 'Public Limited' | 'Sole Proprietorship' | 'Partnership / AOP' | 'Listed Public Company';
   salesTaxAuthority?: 'FBR (Federal)' | 'PRA (Punjab)' | 'SRB (Sindh)' | 'KPRA (Khyber Pakhtunkhwa)' | 'BRA (Balochistan)';
   chamberOfCommerce?: string;

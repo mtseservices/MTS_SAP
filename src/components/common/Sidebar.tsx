@@ -37,7 +37,8 @@ import {
   GitCommit,
   Briefcase,
   GitMerge,
-  Landmark
+  Landmark,
+  Scale
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -66,6 +67,7 @@ export type ActiveTab =
   | 'auditLogs'
   | 'crm'
   | 'performanceMetrics'
+  | 'partnerships'
   // Master Admin Tabs
   | 'masterDashboard'
   | 'masterCompanies'
@@ -162,10 +164,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
     { id: 'masterIndustryCore' as ActiveTab, label: 'Industry Core Manager', icon: Briefcase },
     { id: 'masterConflictResolution' as ActiveTab, label: 'Sync Conflict Resolution', icon: GitMerge },
     { id: 'masterBankAccounts' as ActiveTab, label: 'Master Bank Account Setup', icon: Landmark },
+    { id: 'partnerships' as ActiveTab, label: 'Partnerships & Joint Ventures', icon: Scale },
   ];
 
   // Helper utility items (The isolated "130 Department Master" bottom link has been removed as requested)
   const utilityItems = [
+    { id: 'partnerships' as ActiveTab, label: 'Partnerships & Joint Ventures', icon: Scale },
     { id: 'reports' as ActiveTab, label: 'Universal Reporting Engine', icon: BarChart3 },
     { id: 'approvals' as ActiveTab, label: t('approvals'), icon: ShieldCheck },
     { id: 'crm' as ActiveTab, label: 'CRM & Sales Pipeline', icon: Users },

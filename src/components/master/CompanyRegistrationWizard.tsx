@@ -32,12 +32,14 @@ import {
   EyeOff,
   Upload,
   Receipt,
-  Zap
+  Zap,
+  Plus,
+  Trash2
 } from 'lucide-react';
 import { useAuthTenant } from '../../context/AuthTenantContext';
 import { IndustryPackage, ThemePalette, ThemeMode, LoginTemplateId, TableDensity, SubscriptionPlan } from '../../types/erp';
 import { doc, setDoc } from 'firebase/firestore';
-import { db } from '../../services/firebaseConfig';
+import { db, sanitizeForFirestore } from '../../services/firebaseConfig';
 import { getDefaultDepartmentIdsForIndustry, getDefaultModulesForIndustry } from '../../services/departmentCategoryMapper';
 import { COMPLETE_DEPARTMENTS_CATALOGUE } from '../../services/departmentCatalogueData';
 import { PAKISTAN_PROVINCES_CITIES, getCitiesForProvince } from '../../services/pakistanRegions';
@@ -49,7 +51,7 @@ interface CompanyRegistrationWizardProps {
   onSuccess: (slug: string) => void;
 }
 
-type WizardStep = 1 | 2 | 3 | 4 | 5 | 6;
+type WizardStep = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 const PLAN_PRICING: Record<string, number> = {
   'Professional': 45000,
@@ -62,7 +64,7 @@ const PLAN_PRICING: Record<string, number> = {
 export const CompanyRegistrationWizard: React.FC<CompanyRegistrationWizardProps> = ({
   onSuccess
 }) => {
-  const { registerNewCompany, switchTenantBySlug } = useAuthTenant();
+  const { registerNewCompany, switchTenantBySlug, login } = useAuthTenant();
   const [currentStep, setCurrentStep] = useState<WizardStep>(1);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -113,17 +115,32 @@ export const CompanyRegistrationWizard: React.FC<CompanyRegistrationWizardProps>
     whatsappAlertsEnabled: true,
     whatsappPhone: '',
 
-    // Step 6: Branding & Admin
+    // Step 6: Branding
     theme: 'corporate-blue' as ThemePalette,
     themeMode: 'dark' as ThemeMode,
     loginTemplateId: 'split' as LoginTemplateId,
     tableDensity: 'standard' as TableDensity,
+    logoUrl: '',
+    backgroundUrl: '',
+
+    // Step 7: Master User & Branches Setup
     adminName: '',
     adminEmail: '',
+    adminPhone: '',
     adminUsername: '',
     adminPassword: '',
-    logoUrl: '',
-    backgroundUrl: ''
+    branches: [
+      {
+        id: `br_1_${Date.now()}`,
+        name: 'Headquarters & Main Plant',
+        code: 'HQ-001',
+        type: 'Headquarters',
+        contactPerson: 'Rashid Ahmed',
+        contactPhone: '+92-300-1122334',
+        city: 'Lahore',
+        address: 'Plot 102, Industrial Complex, Lahore'
+      }
+    ] as { id: string; name: string; code: string; type: string; contactPerson: string; contactPhone: string; city: string; address: string; }[]
   });
 
   const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
@@ -173,11 +190,45 @@ export const CompanyRegistrationWizard: React.FC<CompanyRegistrationWizardProps>
   ];
 
   const nextStep = () => {
-    if (currentStep < 6) setCurrentStep((currentStep + 1) as WizardStep);
+    if (currentStep < 7) setCurrentStep((currentStep + 1) as WizardStep);
   };
 
   const prevStep = () => {
     if (currentStep > 1) setCurrentStep((currentStep - 1) as WizardStep);
+  };
+
+  const handleAddBranch = () => {
+    if (formData.branches.length >= formData.branchLimit) {
+      alert(`Selected plan (${formData.subscriptionPlan}) allows a maximum of ${formData.branchLimit} branches. Please select a higher subscription plan in Step 5 to add more branches.`);
+      return;
+    }
+    const newIdx = formData.branches.length + 1;
+    const newBr = {
+      id: `br_${newIdx}_${Date.now()}`,
+      name: `Branch #${newIdx}`,
+      code: `BR-00${newIdx}`,
+      type: 'Regional Office' as const,
+      contactPerson: formData.adminName || 'Branch Manager',
+      contactPhone: formData.adminPhone || formData.phone || '+92-300-0000000',
+      city: formData.city || 'Lahore',
+      address: formData.address || 'Commercial Area'
+    };
+    setFormData(prev => ({ ...prev, branches: [...prev.branches, newBr] }));
+  };
+
+  const handleRemoveBranch = (id: string) => {
+    if (formData.branches.length <= 1) {
+      alert('At least 1 primary branch is required for company onboarding!');
+      return;
+    }
+    setFormData(prev => ({ ...prev, branches: prev.branches.filter(b => b.id !== id) }));
+  };
+
+  const handleBranchChange = (id: string, field: string, val: any) => {
+    setFormData(prev => ({
+      ...prev,
+      branches: prev.branches.map(b => b.id === id ? { ...b, [field]: val } : b)
+    }));
   };
 
   const handleNameChange = (val: string) => {
@@ -233,45 +284,83 @@ export const CompanyRegistrationWizard: React.FC<CompanyRegistrationWizardProps>
     };
   };
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (currentStep < 6) {
+    setErrorMsg(null);
+    if (currentStep < 7) {
       nextStep();
       return;
     }
 
-    const liveUrl = `https://mts-sap.vercel.app?company=${formData.slug}`;
+    setIsSubmitting(true);
 
-    const created = registerNewCompany({
-      ...formData,
-      url: liveUrl,
-    });
-
-    // Sync Company Record to Firebase Firestore
     try {
-      await setDoc(doc(db, 'tenants', created.tenantId), {
+      const finalName = formData.name.trim() || 'Enterprise Client Company';
+      const finalSlug = formData.slug.trim() || finalName.toLowerCase().replace(/[^a-z0-9]/g, '') || `company${Date.now().toString().slice(-4)}`;
+      const liveUrl = `https://mts-sap.vercel.app?company=${finalSlug}`;
+      const finalUsername = formData.adminUsername.trim() || `admin_${finalSlug}`;
+      const finalPassword = formData.adminPassword.trim() || 'Admin@123456';
+
+      const rawCompData = {
+        ...formData,
+        name: finalName,
+        slug: finalSlug,
+        url: liveUrl,
+        adminName: formData.adminName.trim() || `${finalName} Administrator`,
+        adminEmail: formData.adminEmail.trim() || `admin@${finalSlug}.pk`,
+        adminPhone: formData.adminPhone.trim() || formData.phone || '',
+        adminUsername: finalUsername,
+        adminPassword: finalPassword
+      };
+
+      const created = registerNewCompany(rawCompData);
+
+      // Deep Sanitize & Serialize State Object for Firestore write
+      const rawTenantPayload = {
         ...created,
-        adminUsername: formData.adminUsername,
-        adminPassword: formData.adminPassword,
+        adminName: formData.adminName.trim() || `${finalName} Administrator`,
+        adminEmail: formData.adminEmail.trim() || `admin@${finalSlug}.pk`,
+        adminPhone: formData.adminPhone.trim() || formData.phone || '',
+        adminUsername: finalUsername,
+        adminPassword: finalPassword,
+        branches: formData.branches,
         url: liveUrl,
         communicationGateways: {
-          smsQuota: formData.smsQuota,
+          smsQuota: formData.smsQuota || 5000,
           smsUsed: 0,
-          whatsappAlertsEnabled: formData.whatsappAlertsEnabled,
-          whatsappPhone: formData.whatsappPhone
+          whatsappAlertsEnabled: formData.whatsappAlertsEnabled ?? true,
+          whatsappPhone: formData.whatsappPhone || ''
         }
-      }, { merge: true });
-    } catch (firebaseErr) {
-      console.warn('Firebase company sync warning:', firebaseErr);
-    }
+      };
 
-    setCreatedCompanyDetails({
-      slug: created.slug,
-      name: created.name,
-      username: formData.adminUsername,
-      password: formData.adminPassword,
-      url: liveUrl
-    });
+      const cleanPayload = sanitizeForFirestore(rawTenantPayload);
+
+      // Sync Company Record & Branches to LocalStorage
+      try {
+        localStorage.setItem(`mts_branches_${created.id}`, JSON.stringify(formData.branches));
+      } catch (stErr) {
+        console.warn('LocalStorage write note:', stErr);
+      }
+
+      // Sync Company Record & Branches to Firebase Firestore
+      await setDoc(doc(db, 'tenants', created.tenantId), cleanPayload, { merge: true });
+      await setDoc(doc(db, 'companies', created.id), cleanPayload, { merge: true });
+
+      setCreatedCompanyDetails({
+        slug: created.slug,
+        name: created.name,
+        username: finalUsername,
+        password: finalPassword,
+        url: liveUrl
+      });
+    } catch (err: any) {
+      console.error('Company registration submission error:', err);
+      setErrorMsg(err?.message || 'Database write failed. Please verify form inputs and retry.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCopyCredentials = () => {
@@ -322,10 +411,11 @@ Password: ${createdCompanyDetails.password}`;
           </div>
           <button
             onClick={() => {
+              login('CLIENT', createdCompanyDetails.slug, 'CLIENT_ADMIN');
               switchTenantBySlug(createdCompanyDetails.slug);
               onSuccess(createdCompanyDetails.slug);
             }}
-            className="w-full py-3.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-xl shadow-cyan-600/30 flex items-center justify-center gap-2 transition-all"
+            className="w-full py-3.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-xl shadow-cyan-600/30 flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
             Launch {createdCompanyDetails.name} ERP
           </button>
@@ -349,7 +439,7 @@ Password: ${createdCompanyDetails.password}`;
             <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mt-1">Tenant Registration v5.2</p>
           </div>
           <div className="flex items-center gap-1.5">
-            {[1, 2, 3, 4, 5, 6].map((s) => (
+            {[1, 2, 3, 4, 5, 6, 7].map((s) => (
               <div 
                 key={s}
                 className={`w-6 h-1 rounded-full transition-all duration-500 ${
@@ -361,6 +451,12 @@ Password: ${createdCompanyDetails.password}`;
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
+          {errorMsg && (
+            <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-2xl flex items-center gap-3 text-xs text-rose-300 animate-in fade-in">
+              <AlertCircle className="w-5 h-5 text-rose-400 shrink-0" />
+              <span>{errorMsg}</span>
+            </div>
+          )}
           {/* STEP 1: LEGAL IDENTITY */}
           {currentStep === 1 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
@@ -837,16 +933,18 @@ Password: ${createdCompanyDetails.password}`;
             </div>
           )}
 
-          {/* STEP 6: BRANDING & ADMIN */}
+          {/* STEP 6: BRANDING & LIVE PREVIEW */}
           {currentStep === 6 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
               <div className="flex items-center gap-3 border-b border-slate-800 pb-4">
                 <Palette className="w-5 h-5 text-indigo-400" />
-                <h2 className="text-xs font-black text-slate-100 uppercase tracking-[0.2em]">Step 6: Branding & Master Access</h2>
+                <h2 className="text-xs font-black text-slate-100 uppercase tracking-[0.2em]">Step 6: Branding &amp; Live Layout Preview</h2>
               </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Left Form Inputs */}
+                <div className="space-y-5">
+                  <div className="grid grid-cols-1 gap-4">
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
                         <Upload className="w-3 h-3" /> Company Logo (URL or PC File)
@@ -865,9 +963,10 @@ Password: ${createdCompanyDetails.password}`;
                         className="w-full text-[10px] text-slate-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer"
                       />
                     </div>
+
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                        <Upload className="w-3 h-3" /> Login Background (URL or PC File)
+                        <Upload className="w-3 h-3" /> Login Background Image (URL or PC File)
                       </label>
                       <input
                         type="text"
@@ -884,6 +983,7 @@ Password: ${createdCompanyDetails.password}`;
                       />
                     </div>
                   </div>
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black text-slate-500 uppercase">Default Theme</label>
@@ -897,6 +997,7 @@ Password: ${createdCompanyDetails.password}`;
                         <option value="enterprise-dark">Enterprise Dark</option>
                       </select>
                     </div>
+
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black text-slate-500 uppercase">Login Layout</label>
                       <select
@@ -905,7 +1006,7 @@ Password: ${createdCompanyDetails.password}`;
                         className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-indigo-400 font-bold"
                       >
                         <option value="split">Executive Split</option>
-                        <option value="minimal">Minimalist</option>
+                        <option value="minimal">Minimalist Card</option>
                         <option value="glass">Floating Glass</option>
                         <option value="terminal">Classic Console</option>
                       </select>
@@ -913,66 +1014,340 @@ Password: ${createdCompanyDetails.password}`;
                   </div>
                 </div>
 
-                <div className="space-y-6">
-                  <div className="space-y-4">
-                    <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                      <ShieldCheck className="w-3.5 h-3.5" /> Master Administrator
+                {/* Right Interactive Live Preview Mockup Card */}
+                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                    <span className="text-[10px] font-black text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <Eye className="w-3.5 h-3.5" /> Live Login Layout Preview
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                    </div>
+                  </div>
+
+                  {/* Interactive Layout Mockup Container */}
+                  <div
+                    className={`relative rounded-xl border p-4 h-64 flex flex-col justify-between overflow-hidden shadow-inner ${
+                      formData.theme === 'corporate-blue'
+                        ? 'bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 border-blue-800/50'
+                        : formData.theme === 'royal-black-gold'
+                        ? 'bg-gradient-to-br from-black via-slate-950 to-amber-950/40 border-amber-800/50'
+                        : 'bg-slate-900 border-purple-800/50'
+                    }`}
+                  >
+                    {/* Background Overlay Image Preview if present */}
+                    {formData.backgroundUrl && (
+                      <img
+                        src={formData.backgroundUrl}
+                        alt="Background Preview"
+                        className="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none"
+                      />
+                    )}
+
+                    {/* Header with Company Logo */}
+                    <div className="relative z-10 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {formData.logoUrl ? (
+                          <img src={formData.logoUrl} alt="Logo" className="w-7 h-7 object-contain rounded-md bg-white/10 p-0.5" />
+                        ) : (
+                          <Building2 className={`w-6 h-6 ${formData.theme === 'royal-black-gold' ? 'text-amber-400' : 'text-cyan-400'}`} />
+                        )}
+                        <span className="text-xs font-bold text-white truncate max-w-[150px]">
+                          {formData.name || 'Your Company Name'}
+                        </span>
+                      </div>
+                      <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-white/10 text-slate-300">
+                        {formData.loginTemplateId.toUpperCase()}
+                      </span>
+                    </div>
+
+                    {/* Layout Specific Interactive Frame */}
+                    <div className="relative z-10 my-auto">
+                      {formData.loginTemplateId === 'split' && (
+                        <div className="grid grid-cols-2 gap-3 bg-slate-900/80 border border-slate-800 rounded-lg p-3 backdrop-blur-sm">
+                          <div className="bg-slate-950/80 rounded p-2 flex flex-col justify-center items-center text-center">
+                            <span className="text-[9px] font-bold text-indigo-300">Brand Banner</span>
+                            <span className="text-[8px] text-slate-500">Left Column Image</span>
+                          </div>
+                          <div className="space-y-1 text-[8px]">
+                            <div className="h-3 bg-slate-800 rounded px-1 text-slate-400 flex items-center">Username</div>
+                            <div className="h-3 bg-slate-800 rounded px-1 text-slate-400 flex items-center">Password</div>
+                            <div className="h-3.5 bg-indigo-600 text-white font-bold rounded flex items-center justify-center">Sign In</div>
+                          </div>
+                        </div>
+                      )}
+
+                      {formData.loginTemplateId === 'minimal' && (
+                        <div className="max-w-[180px] mx-auto bg-slate-950/90 border border-slate-800 rounded-lg p-3 space-y-1.5 text-[8px] text-center shadow-lg">
+                          <div className="font-bold text-slate-200">Account Sign In</div>
+                          <div className="h-3 bg-slate-800 rounded px-1 text-slate-400 flex items-center">Username</div>
+                          <div className="h-3 bg-slate-800 rounded px-1 text-slate-400 flex items-center">Password</div>
+                          <div className="h-3.5 bg-indigo-600 text-white font-bold rounded flex items-center justify-center">Sign In</div>
+                        </div>
+                      )}
+
+                      {formData.loginTemplateId === 'glass' && (
+                        <div className="max-w-[200px] mx-auto bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-3 space-y-1.5 text-[8px] text-center shadow-2xl">
+                          <div className="font-bold text-white tracking-wide">Glassmorphic Portal</div>
+                          <div className="h-3 bg-black/40 rounded px-1 text-slate-300 flex items-center">Username</div>
+                          <div className="h-3 bg-black/40 rounded px-1 text-slate-300 flex items-center">Password</div>
+                          <div className="h-3.5 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold rounded flex items-center justify-center">Sign In</div>
+                        </div>
+                      )}
+
+                      {formData.loginTemplateId === 'terminal' && (
+                        <div className="bg-black/90 border border-emerald-500/40 rounded-lg p-3 font-mono text-[8px] space-y-1 text-emerald-400 shadow-xl">
+                          <div>$ mts-auth --init tenant</div>
+                          <div className="text-slate-500">[USER]: admin_login</div>
+                          <div className="text-slate-500">[PASS]: ********</div>
+                          <div className="text-emerald-300 font-bold">&gt; AUTHENTICATED [OK]</div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="relative z-10 text-[8px] font-mono text-slate-400 text-center">
+                      mts-sap.vercel.app?company={formData.slug || 'slug'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 7: COMPLETE BRANCH DETAILS & MASTER ACCESS */}
+          {currentStep === 7 && (
+            <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
+              <div className="flex items-center gap-3 border-b border-slate-800 pb-4">
+                <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                <h2 className="text-xs font-black text-slate-100 uppercase tracking-[0.2em]">Step 7: Master User Credentials &amp; Branch Setup</h2>
+              </div>
+
+              {/* Section 1: Client Company Administrator Credentials */}
+              <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                  <h3 className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-2">
+                    <User className="w-4 h-4 text-indigo-400" /> Client Company Administrator &amp; Tenant Owner Account
+                  </h3>
+                  <span className="text-[10px] font-mono text-slate-500 bg-slate-900 border border-slate-800 px-2.5 py-0.5 rounded-full">
+                    Client Owner Account
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-sans">
+                  <div>
+                    <label className="block text-slate-400 font-medium mb-1">Client Admin Full Name *</label>
+                    <input
+                      type="text"
+                      value={formData.adminName}
+                      onChange={(e) => setFormData({ ...formData, adminName: e.target.value })}
+                      required
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 focus:outline-none focus:border-indigo-500"
+                      placeholder="e.g. Rashid Ahmed (Client Owner)"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-400 font-medium mb-1">Client Admin Email Address *</label>
+                    <input
+                      type="email"
+                      value={formData.adminEmail}
+                      onChange={(e) => setFormData({ ...formData, adminEmail: e.target.value })}
+                      required
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 focus:outline-none focus:border-indigo-500"
+                      placeholder="admin@cresttextile.com"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-400 font-medium mb-1">Client Admin Contact Phone</label>
+                    <input
+                      type="text"
+                      value={formData.adminPhone}
+                      onChange={(e) => setFormData({ ...formData, adminPhone: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 focus:outline-none focus:border-indigo-500 font-mono"
+                      placeholder="+92-300-1234567"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-indigo-400 font-bold mb-1">Client Admin Username *</label>
+                    <input
+                      type="text"
+                      value={formData.adminUsername}
+                      onChange={(e) => setFormData({ ...formData, adminUsername: e.target.value })}
+                      required
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-indigo-500/40 text-indigo-300 font-mono font-bold focus:outline-none"
+                      placeholder={`admin_${formData.slug || 'company'}`}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-emerald-400 font-bold mb-1">Client Admin Password *</label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={formData.adminPassword}
+                        onChange={(e) => setFormData({ ...formData, adminPassword: e.target.value })}
+                        required
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-emerald-500/40 text-emerald-300 font-mono font-bold focus:outline-none"
+                        placeholder="Admin@123456"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 cursor-pointer"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-indigo-500/5 border border-indigo-500/20 text-[10px] text-slate-400 leading-relaxed font-medium">
+                  <span className="text-indigo-400 font-bold">CLIENT SECURITY NOTE:</span> These login credentials belong to the Client Company Owner and grant full administrative access over their enterprise workspace data and user roles.
+                </div>
+              </div>
+
+              {/* Section 2: Dynamic Multi-Branch Setup */}
+              <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div>
+                    <h3 className="text-xs font-bold text-slate-100 uppercase tracking-wider flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-cyan-400" /> Company Branches &amp; Plant Locations Setup
                     </h3>
-                    <div className="space-y-3">
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-black text-slate-600 uppercase">Full Name</label>
-                        <input
-                          type="text"
-                          value={formData.adminName}
-                          onChange={(e) => setFormData({ ...formData, adminName: e.target.value })}
-                          className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs"
-                        />
+                    <p className="text-[11px] text-slate-400">Configure headquarters, regional offices, factory plants, or stores.</p>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <span className="px-3 py-1 bg-slate-900 border border-slate-800 text-cyan-300 font-mono font-bold text-xs rounded-xl">
+                      Branches: {formData.branches.length} / {formData.branchLimit} Quota
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleAddBranch}
+                      disabled={formData.branches.length >= formData.branchLimit}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                        formData.branches.length >= formData.branchLimit
+                          ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                          : 'bg-cyan-600 hover:bg-cyan-500 text-white shadow-lg shadow-cyan-600/30'
+                      }`}
+                    >
+                      <Plus className="w-4 h-4" /> Add Branch
+                    </button>
+                  </div>
+                </div>
+
+                {/* Branch Cards */}
+                <div className="space-y-4">
+                  {formData.branches.map((br, index) => (
+                    <div key={br.id} className="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3 relative">
+                      <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-mono font-bold text-xs rounded-lg flex items-center justify-center">
+                            #{index + 1}
+                          </span>
+                          <h4 className="text-xs font-bold text-slate-100">{br.name}</h4>
+                          <span className="text-[10px] font-mono text-slate-500">[{br.code}]</span>
+                        </div>
+
+                        {formData.branches.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveBranch(br.id)}
+                            className="text-slate-500 hover:text-rose-400 transition cursor-pointer"
+                            title="Remove Branch"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-black text-slate-600 uppercase">Master Admin Email</label>
-                        <input
-                          type="email"
-                          value={formData.adminEmail}
-                          onChange={(e) => setFormData({ ...formData, adminEmail: e.target.value })}
-                          className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                          <label className="text-[10px] font-black text-slate-600 uppercase">Username</label>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs font-sans">
+                        <div>
+                          <label className="block text-slate-500 text-[10px] uppercase mb-0.5">Branch Name *</label>
                           <input
                             type="text"
-                            value={formData.adminUsername}
-                            onChange={(e) => setFormData({ ...formData, adminUsername: e.target.value })}
-                            className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-indigo-400 font-mono"
+                            value={br.name}
+                            onChange={(e) => handleBranchChange(br.id, 'name', e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-200"
+                            placeholder="e.g. Faisalabad Textile Plant"
                           />
                         </div>
-                        <div className="space-y-1.5">
-                          <label className="text-[10px] font-black text-slate-600 uppercase">Master Password</label>
-                          <div className="relative">
-                            <input
-                              type={showPassword ? 'text' : 'password'}
-                              value={formData.adminPassword}
-                              onChange={(e) => setFormData({ ...formData, adminPassword: e.target.value })}
-                              className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-emerald-400 font-mono"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-400 transition-colors"
-                            >
-                              {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                            </button>
-                          </div>
+
+                        <div>
+                          <label className="block text-slate-500 text-[10px] uppercase mb-0.5">Branch Code</label>
+                          <input
+                            type="text"
+                            value={br.code}
+                            onChange={(e) => handleBranchChange(br.id, 'code', e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-200 font-mono"
+                            placeholder="FSD-01"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-slate-500 text-[10px] uppercase mb-0.5">Branch Type</label>
+                          <select
+                            value={br.type}
+                            onChange={(e) => handleBranchChange(br.id, 'type', e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-200"
+                          >
+                            <option value="Headquarters">Headquarters</option>
+                            <option value="Regional Office">Regional Office</option>
+                            <option value="Factory Plant">Factory Plant / Production</option>
+                            <option value="Retail Outlet">Retail Outlet / POS</option>
+                            <option value="Warehouse / Store">Warehouse / Store</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-slate-500 text-[10px] uppercase mb-0.5">Contact Person</label>
+                          <input
+                            type="text"
+                            value={br.contactPerson}
+                            onChange={(e) => handleBranchChange(br.id, 'contactPerson', e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-200"
+                            placeholder="Branch Manager Name"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-slate-500 text-[10px] uppercase mb-0.5">Contact Phone</label>
+                          <input
+                            type="text"
+                            value={br.contactPhone}
+                            onChange={(e) => handleBranchChange(br.id, 'contactPhone', e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-200 font-mono"
+                            placeholder="+92-300-1122334"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-slate-500 text-[10px] uppercase mb-0.5">City</label>
+                          <input
+                            type="text"
+                            value={br.city}
+                            onChange={(e) => handleBranchChange(br.id, 'city', e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-200"
+                            placeholder="Lahore"
+                          />
+                        </div>
+
+                        <div className="md:col-span-2">
+                          <label className="block text-slate-500 text-[10px] uppercase mb-0.5">Full Physical Address</label>
+                          <input
+                            type="text"
+                            value={br.address}
+                            onChange={(e) => handleBranchChange(br.id, 'address', e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-200"
+                            placeholder="Plot number, Street, Industrial Estate..."
+                          />
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="p-4 rounded-2xl bg-indigo-500/5 border border-indigo-500/20">
-                    <p className="text-[9px] text-slate-500 leading-relaxed font-medium">
-                      <span className="text-indigo-400 font-black">SECURITY NOTE:</span> These credentials grant full control over the tenant's data, modules, and user accounts. Store them in a secure corporate vault.
-                    </p>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -993,12 +1368,31 @@ Password: ${createdCompanyDetails.password}`;
 
             <button
               type="submit"
-              className={`flex items-center gap-2 px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl transition-all active:scale-95 ${
-                currentStep === 6 ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30' : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/30'
+              disabled={isSubmitting}
+              className={`flex items-center gap-2 px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl transition-all active:scale-95 cursor-pointer ${
+                isSubmitting
+                  ? 'bg-slate-800 text-slate-400 border border-slate-700 pointer-events-none'
+                  : currentStep === 7
+                  ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30'
+                  : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/30'
               }`}
             >
-              {currentStep === 6 ? 'Finalize & Launch Workspace' : 'Continue to Next Step'}
-              <ArrowRight className="w-4 h-4" />
+              {isSubmitting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+                  <span>Provisioning Workspace...</span>
+                </>
+              ) : currentStep === 7 ? (
+                <>
+                  Finalize &amp; Launch Workspace
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              ) : (
+                <>
+                  Continue to Next Step
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
             </button>
           </div>
         </form>

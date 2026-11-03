@@ -5,7 +5,7 @@ import { INITIAL_BRANCHES } from '../services/mockData';
 import { getDefaultDepartmentIdsForIndustry } from '../services/departmentCategoryMapper';
 import { doc, deleteDoc, setDoc, getDoc } from 'firebase/firestore';
 import { onAuthStateChanged, signInAnonymously, setPersistence, browserLocalPersistence } from 'firebase/auth';
-import { db, auth } from '../services/firebaseConfig';
+import { db, auth, sanitizeForFirestore } from '../services/firebaseConfig';
 
 // Global Security Inactivity Middleware Constants
 export const INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; // Exactly 5 minutes (300,000 ms)
@@ -742,7 +742,8 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
     // Also persist to Firestore
     try {
-      setDoc(doc(db, 'companies', compId), newCompany);
+      const cleanComp = sanitizeForFirestore(newCompany);
+      setDoc(doc(db, 'companies', compId), cleanComp);
     } catch (e) {
       console.warn('Could not save company to Firestore:', e);
     }

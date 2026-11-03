@@ -40,6 +40,7 @@ import { CompanySettingsModule } from './components/client/CompanySettingsModule
 import { CrmModule } from './components/client/CrmModule';
 import { DepartmentMasterModule } from './components/client/DepartmentMasterModule';
 import { PerformanceMetricsDashboard } from './components/client/PerformanceMetricsDashboard';
+import { PartnershipManagementModule } from './components/partnership/PartnershipManagementModule';
 
 import { LanguageProvider } from './context/LanguageContext';
 import { MasterLoginModal } from './components/common/MasterLoginModal';
@@ -57,7 +58,7 @@ function MainLayout() {
     const validTabs: ActiveTab[] = [
       'dashboard', 'departments', 'finance', 'procurement', 'inventory', 'sales',
       'production', 'hr', 'formBuilder', 'reports', 'approvals',
-      'aiAssistant', 'auditLogs', 'companySettings', 'crm', 'performanceMetrics', 'masterDashboard',
+      'aiAssistant', 'auditLogs', 'companySettings', 'crm', 'performanceMetrics', 'partnerships', 'masterDashboard',
       'masterCompanies', 'masterSubdomains', 'masterRegister',
       'masterSubscriptions', 'masterAudit', 'masterApiAudit', 'masterAuditInsights', 'masterSystemHealth', 'masterRateLimits',
       'masterSettings', 'masterUserCreation', 'masterSystemSecurity', 'masterBatchExport', 'masterWorkflowEditor', 'masterIndustryCore', 'masterConflictResolution', 'masterBankAccounts'
@@ -217,6 +218,7 @@ function MainLayout() {
           {!isMasterPortal && activeTab === 'companySettings' && <CompanySettingsModule />}
           {!isMasterPortal && activeTab === 'crm' && <CrmModule />}
           {!isMasterPortal && activeTab === 'performanceMetrics' && <PerformanceMetricsDashboard />}
+          {activeTab === 'partnerships' && <PartnershipManagementModule />}
         </main>
       </div>
 

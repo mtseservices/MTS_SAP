@@ -37,6 +37,26 @@ try {
 export const db = firestoreInstance;
 export const googleProvider = new GoogleAuthProvider();
 
+export function sanitizeForFirestore<T>(data: T): T {
+  if (data === null || data === undefined) {
+    return null as any;
+  }
+  if (typeof data !== 'object') {
+    return data;
+  }
+  if (Array.isArray(data)) {
+    return data.map(item => sanitizeForFirestore(item)) as any;
+  }
+  const cleanObj: Record<string, any> = {};
+  for (const key of Object.keys(data as object)) {
+    const val = (data as any)[key];
+    if (val !== undefined && typeof val !== 'function') {
+      cleanObj[key] = sanitizeForFirestore(val);
+    }
+  }
+  return cleanObj as T;
+}
+
 // Reactive connectivity state
 type ConnectivityStatus = 'connected' | 'offline' | 'checking';
 let currentStatus: ConnectivityStatus = 'checking';
