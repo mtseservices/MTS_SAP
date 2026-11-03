@@ -51,7 +51,9 @@ type WizardStep = 1 | 2 | 3 | 4 | 5 | 6;
 const PLAN_PRICING: Record<string, number> = {
   'Professional': 45000,
   'Enterprise': 85000,
-  'Ultimate': 150000
+  'Ultimate': 150000,
+  'Single Time Buy (Lifetime)': 350000,
+  'Special Offer Plan': 55000
 };
 
 export const CompanyRegistrationWizard: React.FC<CompanyRegistrationWizardProps> = ({
@@ -379,6 +381,8 @@ Password: ${createdCompanyDetails.password}`;
                     onChange={(e) => setFormData({ ...formData, entityType: e.target.value as any })}
                     className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-100"
                   >
+                    <option value="Local business">Local business</option>
+                    <option value="Trader">Trader</option>
                     <option value="Private Limited">Private Limited</option>
                     <option value="Public Limited">Public Limited</option>
                     <option value="Sole Proprietorship">Sole Proprietorship</option>
@@ -529,9 +533,19 @@ Password: ${createdCompanyDetails.password}`;
                       <option value="Manufacturing">Manufacturing</option>
                       <option value="Textile">Textile</option>
                       <option value="Food & Beverage">Food & Beverage</option>
+                      <option value="Import/Export">Import/Export</option>
+                      <option value="Hotel Management">Hotel Management</option>
+                      <option value="Shopping Malls">Shopping Malls</option>
+                      <option value="Retail Store">Retail Store</option>
+                      <option value="Wholesale Shops">Wholesale Shops</option>
+                      <option value="Trading">Trading</option>
+                      <option value="Courier Services">Courier Services</option>
+                      <option value="IT Services">IT Services</option>
+                      <option value="HR Services">HR Services</option>
                       <option value="Education">Education</option>
                       <option value="Healthcare">Healthcare</option>
                       <option value="Solar & Electrical">Solar & Electrical</option>
+                      <option value="Construction">Construction</option>
                     </select>
                   </div>
                   <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20">

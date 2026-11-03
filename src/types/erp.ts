@@ -30,7 +30,16 @@ export type IndustryPackage =
   | 'Healthcare'
   | 'Education'
   | 'Banking'
-  | 'NGO';
+  | 'NGO'
+  | 'Import/Export'
+  | 'Hotel Management'
+  | 'Shopping Malls'
+  | 'Retail Store'
+  | 'Wholesale Shops'
+  | 'Trading'
+  | 'Courier Services'
+  | 'IT Services'
+  | 'HR Services';
 
 export type ThemePalette = 
   | 'corporate-blue'
@@ -143,7 +152,7 @@ export interface ClientCompany {
   };
   // Advanced Pakistani Enterprise & Regulatory Metadata
   secpNumber?: string;
-  entityType?: 'Private Limited' | 'Public Limited' | 'Sole Proprietorship' | 'Partnership / AOP' | 'Listed Public Company';
+  entityType?: 'Local business' | 'Trader' | 'Private Limited' | 'Public Limited' | 'Sole Proprietorship' | 'Partnership / AOP' | 'Listed Public Company';
   salesTaxAuthority?: 'FBR (Federal)' | 'PRA (Punjab)' | 'SRB (Sindh)' | 'KPRA (Khyber Pakhtunkhwa)' | 'BRA (Balochistan)';
   chamberOfCommerce?: string;
   pswId?: string;

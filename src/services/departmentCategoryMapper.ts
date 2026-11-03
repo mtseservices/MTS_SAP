@@ -8,7 +8,7 @@ import {
   DepartmentCatalogItem
 } from './departmentCatalogueData';
 
-export const INDUSTRY_DEPARTMENT_PRESETS: Record<IndustryPackage, string[]> = {
+export const INDUSTRY_DEPARTMENT_PRESETS: Record<string, string[]> = {
   'Textile': [
     'dept_1',  // Accounts & Finance
     'dept_30', // Textile Production
@@ -178,6 +178,107 @@ export const INDUSTRY_DEPARTMENT_PRESETS: Record<IndustryPackage, string[]> = {
     'dept_5',
     'dept_21',
     'dept_6'
+  ],
+
+  // Newly requested user industries
+  'Import/Export': [
+    'dept_1',
+    'dept_12',
+    'dept_35',
+    'dept_2',
+    'dept_4',
+    'dept_3',
+    'dept_10',
+    'dept_5',
+    'dept_21',
+    'dept_6'
+  ],
+
+  'Hotel Management': [
+    'dept_1',
+    'dept_32', // Hotel/Restaurant specific
+    'dept_2',
+    'dept_4',
+    'dept_3',
+    'dept_7',
+    'dept_5',
+    'dept_21',
+    'dept_6'
+  ],
+
+  'Shopping Malls': [
+    'dept_1',
+    'dept_27',
+    'dept_2',
+    'dept_4',
+    'dept_3',
+    'dept_7',
+    'dept_5',
+    'dept_21',
+    'dept_6'
+  ],
+
+  'Retail Store': [
+    'dept_1',
+    'dept_27',
+    'dept_2',
+    'dept_4',
+    'dept_3',
+    'dept_7',
+    'dept_5',
+    'dept_21',
+    'dept_6'
+  ],
+
+  'Wholesale Shops': [
+    'dept_1',
+    'dept_27',
+    'dept_2',
+    'dept_4',
+    'dept_3',
+    'dept_7',
+    'dept_5',
+    'dept_21',
+    'dept_6'
+  ],
+
+  'Trading': [
+    'dept_1',
+    'dept_27',
+    'dept_2',
+    'dept_4',
+    'dept_3',
+    'dept_10',
+    'dept_5',
+    'dept_21',
+    'dept_6'
+  ],
+
+  'Courier Services': [
+    'dept_1',
+    'dept_35',
+    'dept_12',
+    'dept_3',
+    'dept_5',
+    'dept_21',
+    'dept_6'
+  ],
+
+  'IT Services': [
+    'dept_1',
+    'dept_37',
+    'dept_21',
+    'dept_7',
+    'dept_5',
+    'dept_6'
+  ],
+
+  'HR Services': [
+    'dept_1',
+    'dept_5',
+    'dept_37',
+    'dept_21',
+    'dept_6'
   ]
 };
 
@@ -200,7 +301,7 @@ export function getDefaultDepartmentIdsForIndustry(
   _category?: string
 ): string[] {
   if (industry && industry in INDUSTRY_DEPARTMENT_PRESETS) {
-    return INDUSTRY_DEPARTMENT_PRESETS[industry as IndustryPackage];
+    return INDUSTRY_DEPARTMENT_PRESETS[industry];
   }
   return DEFAULT_CORE_DEPARTMENT_IDS;
 }
