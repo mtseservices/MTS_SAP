@@ -35,7 +35,7 @@ import { AutomatedStatementParser } from './AutomatedStatementParser';
 import { SearchableSelect } from '../common/SearchableSelect';
 import { ChartOfAccountsModule } from './finance/ChartOfAccountsModule';
 
-type SubTab = 'vouchers' | 'coa' | 'gl' | 'subledger' | 'trialBalance' | 'pnl' | 'balanceSheet' | 'budget' | 'newVoucher' | 'bankReconciliation' | 'statementParser';
+type SubTab = 'vouchers' | 'coa' | 'gl' | 'subledger' | 'trialBalance' | 'pnl' | 'balanceSheet' | 'budget' | 'newVoucher' | 'bankReconciliation' | 'statementParser' | 'suppliers' | 'cost_center';
 
 export const FinanceAccountsModule: React.FC = () => {
   const { currentCompany } = useAuthTenant();
@@ -301,38 +301,86 @@ export const FinanceAccountsModule: React.FC = () => {
         </div>
       </div>
 
-      {/* Navigation Sub-Tabs */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 pb-3 text-xs font-bold">
+      {/* Navigation Sub-Tabs (3 Core Pillars with Badge Counters) */}
+      <div className="flex flex-wrap items-center gap-3 border-b border-slate-800 pb-4 text-xs font-bold">
         {[
-          { id: 'vouchers', label: `Journal Vouchers (${vouchers.length})`, icon: Receipt },
-          { id: 'coa', label: `Chart of Accounts (${accounts.length})`, icon: Layers },
-          { id: 'gl', label: 'General Ledger', icon: BookOpen },
-          { id: 'subledger', label: 'Sub-Ledger (AR/AP)', icon: FileSpreadsheet },
-          { id: 'trialBalance', label: 'Trial Balance', icon: Scale },
-          { id: 'pnl', label: 'Profit & Loss (P&L)', icon: TrendingUp },
-          { id: 'balanceSheet', label: 'Balance Sheet', icon: PieChart },
-          { id: 'budget', label: 'Budget Planning', icon: Target },
-          { id: 'bankReconciliation', label: 'Bank Reconciliation', icon: Scale },
-          { id: 'statementParser', label: 'Automated Statement Parser', icon: FileSpreadsheet }
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeSubTab === tab.id;
+          { 
+            id: 'coa', 
+            label: 'Chart of Accounts', 
+            badge: accounts.length, 
+            icon: Layers,
+            isActive: activeSubTab === 'coa' || activeSubTab === 'suppliers' || activeSubTab === 'cost_center'
+          },
+          { 
+            id: 'vouchers', 
+            label: 'Journal Vouchers', 
+            badge: vouchers.length, 
+            icon: Receipt,
+            isActive: activeSubTab === 'vouchers' || activeSubTab === 'newVoucher'
+          },
+          { 
+            id: 'financialReports', 
+            label: 'Financial Reports', 
+            badge: 8, 
+            icon: FileSpreadsheet,
+            isActive: ['gl', 'subledger', 'trialBalance', 'pnl', 'balanceSheet', 'budget', 'bankReconciliation', 'statementParser'].includes(activeSubTab)
+          }
+        ].map((pillar) => {
+          const Icon = pillar.icon;
+          const isActive = pillar.isActive;
+          const targetTab = pillar.id === 'financialReports' ? 'gl' : pillar.id;
           return (
             <button
-              key={tab.id}
-              onClick={() => switchSubTab(tab.id as SubTab)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all ${
+              key={pillar.id}
+              onClick={() => switchSubTab(targetTab as SubTab)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all cursor-pointer ${
                 isActive
-                  ? 'bg-emerald-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-slate-200 bg-slate-800/60'
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-600/30'
+                  : 'text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700 border border-slate-700/60'
               }`}
             >
-              <Icon className="w-3.5 h-3.5" />
-              {tab.label}
+              <Icon className="w-4 h-4 text-emerald-300" />
+              <span>{pillar.label}</span>
+              <span className="px-2 py-0.5 rounded-full bg-slate-950/60 text-emerald-400 font-mono text-[10px]">
+                {pillar.badge}
+              </span>
             </button>
           );
         })}
       </div>
+
+      {/* Secondary Sub-Tabs for Financial Reports if Financial Reports pillar is active */}
+      {['gl', 'subledger', 'trialBalance', 'pnl', 'balanceSheet', 'budget', 'bankReconciliation', 'statementParser'].includes(activeSubTab) && (
+        <div className="flex flex-wrap items-center gap-1.5 bg-slate-900/80 border border-slate-800 p-2.5 rounded-2xl text-[11px] font-semibold animate-in fade-in-50">
+          {[
+            { id: 'gl', label: 'General Ledger', icon: BookOpen },
+            { id: 'subledger', label: 'Sub-Ledger (AR/AP)', icon: FileSpreadsheet },
+            { id: 'trialBalance', label: 'Trial Balance', icon: Scale },
+            { id: 'pnl', label: 'Profit & Loss', icon: TrendingUp },
+            { id: 'balanceSheet', label: 'Balance Sheet', icon: PieChart },
+            { id: 'budget', label: 'Budget Planning', icon: Target },
+            { id: 'bankReconciliation', label: 'Bank Reconciliation', icon: Scale },
+            { id: 'statementParser', label: 'Statement Parser', icon: FileSpreadsheet }
+          ].map((sub) => {
+            const SubIcon = sub.icon;
+            const isSubActive = activeSubTab === sub.id;
+            return (
+              <button
+                key={sub.id}
+                onClick={() => switchSubTab(sub.id as SubTab)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition cursor-pointer ${
+                  isSubActive
+                    ? 'bg-cyan-600 text-white shadow'
+                    : 'text-slate-400 hover:text-slate-200 bg-slate-800/40'
+                }`}
+              >
+                <SubIcon className="w-3 h-3 text-cyan-300" />
+                <span>{sub.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Report Controls: Date Range & Zero Balance Filter Bar */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-xl">
