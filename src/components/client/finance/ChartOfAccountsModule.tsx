@@ -477,6 +477,66 @@ export const ChartOfAccountsModule: React.FC = () => {
     setIsModalOpen(false);
   };
 
+  const handleMoveNode = (draggedId: string, targetParentId: string) => {
+    if (draggedId === targetParentId) return;
+
+    let movedNode: AccountNode | null = null;
+
+    const removeNode = (nodes: AccountNode[]): AccountNode[] => {
+      return nodes.filter(n => {
+        if (n.id === draggedId) {
+          movedNode = n;
+          return false;
+        }
+        if (n.children && n.children.length > 0) {
+          n.children = removeNode(n.children);
+        }
+        return true;
+      });
+    };
+
+    const tempAccounts = removeNode(JSON.parse(JSON.stringify(accounts)));
+    if (!movedNode) return;
+
+    const findNode = (nodes: AccountNode[], id: string): AccountNode | null => {
+      for (const n of nodes) {
+        if (n.id === id) return n;
+        if (n.children) {
+          const found = findNode(n.children, id);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+
+    const targetNode = findNode(accounts, targetParentId);
+    if (!targetNode) return;
+
+    const newTier = Math.min(5, targetNode.tier + 1) as AccountNode['tier'];
+    const updatedMovedNode: AccountNode = {
+      ...(movedNode as AccountNode),
+      parentId: targetParentId,
+      tier: newTier
+    };
+
+    const insertNode = (nodes: AccountNode[]): AccountNode[] => {
+      return nodes.map(n => {
+        if (n.id === targetParentId) {
+          return {
+            ...n,
+            children: [...(n.children || []), updatedMovedNode]
+          };
+        }
+        if (n.children && n.children.length > 0) {
+          return { ...n, children: insertNode(n.children) };
+        }
+        return n;
+      });
+    };
+
+    setAccounts(insertNode(tempAccounts));
+  };
+
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto font-sans">
       {/* Header */}
@@ -565,6 +625,7 @@ export const ChartOfAccountsModule: React.FC = () => {
         onAddChild={handleOpenAddModal}
         onEdit={handleOpenEditModal}
         onDelete={handleDeleteAccount}
+        onMoveNode={handleMoveNode}
         searchQuery={searchQuery}
         selectedCategory={selectedCategory}
       />

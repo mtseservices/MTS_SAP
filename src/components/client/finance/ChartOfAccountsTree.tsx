@@ -5,7 +5,7 @@ import {
   Plus,
   Edit3,
   Trash2,
-  FolderTree
+  GripVertical
 } from 'lucide-react';
 
 export interface AccountNode {
@@ -27,6 +27,7 @@ interface ChartOfAccountsTreeProps {
   onAddChild: (parent: AccountNode) => void;
   onEdit: (node: AccountNode) => void;
   onDelete: (nodeId: string) => void;
+  onMoveNode?: (draggedId: string, targetParentId: string) => void;
   searchQuery?: string;
   selectedCategory?: string;
 }
@@ -36,6 +37,7 @@ export const ChartOfAccountsTree: React.FC<ChartOfAccountsTreeProps> = ({
   onAddChild,
   onEdit,
   onDelete,
+  onMoveNode,
   searchQuery = '',
   selectedCategory = 'All'
 }) => {
@@ -51,6 +53,9 @@ export const ChartOfAccountsTree: React.FC<ChartOfAccountsTreeProps> = ({
     grp_5: true,
     main_51: true
   });
+
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [dropTargetId, setDropTargetId] = useState<string | null>(null);
 
   const toggleExpand = (id: string) => {
     setExpandedNodes(prev => ({ ...prev, [id]: !prev[id] }));
@@ -72,11 +77,13 @@ export const ChartOfAccountsTree: React.FC<ChartOfAccountsTreeProps> = ({
     5: 'Cost Centre'
   };
 
-  // 5-tier recursive rendering logic
+  // 5-tier recursive rendering logic with Drag and Drop
   const renderNode = (node: AccountNode) => {
     const isExpanded = expandedNodes[node.id];
     const hasChildren = node.children && node.children.length > 0;
     const indentPx = (node.tier - 1) * 24;
+    const isDropTarget = dropTargetId === node.id;
+    const isDragging = draggedId === node.id;
 
     // Search filter
     if (searchQuery.trim() !== '') {
@@ -91,12 +98,50 @@ export const ChartOfAccountsTree: React.FC<ChartOfAccountsTreeProps> = ({
     }
 
     return (
-      <div key={node.id} className="select-none">
+      <div 
+        key={node.id} 
+        className={`select-none transition-all ${isDragging ? 'opacity-40' : 'opacity-100'}`}
+        draggable={true}
+        onDragStart={(e) => {
+          e.stopPropagation();
+          setDraggedId(node.id);
+        }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (draggedId !== node.id) {
+            setDropTargetId(node.id);
+          }
+        }}
+        onDragLeave={(e) => {
+          e.stopPropagation();
+          if (dropTargetId === node.id) {
+            setDropTargetId(null);
+          }
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (draggedId && draggedId !== node.id && onMoveNode) {
+            onMoveNode(draggedId, node.id);
+          }
+          setDraggedId(null);
+          setDropTargetId(null);
+        }}
+      >
         <div 
-          className="flex items-center justify-between py-2.5 px-3 hover:bg-slate-800/70 border-b border-slate-800/60 transition-colors group text-xs"
+          className={`flex items-center justify-between py-2.5 px-3 border-b border-slate-800/60 transition-all group text-xs ${
+            isDropTarget 
+              ? 'bg-cyan-500/20 border-2 border-cyan-400 shadow-lg shadow-cyan-500/20 rounded-xl my-1' 
+              : 'hover:bg-slate-800/70'
+          }`}
           style={{ paddingLeft: `${indentPx + 12}px` }}
         >
           <div className="flex items-center gap-2.5 min-w-0">
+            <div className="cursor-grab active:cursor-grabbing text-slate-600 hover:text-slate-300 p-0.5">
+              <GripVertical className="w-3.5 h-3.5" />
+            </div>
+
             {hasChildren ? (
               <button 
                 onClick={() => toggleExpand(node.id)}
@@ -169,11 +214,11 @@ export const ChartOfAccountsTree: React.FC<ChartOfAccountsTreeProps> = ({
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
       <div className="px-6 py-4 border-b border-slate-800 bg-slate-950/50 flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">
-        <span>Account Structure &amp; 5-Tier Hierarchy</span>
+        <span>Account Structure &amp; 5-Tier Hierarchy (Drag &amp; Drop Enabled)</span>
         <span>Normal Balance &amp; Balance</span>
       </div>
 
-      <div className="divide-y divide-slate-800/40">
+      <div className="divide-y divide-slate-800/40 p-2">
         {accounts.map(acc => renderNode(acc))}
       </div>
     </div>

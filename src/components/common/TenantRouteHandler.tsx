@@ -6,7 +6,7 @@ interface TenantRouteHandlerProps {
 }
 
 export const TenantRouteHandler: React.FC<TenantRouteHandlerProps> = ({ children }) => {
-  const { ensureCompanyExists, setCurrentCompany, currentCompany } = useAuthTenant();
+  const { ensureCompanyExists, setCurrentCompany, currentCompany, setIsMasterPortal } = useAuthTenant();
 
   if (typeof window === 'undefined') {
     return <>{children}</>;
@@ -39,6 +39,12 @@ export const TenantRouteHandler: React.FC<TenantRouteHandlerProps> = ({ children
 
   if (targetSlug && targetSlug.trim() !== '') {
     const cleanSlug = targetSlug.trim().toLowerCase();
+    // Strictly unmount/lock out Master Admin mode for client URLs
+    setIsMasterPortal(false);
+    try {
+      sessionStorage.setItem('mts_is_master_portal', 'false');
+    } catch {}
+
     const company = ensureCompanyExists(cleanSlug);
     if (company && currentCompany?.id !== company.id) {
       setCurrentCompany(company);

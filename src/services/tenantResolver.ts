@@ -23,6 +23,15 @@ export function resolveCurrentTenant(): ResolvedTenant {
   const searchParams = new URLSearchParams(window.location.search);
   const hash = window.location.hash;
 
+  let allComps: ClientCompany[] = [];
+  try {
+    const storedCustom = localStorage.getItem('mts_custom_companies');
+    if (storedCustom) {
+      allComps = JSON.parse(storedCustom);
+    }
+  } catch {}
+  const combined = [...allComps, ...INITIAL_CLIENT_COMPANIES];
+
   // 1. Check Path-based: /login/{slug}, /company/{slug}, or /tenant/{slug}
   let pathSlug: string | null = null;
   if (pathname.startsWith('/login/')) {
@@ -34,7 +43,8 @@ export function resolveCurrentTenant(): ResolvedTenant {
   }
 
   if (pathSlug && pathSlug.trim() !== '') {
-    const matchedCompany = INITIAL_CLIENT_COMPANIES.find(c => c.slug.toLowerCase() === pathSlug!.toLowerCase());
+    const cleanSlug = pathSlug.trim().toLowerCase();
+    const matchedCompany = combined.find(c => c.slug.toLowerCase() === cleanSlug);
     return {
       isMasterPortal: false,
       tenantSlug: matchedCompany ? matchedCompany.slug : pathSlug,
@@ -47,7 +57,8 @@ export function resolveCurrentTenant(): ResolvedTenant {
   const isMasterParam = searchParams.get('master') === 'true' || hash.includes('/master') || pathname === '/';
 
   if (queryTenant) {
-    const matchedCompany = INITIAL_CLIENT_COMPANIES.find(c => c.slug.toLowerCase() === queryTenant.toLowerCase());
+    const cleanSlug = queryTenant.trim().toLowerCase();
+    const matchedCompany = combined.find(c => c.slug.toLowerCase() === cleanSlug);
     return {
       isMasterPortal: false,
       tenantSlug: matchedCompany ? matchedCompany.slug : queryTenant,
@@ -55,27 +66,16 @@ export function resolveCurrentTenant(): ResolvedTenant {
     };
   }
 
-  if (isMasterParam && !pathSlug) {
+  if (isMasterParam && !pathSlug && !queryTenant) {
     return { isMasterPortal: true, tenantSlug: null, company: null };
   }
 
-  // 3. Extract subdomain from hostname e.g. "crest.erp.domain.com"
-  const hostParts = hostname.split('.');
-  if (hostParts.length >= 3 && hostParts[0] !== 'www' && hostParts[0] !== 'erp') {
-    const subdomain = hostParts[0].toLowerCase();
-    const matchedCompany = INITIAL_CLIENT_COMPANIES.find(c => c.slug.toLowerCase() === subdomain);
-    if (matchedCompany) {
-      return { isMasterPortal: false, tenantSlug: matchedCompany.slug, company: matchedCompany };
-    }
-  }
-
-  // Default fallback: Default to Master if at root
-  if (pathname === '/') {
+  // Default fallback to Master if at root
+  if (pathname === '/' && !queryTenant) {
     return { isMasterPortal: true, tenantSlug: null, company: null };
   }
 
-  // Default fallback
-  const firstCompany = INITIAL_CLIENT_COMPANIES[0] || null;
+  const firstCompany = combined[0] || null;
   return {
     isMasterPortal: false,
     tenantSlug: firstCompany ? firstCompany.slug : 'crest',

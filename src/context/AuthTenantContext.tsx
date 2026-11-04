@@ -514,11 +514,19 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   useEffect(() => {
     const resolved = resolveCurrentTenant();
     
-    // Only auto-resolve if NOT authenticated yet, or to sync URL context
+    // Strict isolation: If URL is a client tenant URL, absolutely force isMasterPortal to false
+    if (!resolved.isMasterPortal && resolved.company) {
+      setIsMasterPortal(false);
+      sessionStorage.setItem(STORAGE_IS_MASTER_KEY, 'false');
+      setCurrentCompany(resolved.company);
+      setTheme(resolved.company.theme || 'royal-black-gold');
+      return;
+    }
+
     if (!isAuthenticated) {
       if (resolved.company) {
         setCurrentCompany(resolved.company);
-        setTheme(resolved.company.theme || 'corporate-blue');
+        setTheme(resolved.company.theme || 'royal-black-gold');
       }
       return;
     }
@@ -526,11 +534,11 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     if (resolved.isMasterPortal && currentUser.isMaster) {
       setIsMasterPortal(true);
       sessionStorage.setItem(STORAGE_IS_MASTER_KEY, 'true');
-    } else if (resolved.company && !currentUser.isMaster) {
+    } else if (resolved.company) {
       setIsMasterPortal(false);
       sessionStorage.setItem(STORAGE_IS_MASTER_KEY, 'false');
       setCurrentCompany(resolved.company);
-      setTheme(resolved.company.theme || 'corporate-blue');
+      setTheme(resolved.company.theme || 'royal-black-gold');
     }
   }, []);
 
