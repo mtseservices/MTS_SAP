@@ -1,0 +1,2423 @@
+# ENTERPRISE ERP / SAP-STYLE SOFTWARE — COMPLETE DEPARTMENT, FORM, REPORT, WORKFLOW & INTEGRATION BLUEPRINT
+
+## 1. MAIN OBJECTIVE
+
+Build a complete enterprise-level ERP software inspired by SAP S/4HANA, SAP Business One, Odoo, Microsoft Dynamics 365 and Oracle ERP.
+
+This software must support small businesses, medium businesses, large enterprises, manufacturing factories, trading companies, distributors, import/export companies, schools, colleges, universities, hospitals, clinics, construction companies, solar companies, textile industries, food industries, retail businesses, service companies and other business categories.
+
+The system must not be a basic accounting or inventory application. It must be a fully integrated, modular ERP platform.
+
+### Mandatory development rules
+
+- Every department must have its own independent structure.
+- Every department must have its own Definition, Master Data, Submodules, Forms, Reports, Dashboard, Settings and Approval Workflow.
+- Every individual form must have its own unique fields according to its actual business purpose.
+- Every individual report must have its own specific columns, filters, calculations and output format.
+- Do not use the same generic form structure for all departments.
+- Do not use the same generic reports in different departments.
+- All forms and reports must open in separate professional popup windows or modal screens.
+- Every transaction must have a unique automatically generated document number.
+- All departments must be connected through an integrated database and workflow engine.
+- Approved transactions must automatically trigger the next required process wherever applicable.
+- The system must maintain complete audit history, user permissions and approval records.
+- The system must support configurable workflows according to business category, company size and management requirements.
+
+---
+
+# 2. COMPLETE ERP DEPARTMENT CATALOGUE
+
+Create the ERP using the previously defined 136-item catalogue under these 24 categories. Do not reduce the catalogue to only basic departments.
+
+## CATEGORY 1 — BASIC / CORE DEPARTMENTS
+
+1. Accounts & Finance
+2. Inventory & Store Management
+3. Procurement / Purchase
+4. Sales Management
+5. Human Resource Management
+6. Administration
+7. Payroll Management
+8. Customer Relationship Management (CRM)
+9. Vendor & Supplier Management
+10. Customer Account Management
+11. Cash & Bank Management
+12. Budgeting & Financial Planning
+13. Tax Management
+14. Fixed Asset Management
+15. Costing & Cost Control
+16. Document Management
+17. Business Intelligence & Management Reporting
+18. Operations Management
+19. Branch & Location Management
+20. Legal & Compliance
+21. IT & System Support
+22. Document Control
+
+## CATEGORY 2 — SUPPORTING / OPERATIONAL DEPARTMENTS
+
+Include separate modules for:
+
+- Warehouse Management
+- Supply Chain Management
+- Logistics & Distribution
+- Fleet & Vehicle Management
+- Maintenance Management
+- Quality Assurance & Quality Control
+- Project Management
+- Contract Management
+- Risk Management
+- Internal Audit
+- External Audit Coordination
+- Security Management
+- Facility Management
+- Customer Support / Helpdesk
+- Marketing Management
+- Research & Development
+- Engineering Management
+- Procurement Planning
+- Demand Planning
+- Business Development
+
+## CATEGORY 3 — MANAGEMENT / STRATEGIC DEPARTMENTS
+
+Include:
+
+- Executive Management
+- Board & Directors Management
+- CEO Office
+- General Management
+- Strategic Planning
+- Performance Management
+- Corporate Governance
+- Policy Management
+- Business Process Management
+- Management Review
+- KPI Management
+- Internal Control
+- Enterprise Risk Management
+
+## CATEGORY 4 — MANUFACTURING / FACTORY DEPARTMENTS
+
+Include separate departments for:
+
+- Production Planning
+- Production Operations
+- Manufacturing
+- Raw Material Management
+- Work in Process (WIP)
+- Finished Goods Management
+- Bill of Materials (BOM)
+- Routing & Operations
+- Machine & Equipment Management
+- Production Scheduling
+- Job Work Management
+- Batch Management
+- Quality Inspection
+- Rejection & Scrap Management
+- Rework Management
+- Packaging Management
+- Factory Maintenance
+- Production Costing
+- Material Requirement Planning (MRP)
+
+## CATEGORY 5 — FOOD & FMCG INDUSTRY
+
+Include:
+
+- Food Product Development
+- Recipe & Formula Management
+- Ingredient Management
+- Food Production
+- Batch Processing
+- Food Quality Control
+- Food Safety Management
+- Laboratory Management
+- Shelf Life Management
+- Expiry Management
+- Packaging & Label Management
+- Cold Storage Management
+- Finished Product Management
+- Distribution & Dispatch
+- Product Recall Management
+- Regulatory & Food Authority Compliance
+
+## CATEGORY 6 — SCHOOL MANAGEMENT
+
+Include:
+
+- Student Admission
+- Student Registration
+- Student Records
+- Academic Management
+- Class & Section Management
+- Subject Management
+- Teacher Management
+- Timetable Management
+- Attendance Management
+- Examination Management
+- Result & Grading Management
+- Fee Management
+- Scholarships & Concessions
+- Transport Management
+- Library Management
+- Parent Portal
+- Discipline Management
+- School Inventory
+- Certificate & Leaving Management
+
+## CATEGORY 7 — COLLEGE MANAGEMENT
+
+Include:
+
+- College Admission
+- Student Enrollment
+- Department & Faculty Management
+- Program Management
+- Semester Management
+- Course Registration
+- Subject & Credit Hour Management
+- Faculty Management
+- Attendance Management
+- Examination Management
+- Result Management
+- Transcript Management
+- Fee & Scholarship Management
+- Student Affairs
+- Library Management
+- Hostel Management
+- Transport Management
+- Internship Management
+- Degree & Certificate Management
+
+## CATEGORY 8 — UNIVERSITY MANAGEMENT
+
+Include:
+
+- University Admission
+- Undergraduate Programs
+- Postgraduate Programs
+- PhD & Research Management
+- Faculty & Department Management
+- Semester & Academic Calendar
+- Course Registration
+- Credit Hour Management
+- Examination & Controller Office
+- Result & Transcript Management
+- Thesis Management
+- Research Grant Management
+- Student Affairs
+- Hostel & Residential Management
+- Library & Digital Resources
+- Alumni Management
+- Accreditation & Quality Assurance
+- Scholarships & Financial Aid
+- Convocation Management
+
+## CATEGORY 9 — HEALTHCARE / HOSPITAL MANAGEMENT
+
+Include:
+
+- Patient Registration
+- Appointment Management
+- OPD Management
+- IPD / Patient Admission
+- Emergency Management
+- Doctor Management
+- Nursing Management
+- Ward Management
+- Bed Management
+- Pharmacy Management
+- Laboratory Management
+- Radiology & Imaging
+- Operation Theatre Management
+- Surgery Management
+- Medical Records
+- Prescription Management
+- Patient Billing
+- Insurance & Panel Management
+- Discharge Management
+- Ambulance Management
+- Medical Equipment Management
+- Infection Control
+- Clinical Quality Management
+
+## CATEGORY 10 — CLINIC / MEDICAL CENTRE
+
+Include:
+
+- Patient Registration
+- Doctor Appointment
+- Consultation Management
+- Diagnosis Management
+- Prescription Management
+- Procedure Management
+- Vaccination Management
+- Lab Test Management
+- Clinic Pharmacy
+- Patient Billing
+- Follow-up Management
+- Referral Management
+- Medical History
+- Clinic Inventory
+- Doctor Commission Management
+
+## CATEGORY 11 — DISTRIBUTION / RETAIL / WHOLESALE
+
+Include:
+
+- Retail Sales
+- Wholesale Sales
+- Point of Sale (POS)
+- Distributor Management
+- Dealer Management
+- Shop Management
+- Multi-Branch Management
+- Price List Management
+- Discount Management
+- Scheme & Promotion Management
+- Stock Transfer
+- Sales Return
+- Customer Credit Management
+- Route Sales
+- Delivery Management
+- Commission Management
+- Barcode & Batch Management
+
+## CATEGORY 12 — CONSTRUCTION / REAL ESTATE
+
+Include:
+
+- Project Planning
+- Site Management
+- BOQ Management
+- Estimation Management
+- Tender Management
+- Contractor Management
+- Subcontractor Management
+- Material Requisition
+- Site Procurement
+- Site Inventory
+- Labour Management
+- Equipment Management
+- Work Progress Management
+- Measurement Book (MB)
+- Running Account Bills
+- Project Costing
+- Quality & Safety Management
+- Property Sales
+- Plot & Unit Management
+- Rent & Lease Management
+
+## CATEGORY 13 — SOLAR / EPC INDUSTRY
+
+Include:
+
+- Solar Project Management
+- Customer Survey
+- Site Inspection
+- System Design
+- Load Assessment
+- BOQ & Estimation
+- Quotation Management
+- Procurement
+- Solar Inventory
+- Panel Management
+- Inverter Management
+- Battery Management
+- Installation Management
+- Installation Team Management
+- Commissioning Management
+- Warranty Management
+- Service & Maintenance
+- Net Metering Documentation
+- Project Costing
+- After-Sales Service
+
+## CATEGORY 14 — ADVERTISING / MEDIA / DIGITAL AGENCY
+
+Include:
+
+- Client Management
+- Campaign Management
+- Social Media Management
+- Facebook Ads Management
+- Instagram Ads Management
+- WhatsApp Marketing
+- Google Ads Management
+- Creative Design Management
+- Content Management
+- Video Production
+- Photography Management
+- Media Planning
+- Advertising Budget
+- Campaign Performance
+- Client Billing
+- Agency Commission
+- Lead Management
+- Order & Artwork Approval
+
+## CATEGORY 15 — HOSPITALITY / HOTEL / RESTAURANT
+
+Include:
+
+- Hotel Reservation
+- Guest Registration
+- Room Management
+- Check-in / Check-out
+- Housekeeping
+- Restaurant Management
+- Kitchen Management
+- Recipe & Menu Management
+- POS & Billing
+- Table Reservation
+- Food Inventory
+- Purchase & Store
+- Banquet & Event Management
+- Guest Complaints
+- Room Service
+- Staff Scheduling
+- Hotel Accounts
+
+## CATEGORY 16 — TEXTILE / GARMENTS
+
+Include:
+
+- Yarn Management
+- Fiber Management
+- Fabric Management
+- Loom Planning
+- Weaving Management
+- Knitting Management
+- Dyeing Management
+- Printing Management
+- Finishing Management
+- Fabric Inspection
+- Cutting Management
+- Sewing Management
+- Stitching Production
+- Embroidery Management
+- Apparel Production
+- Style & Tech Pack Management
+- Packing Management
+- Export Shipment Management
+- Textile Costing
+
+## CATEGORY 17 — AGRICULTURE / DAIRY
+
+Include:
+
+- Farm Management
+- Land & Crop Management
+- Seed Management
+- Fertilizer Management
+- Pesticide Management
+- Irrigation Management
+- Harvest Management
+- Crop Inventory
+- Livestock Management
+- Animal Health Management
+- Feed Management
+- Milk Collection
+- Milk Processing
+- Dairy Production
+- Veterinary Management
+- Farm Equipment Management
+- Agricultural Costing
+
+## CATEGORY 18 — TRANSPORT / COURIER / LOGISTICS
+
+Include:
+
+- Fleet Management
+- Vehicle Registration
+- Driver Management
+- Route Planning
+- Trip Management
+- Fuel Management
+- Vehicle Maintenance
+- Courier Booking
+- Shipment Management
+- Consignment Tracking
+- Delivery Management
+- Proof of Delivery
+- Freight Billing
+- Warehouse & Hub Management
+- Returns Management
+- Transport Costing
+
+## CATEGORY 19 — BANKING / MICROFINANCE
+
+Include:
+
+- Customer Account Management
+- Account Opening
+- KYC Management
+- Deposit Management
+- Withdrawal Management
+- Loan Application
+- Loan Approval
+- Loan Disbursement
+- Installment Management
+- Recovery Management
+- Interest Calculation
+- Cash Management
+- Bank Reconciliation
+- Branch Management
+- Compliance & Risk
+- Financial Reporting
+
+## CATEGORY 20 — INSURANCE / TAKAFUL
+
+Include:
+
+- Customer & Policyholder Management
+- Policy Product Management
+- Insurance Quotation
+- Proposal Management
+- Underwriting
+- Risk Assessment
+- Policy Issuance
+- Premium Collection
+- Renewal Management
+- Endorsement Management
+- Claim Registration
+- Claim Assessment
+- Claim Approval
+- Claim Settlement
+- Reinsurance Management
+- Commission Management
+- Actuarial Reporting
+- Regulatory Compliance
+
+## CATEGORY 21 — NGO / WELFARE / CHARITY
+
+Include:
+
+- Donor Management
+- Donation Collection
+- Beneficiary Registration
+- Beneficiary Verification
+- Project Management
+- Grant Management
+- Fund Allocation
+- Relief Distribution
+- Zakat Management
+- Welfare Case Management
+- Volunteer Management
+- Field Survey
+- Monitoring & Evaluation
+- Expense Management
+- Donor Reporting
+- Impact Assessment
+
+## CATEGORY 22 — PROFESSIONAL SERVICES / IT SOFTWARE HOUSE
+
+Include:
+
+- Client Management
+- Service Request Management
+- Project Management
+- Resource Allocation
+- Timesheet Management
+- Task Management
+- Software Development
+- Issue & Bug Tracking
+- IT Asset Management
+- Support Ticket Management
+- Service Level Agreement (SLA)
+- Subscription Management
+- Contract Management
+- Consultancy Billing
+- Project Costing
+- Client Reporting
+
+## CATEGORY 23 — SPECIALIZED / OTHER BUSINESS DEPARTMENTS
+
+Include additional configurable modules for:
+
+- Import Management
+- Export Management
+- Customs & Clearing
+- Shipping & Freight Forwarding
+- Foreign Currency Management
+- Travel Agency Management
+- Ticketing Management
+- Pharmaceutical Management
+- Chemical Industry Management
+- Laboratory & Testing Services
+- Legal Services
+- Security Services
+- Property Management
+- Shopping Mall Management
+- Event Management
+- Research & Statistics
+- Survey Management
+
+## CATEGORY 24 — ERP SYSTEM ADMINISTRATION & CONTROL
+
+Include:
+
+- ERP Master Administration
+- Company & Organization Setup
+- Branch Setup
+- Department Setup
+- User Management
+- Role & Permission Management
+- Approval Matrix Management
+- Workflow Configuration
+- Form Builder
+- Report Builder
+- Dashboard Builder
+- Notification Management
+- Audit Log Management
+- Data Import & Export
+- Backup & Restore
+- API & Third-Party Integration
+
+---
+
+# 3. MANDATORY INTERNAL STRUCTURE OF EVERY DEPARTMENT
+
+Every department must be developed using its own detailed structure.
+
+- Department Name
+  - Department Code
+  - Department Purpose
+  - Department Definition
+  - Department Head / HOD Designation
+  - Department Responsibilities
+  - Related Departments
+  - Master Data
+  - Submodules
+  - Forms / Transactions
+  - Reports
+  - Dashboard / KPIs
+  - Approval Workflow
+  - Auto Numbering
+  - Data Validation
+  - Database Tables
+  - Integration & Automation
+  - User Roles & Permissions
+  - Department Settings
+
+## Important rule
+
+Do not simply write "Forms" or "Reports".
+
+Under Forms, define every individual form with its actual fields, buttons, validation, calculations and workflow.
+
+Under Reports, define every individual report with its actual columns, filters, totals, grouping and export options.
+
+---
+
+# 4. COMPLETE FORM SPECIFICATION — REQUIRED FOR EVERY INDIVIDUAL FORM
+
+For every form in every department, create the following structure.
+
+- Form Name
+  - Form Code
+  - Form Purpose
+  - Form Type
+    - Master Form
+    - Transaction Form
+    - Approval Form
+    - Inquiry Form
+    - Adjustment Form
+  - Form Opening Method
+    - Open in separate popup window
+    - Open in modal screen
+    - Full-screen mode where required
+  - Header Fields
+    - Document Number (auto-generated)
+    - Document Date
+    - Financial Year
+    - Company
+    - Branch
+    - Department
+    - Created By
+    - Created Date & Time
+    - Status
+  - Business-Specific Fields
+    - Define fields according to the actual form.
+    - Do not copy fields from unrelated forms.
+  - Detail / Item Grid
+    - Serial Number
+    - Item / Service / Employee / Student / Patient / Account details as applicable
+    - Quantity
+    - UOM
+    - Rate
+    - Discount
+    - Tax
+    - Amount
+    - Remarks
+  - Financial Fields (only where applicable)
+    - Gross Amount
+    - Discount Amount
+    - Tax Amount
+    - Net Amount
+    - Paid Amount
+    - Balance Amount
+  - Attachment Section
+    - Supporting Documents
+    - Images
+    - PDF Attachments
+    - Other Evidence
+  - Buttons
+    - New
+    - Save Draft
+    - Submit
+    - Edit
+    - Update
+    - Delete (only when permitted)
+    - Approve
+    - Reject
+    - Return for Correction
+    - Cancel
+    - Print
+    - Export PDF
+    - Attach File
+    - View History
+    - Close
+  - Validation Rules
+    - Mandatory field validation
+    - Duplicate record prevention
+    - Date validation
+    - Quantity validation
+    - Financial validation
+    - Credit limit validation where applicable
+    - Stock availability validation where applicable
+    - Approval permission validation
+  - Auto Calculations
+    - Define only the calculations relevant to that form.
+  - Workflow
+    - Define the previous document.
+    - Define the current transaction.
+    - Define the next transaction.
+    - Define approval levels.
+    - Define status changes.
+  - Auto Integration
+    - Define which department receives the approved data.
+    - Define which ledger, stock, attendance, fee, patient or project records are updated.
+  - Audit Trail
+    - Created By
+    - Modified By
+    - Approved By
+    - Rejected By
+    - Date & Time
+    - Previous Value
+    - New Value
+
+---
+
+# 5. COMPLETE REPORT SPECIFICATION — REQUIRED FOR EVERY INDIVIDUAL REPORT
+
+Every report must be separately designed according to its purpose.
+
+- Report Name
+  - Report Code
+  - Report Purpose
+  - Report Type
+    - Summary
+    - Detailed
+    - Transaction
+    - Ledger
+    - Analysis
+    - Comparison
+    - Ageing
+    - Exception
+    - Performance
+    - Compliance
+  - Filters
+    - From Date
+    - To Date
+    - Company
+    - Branch
+    - Department
+    - Location
+    - Status
+    - User
+    - Relevant business-specific filters
+  - Report Columns
+    - Define each report's own specific columns.
+    - Do not use the same columns in every report.
+  - Calculations
+    - Totals
+    - Subtotals
+    - Balances
+    - Percentages
+    - Variances
+    - Ageing
+    - Performance indicators where applicable
+  - Grouping
+    - Date
+    - Company
+    - Branch
+    - Department
+    - Customer
+    - Vendor
+    - Item
+    - Employee
+    - Student
+    - Patient
+    - Project
+    - Other relevant business dimension
+  - Report Actions
+    - View
+    - Drill Down
+    - Open Source Transaction
+    - Print
+    - Export PDF
+    - Export Excel
+    - CSV Export
+  - Report Security
+    - User-based access
+    - Branch-based access
+    - Department-based access
+    - Confidential data restrictions
+
+Reports must open in separate popup screens. Clicking a report row must open its source transaction if the user has permission.
+
+---
+
+# 6. EXAMPLE: PROCUREMENT DEPARTMENT — COMPLETE UNIQUE STRUCTURE
+
+## Procurement / Purchase Department
+
+### A. Definition / Master Data
+
+- Supplier Master
+  - Supplier Code (automatic)
+  - Supplier Name
+  - Business Type
+  - NTN / STRN
+  - Contact Person
+  - Mobile Number
+  - Email
+  - Address
+  - City
+  - Country
+  - Payment Terms
+  - Credit Days
+  - Credit Limit
+  - Bank Details
+  - Supplier Category
+  - Opening Balance
+  - Tax Status
+  - Active / Inactive
+  - Supporting Documents
+- Purchase Category Master
+- Purchase Type Master
+  - Local Purchase
+  - Import Purchase
+  - Service Purchase
+  - Capital Purchase
+  - Emergency Purchase
+  - Job Work Purchase
+- Payment Terms Master
+- Delivery Terms Master
+- Tax Terms Master
+- Purchase Approval Matrix
+- Procurement Department Master
+
+### B. Forms
+
+#### 1. Purchase Requisition (PR)
+
+- PR Number (automatic)
+- PR Date
+- Requesting Department
+- Requested By
+- Required Delivery Date
+- Priority
+- Requisition Type
+- Item Code
+- Item Description
+- Required Quantity
+- UOM
+- Current Stock
+- Available Stock
+- Required Quantity After Stock
+- Estimated Rate
+- Estimated Amount
+- Purpose / Justification
+- Project / Cost Centre
+- Attachment
+- Submit for Approval
+
+#### 2. Request for Quotation (RFQ)
+
+- RFQ Number
+- RFQ Date
+- Linked PR Number
+- Supplier Selection
+- Supplier Contact
+- Item Details
+- Required Quantity
+- Specification
+- Delivery Location
+- Quotation Deadline
+- Payment Terms
+- Delivery Terms
+- Tax Requirements
+- RFQ Dispatch Status
+- Supplier Response Status
+
+#### 3. Supplier Quotation Entry
+
+- Quotation Entry Number
+- Supplier
+- Supplier Quotation Number
+- Quotation Date
+- Valid Until
+- Linked RFQ
+- Item Code
+- Quoted Quantity
+- Unit Rate
+- Discount
+- Tax
+- Freight
+- Delivery Period
+- Payment Terms
+- Total Quoted Amount
+- Attachment
+- Quotation Status
+
+#### 4. Comparative Statement (CS)
+
+- CS Number
+- CS Date
+- Linked PR
+- Linked RFQ
+- Supplier Name
+- Supplier Quotation Number
+- Item Description
+- Quoted Quantity
+- Basic Rate
+- Discount
+- Tax
+- Freight
+- Landed Rate
+- Delivery Time
+- Payment Terms
+- Quality Rating
+- Supplier Previous Performance
+- Lowest Quotation
+- Recommended Supplier
+- Reason for Selection
+- Prepared By
+- Checked By
+- Approved By
+
+#### 5. Purchase Order (PO)
+
+- PO Number
+- PO Date
+- Linked PR Number
+- Linked CS Number
+- Approved Supplier
+- Supplier Address
+- Delivery Address
+- Item Code
+- Item Description
+- Ordered Quantity
+- UOM
+- Unit Rate
+- Discount
+- Tax
+- Freight
+- Net Amount
+- Payment Terms
+- Delivery Schedule
+- Required Delivery Date
+- Warranty Terms
+- Terms & Conditions
+- Prepared By
+- Approval Status
+- Approved By
+
+#### 6. Inward Gate Pass (IGP)
+
+- IGP Number
+- IGP Date & Time
+- Vehicle Number
+- Driver Name
+- Driver Contact
+- Supplier
+- PO Number
+- Delivery Challan Number
+- Invoice Number
+- Gate Entry Time
+- Item Description
+- Declared Quantity
+- Received Package Count
+- Security Remarks
+- Security Officer
+- Gate Status
+
+#### 7. Material Inspection Form
+
+- Inspection Number
+- Inspection Date
+- IGP Number
+- PO Number
+- Supplier
+- Item Code
+- Item Description
+- PO Quantity
+- Received Quantity
+- Inspected Quantity
+- Accepted Quantity
+- Rejected Quantity
+- Damaged Quantity
+- Inspection Parameters
+- Specification
+- Quality Result
+- Rejection Reason
+- QC Inspector
+- Inspection Remarks
+- Supporting Images
+- Inspection Approval
+
+#### 8. Goods Received Note (GRN)
+
+- GRN Number
+- GRN Date
+- IGP Number
+- Inspection Number
+- PO Number
+- Supplier
+- Supplier Invoice
+- Item Code
+- Item Description
+- PO Quantity
+- Received Quantity
+- Accepted Quantity
+- Rejected Quantity
+- UOM
+- Warehouse
+- Store Location
+- Batch Number
+- Manufacturing Date
+- Expiry Date
+- Unit Rate
+- Tax
+- Total Accepted Value
+- Store Officer
+- QC Approval
+- GRN Approval
+
+#### 9. Purchase Return Note (PRN)
+
+- PRN Number
+- Return Date
+- Original GRN
+- Original PO
+- Supplier
+- Item Code
+- Return Quantity
+- Return Reason
+- Quality Status
+- Return Authorization
+- Debit Note Reference
+- Warehouse
+- Approved By
+
+#### 10. Purchase Invoice Verification
+
+- Invoice Verification Number
+- Supplier Invoice Number
+- Supplier
+- PO Number
+- GRN Number
+- Invoice Date
+- Invoice Quantity
+- Accepted GRN Quantity
+- Invoice Rate
+- PO Rate
+- Tax
+- Freight
+- Discount
+- Invoice Amount
+- Difference Amount
+- Verification Status
+- Finance Approval
+
+### C. Procurement Reports
+
+- Purchase Requisition Register
+  - PR Number, Date, Department, Requested By, Required Date, Item, Quantity, Status.
+- Pending Requisition Report
+  - PR Number, Pending Days, Department, Approval Level, Responsible User.
+- RFQ Register
+  - RFQ Number, PR Reference, Supplier, Dispatch Date, Response Status.
+- Supplier Quotation Comparison Report
+  - Supplier-wise rate, discount, tax, freight, landed cost, delivery time.
+- Comparative Statement Approval Report
+  - CS Number, Recommended Supplier, Lowest Supplier, Approval Status, Difference.
+- Purchase Order Register
+  - PO Number, Supplier, PO Date, Net Amount, Delivery Date, Status.
+- Open Purchase Order Report
+  - Ordered Quantity, Received Quantity, Pending Quantity, Pending Value.
+- Delayed Purchase Order Report
+  - Supplier, Expected Date, Delay Days, Pending Quantity.
+- IGP Register
+  - IGP Number, Vehicle, Supplier, PO, Entry Date, Gate Status.
+- Material Inspection Report
+  - Inspection Number, Received, Accepted, Rejected, Quality Result.
+- GRN Register
+  - GRN Number, Supplier, PO, Accepted Quantity, Warehouse, Value.
+- Purchase Return Report
+  - PRN Number, Supplier, Item, Return Quantity, Return Reason, Value.
+- Purchase Price Variance Report
+  - PO Rate, Previous Rate, Standard Rate, Difference, Variance Percentage.
+- Supplier Performance Report
+  - On-time Delivery, Rejection Rate, Price Performance, Quality Rating.
+- Supplier Outstanding Report
+  - Supplier, Invoice, Payable, Paid, Balance, Due Date.
+- Purchase Tax Report
+  - Invoice, Supplier Tax Number, Taxable Value, Tax Amount.
+- Purchase Spend Analysis
+  - Category-wise, Supplier-wise, Department-wise, Monthly Purchase Value.
+
+---
+
+# 7. EXAMPLE: PROCUREMENT AUTOMATIC WORKFLOW
+
+The system must implement the following connected workflow:
+
+- Department raises Purchase Requisition.
+- PR goes to the configured approval authority.
+- Approved PR becomes available for RFQ.
+- RFQ is sent to selected suppliers.
+- Supplier quotations are entered.
+- Comparative Statement automatically compares quotations.
+- CS goes through approval.
+- Approved CS allows Purchase Order creation.
+- PO is generated using approved CS and PR data.
+- PO goes through its configured approval levels.
+- Approved PO becomes available to Security / Gate Management.
+- Material arrives and IGP is generated.
+- IGP automatically references the PO.
+- Inspection is performed against the IGP and PO.
+- Inspection result determines accepted and rejected quantities.
+- Approved inspection allows GRN generation.
+- GRN automatically updates accepted stock in Inventory.
+- GRN creates the relevant Goods Received / Inventory Accounting reference.
+- Supplier invoice is matched against PO and GRN.
+- Invoice verification checks quantity, rate, tax and amount differences.
+- Approved invoice creates Accounts Payable / Purchase Voucher according to accounting configuration.
+- Payment is processed through Payment Voucher.
+- Payment updates supplier outstanding and cash/bank ledger.
+- Complete history remains available from PR to final payment.
+
+### Mandatory controls
+
+- No GRN without a valid IGP and inspection reference, unless an authorized exception workflow is configured.
+- No invoice approval beyond configured quantity/rate tolerances without authorized approval.
+- No duplicate supplier invoice.
+- No payment without an approved payable transaction.
+- Rejected or cancelled documents must not update stock or ledgers.
+- Partial deliveries and multiple GRNs against one PO must be supported.
+- One PO may have multiple deliveries.
+- One GRN may contain multiple items.
+- Every linked document must be accessible through a document-flow screen.
+
+---
+
+# 8. EXAMPLE: INVENTORY & STORE — UNIQUE FORMS AND REPORTS
+
+## Inventory Master Data
+
+- Item Master
+  - Item Code
+  - Item Name
+  - Item Category
+  - Subcategory
+  - Item Type
+  - Description
+  - Brand
+  - Model
+  - UOM
+  - Alternate UOM
+  - Barcode
+  - Minimum Stock
+  - Maximum Stock
+  - Reorder Level
+  - Reorder Quantity
+  - Standard Cost
+  - Average Cost
+  - Warehouse
+  - Rack / Bin
+  - Batch Controlled
+  - Serial Controlled
+  - Expiry Controlled
+  - Tax Category
+  - Active / Inactive
+- Warehouse Master
+- Store Location Master
+- Rack / Bin Master
+- UOM Master
+- Item Category Master
+- Batch Master
+- Serial Number Master
+- Stock Valuation Method
+- Opening Stock
+
+## Inventory Forms
+
+### 1. Opening Stock Entry
+
+- Opening Stock Number
+- Entry Date
+- Financial Year
+- Warehouse
+- Item Code
+- Item Name
+- Batch Number
+- Serial Number
+- Quantity
+- UOM
+- Unit Cost
+- Total Value
+- Expiry Date
+- Reference
+- Approved By
+
+### 2. Material Issue Note (MIN)
+
+- MIN Number
+- Issue Date
+- Requesting Department
+- Requested By
+- Approved Requisition
+- Warehouse
+- Item Code
+- Item Name
+- Available Quantity
+- Required Quantity
+- Issued Quantity
+- UOM
+- Purpose
+- Cost Centre
+- Project
+- Received By
+- Issued By
+- Approval
+
+### 3. Material Transfer Note (MTN)
+
+- MTN Number
+- Transfer Date
+- From Warehouse
+- To Warehouse
+- Item
+- Batch
+- Available Quantity
+- Transfer Quantity
+- Transfer Reason
+- Dispatch By
+- Received By
+- Transfer Status
+
+### 4. Stock Adjustment
+
+- Adjustment Number
+- Adjustment Date
+- Warehouse
+- Item
+- System Quantity
+- Physical Quantity
+- Difference Quantity
+- Unit Cost
+- Difference Value
+- Adjustment Reason
+- Supporting Evidence
+- Approval
+
+### 5. Physical Stock Count
+
+- Stock Count Number
+- Count Date
+- Warehouse
+- Item
+- System Quantity
+- Physical Count
+- Difference
+- Counter
+- Verified By
+- Adjustment Reference
+
+### 6. Stock Reservation
+
+- Reservation Number
+- Reservation Date
+- Sales Order / Production Order Reference
+- Item
+- Required Quantity
+- Reserved Quantity
+- Warehouse
+- Reservation Expiry
+- Release Status
+
+## Inventory Reports
+
+- Stock Summary Report
+- Item Ledger
+- Warehouse-wise Stock Report
+- Location-wise Stock Report
+- Batch-wise Stock Report
+- Serial Number Tracking Report
+- Stock Ageing Report
+- Slow Moving Stock Report
+- Non-Moving Stock Report
+- Fast Moving Stock Report
+- Minimum Stock Alert
+- Reorder Level Report
+- Expiry Alert Report
+- Near Expiry Report
+- Stock Valuation Report
+- Stock Adjustment Register
+- Material Issue Register
+- Material Transfer Register
+- Physical Stock Variance Report
+- Reserved Stock Report
+- Available Stock Report
+- Negative Stock Exception Report
+- Inventory Turnover Report
+- Item Consumption Analysis
+
+Every report must use its own correct fields and calculations.
+
+---
+
+# 9. EXAMPLE: ACCOUNTS & FINANCE — UNIQUE FORMS AND REPORTS
+
+## Accounts Master Data
+
+- Chart of Accounts
+- Account Groups
+- Main Accounts
+- Sub Accounts
+- Child Accounts
+- Cost Centres
+- Profit Centres
+- Financial Years
+- Accounting Periods
+- Tax Codes
+- Currency Master
+- Bank Master
+- Payment Terms
+- Voucher Types
+- Financial Approval Matrix
+
+## Accounts Forms
+
+### 1. Journal Voucher (JV)
+
+- JV Number
+- Voucher Date
+- Financial Year
+- Reference Number
+- Narration
+- Cost Centre
+- Project
+- Department
+- Debit Account
+- Credit Account
+- Debit Amount
+- Credit Amount
+- Tax Code where applicable
+- Attachment
+- Total Debit
+- Total Credit
+- Difference
+- Prepared By
+- Approved By
+
+Validation: Total Debit must equal Total Credit before posting.
+
+### 2. Payment Voucher (PV)
+
+- PV Number
+- Payment Date
+- Payee
+- Supplier / Employee / Other Party
+- Payment Mode
+- Cash / Bank Account
+- Invoice Reference
+- Payable Reference
+- Amount
+- Tax Deduction
+- Bank Charges
+- Net Payment
+- Cheque Number / Transaction Reference
+- Cost Centre
+- Narration
+- Attachment
+- Approval Status
+
+### 3. Receipt Voucher (RV)
+
+- RV Number
+- Receipt Date
+- Customer / Other Party
+- Receipt Mode
+- Cash / Bank Account
+- Invoice Reference
+- Received Amount
+- Withholding Tax where applicable
+- Bank Reference
+- Outstanding Before Receipt
+- Outstanding After Receipt
+- Narration
+- Approval
+
+### 4. Contra Voucher (CV)
+
+- CV Number
+- Date
+- From Cash / Bank Account
+- To Cash / Bank Account
+- Transfer Amount
+- Cheque / Transaction Reference
+- Bank Charges
+- Narration
+- Approval
+
+### 5. Bank Reconciliation
+
+- Reconciliation Number
+- Bank Account
+- Statement Period
+- Statement Opening Balance
+- Statement Closing Balance
+- Book Balance
+- Bank Statement Transactions
+- Unpresented Cheques
+- Deposits in Transit
+- Bank Charges
+- Direct Credits
+- Unmatched Transactions
+- Reconciliation Difference
+- Reconciled By
+- Approved By
+
+### 6. Fixed Asset Register
+
+- Asset Code
+- Asset Name
+- Category
+- Purchase Date
+- Supplier
+- Invoice
+- Purchase Value
+- Capitalization Date
+- Useful Life
+- Depreciation Method
+- Residual Value
+- Accumulated Depreciation
+- Net Book Value
+- Location
+- Custodian
+- Asset Status
+
+### 7. Depreciation Run
+
+- Depreciation Batch Number
+- Period
+- Asset Code
+- Opening Book Value
+- Depreciation Method
+- Useful Life
+- Depreciation Amount
+- Accumulated Depreciation
+- Closing Book Value
+- Journal Reference
+- Approval
+
+## Accounts Reports
+
+- Chart of Accounts
+- General Ledger
+- Account Ledger
+- Trial Balance
+- Balance Sheet
+- Profit & Loss Statement
+- Cash Flow Statement
+- Day Book
+- Journal Register
+- Payment Voucher Register
+- Receipt Voucher Register
+- Contra Voucher Register
+- Bank Book
+- Cash Book
+- Bank Reconciliation Statement
+- Accounts Payable Ageing
+- Accounts Receivable Ageing
+- Supplier Ledger
+- Customer Ledger
+- Tax Deduction Report
+- Sales Tax Report
+- Purchase Tax Report
+- Fixed Asset Register
+- Depreciation Schedule
+- Cost Centre Report
+- Budget vs Actual Report
+- Expense Analysis
+- Profitability Analysis
+- Financial Year Closing Report
+
+### Accounting automation rules
+
+- Approved GRN creates the relevant inventory accounting reference.
+- Approved supplier invoice creates Accounts Payable.
+- Approved customer invoice creates Accounts Receivable.
+- Approved sales invoice updates customer receivable and revenue accounts.
+- Payment Voucher reduces the relevant payable or receivable balance.
+- Receipt Voucher reduces customer outstanding.
+- Material Issue posts inventory consumption or expense according to transaction purpose.
+- Material Transfer changes warehouse quantities but does not create a company-wide stock increase.
+- Depreciation Run generates a journal proposal.
+- All accounting entries must follow configured debit/credit rules and be traceable to source documents.
+
+---
+
+# 10. SALES DEPARTMENT — UNIQUE FORMS AND REPORTS
+
+## Sales Master Data
+
+- Customer Master
+- Customer Groups
+- Sales Representatives
+- Sales Regions
+- Sales Channels
+- Price Lists
+- Discount Schemes
+- Sales Tax Categories
+- Credit Limits
+- Payment Terms
+- Delivery Terms
+- Commission Rules
+
+## Sales Forms
+
+### 1. Sales Quotation
+
+- Quotation Number
+- Quotation Date
+- Customer
+- Contact Person
+- Sales Representative
+- Valid Until
+- Item / Service
+- Description
+- Quantity
+- UOM
+- Unit Price
+- Discount
+- Tax
+- Net Amount
+- Delivery Terms
+- Payment Terms
+- Notes
+- Approval Status
+
+### 2. Sales Order (SO)
+
+- SO Number
+- Order Date
+- Customer
+- Customer PO Number
+- Quotation Reference
+- Salesperson
+- Delivery Address
+- Item
+- Ordered Quantity
+- Reserved Quantity
+- Available Quantity
+- Unit Price
+- Discount
+- Tax
+- Net Amount
+- Delivery Schedule
+- Credit Check
+- Approval Status
+
+### 3. Delivery Challan
+
+- DC Number
+- Dispatch Date
+- Sales Order
+- Customer
+- Warehouse
+- Item
+- Ordered Quantity
+- Previously Delivered
+- Current Delivery
+- Pending Quantity
+- Vehicle
+- Driver
+- Dispatch By
+- Received By
+- Proof of Delivery
+- Delivery Status
+
+### 4. Sales Invoice
+
+- SI Number
+- Invoice Date
+- Customer
+- Sales Order
+- Delivery Challan
+- Item
+- Quantity
+- Rate
+- Discount
+- Tax
+- Freight
+- Gross Amount
+- Net Amount
+- Due Date
+- Payment Terms
+- Customer Balance
+- Posting Status
+
+### 5. Sales Return
+
+- Sales Return Number
+- Return Date
+- Original Invoice
+- Customer
+- Item
+- Sold Quantity
+- Return Quantity
+- Return Reason
+- Inspection Result
+- Accepted for Restock
+- Rejected Quantity
+- Credit Note Reference
+- Approval
+
+## Sales Reports
+
+- Quotation Register
+- Pending Quotation Report
+- Quotation Conversion Report
+- Sales Order Register
+- Open Sales Order Report
+- Sales Order Fulfilment Report
+- Delivery Challan Register
+- Pending Delivery Report
+- Sales Invoice Register
+- Customer Sales Ledger
+- Sales Return Register
+- Sales Tax Report
+- Salesperson Performance Report
+- Customer Profitability Report
+- Product-wise Sales Analysis
+- Monthly Sales Comparison
+- Region-wise Sales Report
+- Customer Outstanding Report
+- Sales Target vs Achievement
+- Discount Analysis
+- Gross Margin Report
+
+### Sales workflow
+
+Quotation → Customer Approval → Sales Order → Credit Check → Stock Reservation → Warehouse Picking → Delivery Challan → Dispatch → Proof of Delivery → Sales Invoice → Accounts Receivable → Receipt Voucher.
+
+Sales return must follow its own return approval and stock inspection workflow.
+
+---
+
+# 11. HR & PAYROLL — UNIQUE FORMS AND REPORTS
+
+## HR Master Data
+
+- Employee Master
+- Department Master
+- Section Master
+- Designation Master
+- Grade / Job Level
+- Employment Type
+- Shift Master
+- Leave Types
+- Salary Components
+- Bank Details
+- Tax Rules
+- Attendance Rules
+- Loan Types
+- Benefit Types
+
+## HR Forms
+
+### 1. Employee Registration
+
+- Employee ID (automatic)
+- Employee Name
+- Father / Spouse Name
+- CNIC / Identification
+- Date of Birth
+- Gender
+- Mobile Number
+- Email
+- Present Address
+- Permanent Address
+- Emergency Contact
+- Department
+- Section
+- Designation
+- Reporting Manager
+- Joining Date
+- Employment Type
+- Probation Period
+- Salary Structure
+- Bank Account
+- Education
+- Experience
+- Documents
+- Employee Status
+
+### 2. Employee Attendance
+
+- Attendance Number
+- Employee ID
+- Attendance Date
+- Shift
+- Check-in Time
+- Check-out Time
+- Working Hours
+- Late Minutes
+- Early Departure
+- Overtime Hours
+- Attendance Status
+- Source
+- Approval
+
+### 3. Leave Application
+
+- Leave Application Number
+- Employee
+- Leave Type
+- From Date
+- To Date
+- Total Days
+- Available Balance
+- Reason
+- Supporting Document
+- Substitute Employee
+- Reporting Manager
+- HR Approval
+- Final Status
+
+### 4. Employee Loan / Advance
+
+- Loan Number
+- Employee
+- Loan Type
+- Application Date
+- Requested Amount
+- Approved Amount
+- Installment Count
+- Monthly Deduction
+- Start Month
+- Outstanding Balance
+- Approval Authority
+
+### 5. Payroll Processing
+
+- Payroll Batch Number
+- Payroll Month
+- Employee ID
+- Basic Salary
+- Allowances
+- Overtime
+- Bonus
+- Commission
+- Gross Salary
+- Tax Deduction
+- Loan Deduction
+- Advance Deduction
+- Absence Deduction
+- Other Deductions
+- Net Salary
+- Bank Payment
+- Payroll Approval
+- Journal Reference
+
+## HR / Payroll Reports
+
+- Employee Directory
+- Employee Joining Report
+- Employee Separation Report
+- Department-wise Headcount
+- Employee Attendance Register
+- Daily Absentee Report
+- Late Arrival Report
+- Overtime Report
+- Leave Balance Report
+- Leave Utilization Report
+- Employee Loan Outstanding
+- Salary Register
+- Payroll Summary
+- Employee Salary Slip
+- Department Salary Analysis
+- Tax Deduction Report
+- Employee Cost Report
+- Probation Completion Report
+- Contract Expiry Report
+- Training Report
+- Performance Evaluation Report
+
+### Payroll integration
+
+Approved attendance and leave records must feed payroll calculations.
+
+Approved loans and advances must feed salary deductions.
+
+Approved payroll must generate salary payable / bank payment references and accounting journal entries according to configured accounting rules.
+
+---
+
+# 12. INDUSTRY-SPECIFIC FORMS MUST BE DIFFERENT
+
+The following are examples of industry-specific forms. Never replace them with generic Purchase, Sales or Accounts forms.
+
+## A. School
+
+### Student Admission Form
+
+- Admission Number (automatic)
+- Admission Date
+- Student Name
+- Father / Guardian Name
+- Date of Birth
+- Gender
+- B-Form / Identification
+- Previous School
+- Previous Class
+- Applying Class
+- Section
+- Session
+- Student Category
+- Address
+- Guardian Mobile
+- Emergency Contact
+- Fee Category
+- Admission Fee
+- Monthly Fee
+- Discount / Scholarship
+- Documents
+- Admission Decision
+- Approved By
+
+### School-specific forms
+
+- Student Registration
+- Class Promotion
+- Section Allocation
+- Subject Enrollment
+- Student Attendance
+- Teacher Attendance
+- Timetable Setup
+- Examination Setup
+- Marks Entry
+- Result Compilation
+- Fee Challan
+- Fee Receipt
+- Fee Concession
+- Student Withdrawal
+- School Leaving Certificate
+- Character Certificate
+- Transport Allocation
+- Library Issue / Return
+
+### School-specific reports
+
+- Admission Register
+- Class-wise Student List
+- Student Strength Report
+- Daily Attendance
+- Monthly Attendance
+- Defaulter List
+- Fee Collection Report
+- Outstanding Fee Report
+- Examination Result Sheet
+- Class Position Report
+- Teacher Workload Report
+- Student Promotion Report
+- Leaving Certificate Register
+- Transport Route Report
+
+## B. College / University
+
+### Course Registration Form
+
+- Registration Number
+- Student ID
+- Program
+- Department
+- Semester
+- Academic Session
+- Course Code
+- Course Title
+- Credit Hours
+- Prerequisite Status
+- Registration Date
+- Advisor Approval
+- Fee Clearance
+- Enrollment Status
+
+### University-specific forms
+
+- Online Admission Application
+- Merit List Generation
+- Program Enrollment
+- Semester Registration
+- Course Add / Drop
+- Thesis Proposal
+- Research Supervisor Allocation
+- Thesis Evaluation
+- Examination Seating Plan
+- Marks Submission
+- Result Approval
+- Transcript Generation
+- Degree Issuance
+- Scholarship Application
+- Hostel Allocation
+- Convocation Registration
+
+### University-specific reports
+
+- Program-wise Enrollment
+- Merit List
+- Semester Registration
+- Course Enrollment
+- Credit Hour Summary
+- Student Academic History
+- GPA / CGPA Report
+- Examination Result
+- Transcript Register
+- Thesis Progress
+- Faculty Workload
+- Scholarship Utilization
+- Degree Issuance Register
+- Graduation Eligibility
+
+## C. Hospital
+
+### Patient Registration Form
+
+- Patient ID (automatic)
+- Registration Date & Time
+- Patient Name
+- Guardian Name
+- Date of Birth
+- Gender
+- CNIC / Identification
+- Mobile Number
+- Address
+- Blood Group
+- Emergency Contact
+- Patient Type
+- Insurance / Panel
+- Allergies
+- Medical History
+- Registered By
+
+### Hospital-specific forms
+
+- Appointment Booking
+- OPD Consultation
+- Patient Admission
+- Bed Allocation
+- Nursing Assessment
+- Doctor's Orders
+- Prescription
+- Lab Test Request
+- Lab Result Entry
+- Radiology Request
+- Surgery Booking
+- Operation Theatre Record
+- Medicine Issue
+- Pharmacy Sale
+- Patient Billing
+- Insurance Claim
+- Discharge Summary
+- Referral Form
+- Ambulance Request
+
+### Hospital-specific reports
+
+- Daily Patient Registration
+- OPD Patient Register
+- IPD Admission Register
+- Bed Occupancy Report
+- Doctor-wise Patient Report
+- Appointment Waiting List
+- Lab Test Register
+- Critical Result Report
+- Pharmacy Stock Report
+- Medicine Expiry Report
+- Surgery Register
+- Patient Billing Report
+- Insurance Claim Register
+- Discharge Register
+- Department-wise Revenue
+- Patient Outstanding Report
+
+## D. Import / Export Company
+
+### Import Purchase / Shipment File
+
+- Import File Number
+- Import Date
+- Supplier
+- Country of Origin
+- Currency
+- Incoterm
+- Proforma Invoice Number
+- Purchase Order
+- LC / Bank Reference
+- Shipment Mode
+- Shipping Line / Airline
+- Bill of Lading / Airway Bill
+- Container Number
+- Vessel / Flight
+- ETD
+- ETA
+- Port of Loading
+- Port of Discharge
+- Customs Declaration
+- HS Code
+- Customs Duty
+- Freight
+- Insurance
+- Clearing Charges
+- Other Landed Costs
+- Exchange Rate
+- Landed Cost
+- Clearance Status
+
+### Export forms
+
+- Export Sales Contract
+- Export Proforma Invoice
+- Export Commercial Invoice
+- Packing List
+- Certificate of Origin
+- Export Declaration
+- Shipping Instruction
+- Bill of Lading Tracking
+- Export Shipment
+- Foreign Currency Receipt
+- Export Commission
+- Export Costing
+
+### Import / Export reports
+
+- Import Register
+- Export Register
+- Shipment Tracking
+- Container Tracking
+- Customs Duty Report
+- Landed Cost Analysis
+- Foreign Currency Exposure
+- Import Payable
+- Export Receivable
+- Shipment Delay Report
+- HS Code-wise Import
+- Country-wise Trade Analysis
+- Export Realization Report
+
+---
+
+# 13. AUTOMATIC DOCUMENT NUMBERING ENGINE
+
+Every form must have a unique number generated by the system.
+
+Examples:
+
+- PR-2026-000001
+- RFQ-2026-000001
+- CS-2026-000001
+- PO-2026-000001
+- IGP-2026-000001
+- INS-2026-000001
+- GRN-2026-000001
+- MIN-2026-000001
+- MTN-2026-000001
+- JV-2026-000001
+- PV-2026-000001
+- RV-2026-000001
+- SO-2026-000001
+- SI-2026-000001
+- EMP-000001
+- STD-2026-000001
+- PAT-000001
+
+### Numbering rules
+
+- Each company must have independent numbering.
+- Each branch may have a separate numbering series if configured.
+- Each document type must have its own sequence.
+- Financial-year-based numbering must be configurable.
+- Number generation must be transaction-safe.
+- Two users creating records simultaneously must never receive the same number.
+- Cancelled numbers must remain traceable.
+- Users must not be allowed to manually duplicate system-generated numbers.
+- Administrators may configure prefix, suffix, year format, branch code and sequence length.
+
+---
+
+# 14. APPROVAL MANAGEMENT ENGINE
+
+Create a centralized but configurable approval engine.
+
+### Approval Levels
+
+- Level 1: Requesting Officer
+- Level 2: Department Supervisor
+- Level 3: Department Head / HOD
+- Level 4: Finance / Accounts
+- Level 5: Operations Manager
+- Level 6: General Manager
+- Level 7: Director / CEO
+
+These are configurable examples, not mandatory fixed levels for every transaction.
+
+### Approval Features
+
+- Amount-based approval
+- Department-based approval
+- Branch-based approval
+- Document-type-based approval
+- User-based approval
+- Multi-level approval
+- Parallel approval
+- Sequential approval
+- Delegated approval
+- Rejection with reason
+- Return for correction
+- Resubmission
+- Approval deadline
+- Reminder notification
+- Escalation to next authority
+- Approval history
+- Electronic approval timestamp
+
+### Important
+
+Each document must have its own approval matrix.
+
+For example:
+
+- Purchase Requisition approval may depend on requested amount and department.
+- Comparative Statement approval may depend on supplier selection and price difference.
+- Purchase Order approval may depend on total order value.
+- GRN approval may depend on inspection status and received quantity.
+- Payment Voucher approval may depend on payment amount and payment mode.
+- Leave approval may depend on employee reporting hierarchy.
+- Student admission approval may depend on program eligibility and fee clearance.
+
+Do not apply one identical approval flow to every form.
+
+---
+
+# 15. COMPLETE ERP DOCUMENT CONNECTION ENGINE
+
+Build a Document Flow / Related Transactions feature.
+
+Every transaction must retain its source document reference.
+
+### Procurement Connection
+
+PR → RFQ → Supplier Quotation → Comparative Statement → PO → IGP → Inspection → GRN → Supplier Invoice → Accounts Payable → Payment Voucher.
+
+### Sales Connection
+
+Customer Enquiry → Quotation → Sales Order → Stock Reservation → Picking → Delivery Challan → Sales Invoice → Accounts Receivable → Receipt Voucher.
+
+### Inventory Connection
+
+Purchase GRN → Stock Increase.
+
+Material Issue → Stock Decrease.
+
+Warehouse Transfer → From Warehouse Decrease + To Warehouse Increase.
+
+Stock Adjustment → Approved Stock Correction.
+
+Sales Return → Inspection → Restock or Rejection.
+
+Production Issue → Raw Material Consumption.
+
+Production Receipt → Finished Goods Increase.
+
+### Manufacturing Connection
+
+Sales Demand / Forecast → Production Plan → MRP → Material Requisition → Purchase Requisition or Stock Reservation → Material Issue → Production Order → Job Card → Quality Inspection → Finished Goods Receipt → Production Costing → Accounts Posting.
+
+### HR / Payroll Connection
+
+Employee Registration → Attendance → Leave → Overtime → Payroll Calculation → Payroll Approval → Salary Payable → Payment → Accounts Posting.
+
+### School Connection
+
+Admission → Student Registration → Class Allocation → Subject Enrollment → Attendance → Examination → Marks Entry → Result Approval → Fee Challan → Fee Receipt → Student Ledger.
+
+### Hospital Connection
+
+Patient Registration → Appointment → Consultation → Diagnosis → Lab / Radiology → Prescription → Pharmacy Issue → Billing → Payment → Discharge.
+
+### Import Connection
+
+Import Purchase Order → Proforma Invoice → LC / Payment Setup → Shipment → Customs Clearance → Landed Cost → IGP / GRN → Inventory → Accounts Payable.
+
+### Export Connection
+
+Customer Order → Export Contract → Production / Stock Allocation → Export Documentation → Shipment → Invoice → Receivable → Foreign Currency Receipt → Bank Reconciliation.
+
+---
+
+# 16. REPORT BUILDER — PROFESSIONAL REQUIREMENTS
+
+Create an independent Report Builder.
+
+- Every department must have its own report library.
+- Every report must be designed according to its source data.
+- Users with permission can create custom reports.
+- Users can select columns.
+- Users can select filters.
+- Users can select grouping.
+- Users can select sorting.
+- Users can add totals and subtotals.
+- Users can save report layouts.
+- Users can export Excel, CSV and PDF.
+- Reports must support date ranges and branch filters.
+- Reports must support drill-down to source transactions.
+- Reports must support print preview.
+- Reports must maintain access restrictions.
+- Dashboard charts must use actual authorized system data.
+
+Never create a single generic report and assign it to all departments.
+
+---
+
+# 17. FORM BUILDER — PROFESSIONAL REQUIREMENTS
+
+Create a Form Builder for authorized Master Users.
+
+- Add / remove fields.
+- Change field labels.
+- Configure field type.
+- Configure mandatory fields.
+- Configure default values.
+- Configure dropdown options.
+- Configure dependent dropdowns.
+- Configure numeric validations.
+- Configure date validations.
+- Configure calculations.
+- Configure visibility rules.
+- Configure read-only fields.
+- Configure attachment fields.
+- Configure approval rules.
+- Configure button permissions.
+- Configure document numbering.
+- Configure form layout.
+- Configure popup size.
+- Configure print format.
+
+System-critical fields, accounting rules and audit fields must not be removable without authorized system-level configuration.
+
+---
+
+# 18. DASHBOARD REQUIREMENTS
+
+Every department must have its own dashboard.
+
+Examples:
+
+- Accounts Dashboard: Cash, Bank, Receivables, Payables, Expenses, Profit, Budget Variance.
+- Procurement Dashboard: Pending PR, Pending CS, Open PO, Delayed PO, Supplier Performance, Purchase Spend.
+- Inventory Dashboard: Total Stock Value, Low Stock, Expiry Alerts, Slow Moving, Stock Transfers.
+- Sales Dashboard: Monthly Sales, Pending Orders, Sales Target, Gross Margin, Customer Outstanding.
+- HR Dashboard: Total Employees, Attendance, Absences, Leave, Payroll Cost, Vacancies.
+- Production Dashboard: Planned Production, Actual Production, WIP, Rejection, Machine Utilization.
+- School Dashboard: Students, Admissions, Attendance, Fee Collection, Defaulters, Results.
+- Hospital Dashboard: OPD, IPD, Bed Occupancy, Appointments, Lab Workload, Pharmacy, Revenue.
+
+Dashboards must be based on actual transactions and not dummy figures.
+
+---
+
+# 19. DATABASE DESIGN REQUIREMENTS
+
+Use a normalized, relational database architecture.
+
+Every major module must have:
+
+- Master Tables
+- Transaction Header Tables
+- Transaction Detail Tables
+- Approval Tables
+- Attachment Tables
+- Audit Log Tables
+- Number Sequence Tables
+- Workflow Tables
+- Integration Reference Tables
+
+### Mandatory transaction fields
+
+- ID (primary key)
+- Company ID
+- Branch ID
+- Department ID
+- Document Number
+- Document Date
+- Status
+- Created By
+- Created At
+- Modified By
+- Modified At
+- Approved By
+- Approved At
+- Source Document Type
+- Source Document ID
+
+### Database rules
+
+- Use foreign keys.
+- Prevent duplicate transactions.
+- Maintain referential integrity.
+- Use database transactions for posting.
+- Maintain audit history.
+- Do not permanently delete posted financial transactions.
+- Use reversal / cancellation documents where required.
+- Keep company data separated in multi-company environments.
+- Maintain secure branch and user access.
+- Store attachments securely.
+- Create indexes for frequently searched fields.
+
+---
+
+# 20. USER ROLES & ACCESS CONTROL
+
+Create configurable roles:
+
+- Master Administrator
+- Company Administrator
+- Director / CEO
+- General Manager
+- Department Head
+- Manager
+- Supervisor
+- Officer
+- Data Entry Operator
+- Accounts Officer
+- Store Officer
+- Procurement Officer
+- HR Officer
+- Auditor
+- Read-only User
+
+### Permissions
+
+- View
+- Create
+- Edit
+- Submit
+- Approve
+- Reject
+- Delete Draft
+- Cancel
+- Post
+- Reverse
+- Print
+- Export
+- View Confidential Data
+- View Own Branch
+- View All Branches
+
+Permissions must be configurable by company, branch, department, form, report and action.
+
+---
+
+# 21. FINAL DEVELOPMENT INSTRUCTIONS TO AI CODE STUDIO
+
+1. Do not build only a prototype with repeated dummy forms.
+2. Do not use one common form for all departments.
+3. Do not use one common report for all departments.
+4. Do not create empty tabs with headings only.
+5. Do not create buttons that have no working action.
+6. Do not show fake successful approvals or fake accounting entries.
+7. Do not update stock before the required transaction is approved and posted.
+8. Do not post accounting entries twice for the same source transaction.
+9. Do not allow duplicate document numbers.
+10. Do not allow unauthorized users to approve their own documents unless specifically configured.
+11. Do not permanently delete posted transactions.
+12. Do not bypass the approval matrix.
+13. Do not create a GRN without its required receiving and inspection references unless an authorized exception is enabled.
+14. Do not create a payment without an approved payable reference unless the payment type explicitly allows it.
+15. Do not mix data between different companies or branches.
+16. Do not use identical fields and reports in unrelated industries.
+
+### DEVELOPMENT OUTPUT REQUIRED FOR EACH OF THE 136 CATALOGUE ITEMS
+
+For every department, generate:
+
+- Department Definition
+- HOD Designation
+- Department Responsibilities
+- Master Data
+- Complete Submodules
+- Every Individual Form
+- Every Form's Actual Field Names
+- Field Types and Mandatory Status
+- Dropdown Sources
+- Automatic Calculations
+- Form Buttons and Actions
+- Unique Document Number
+- Validation Rules
+- Approval Levels
+- Previous / Next Document Connections
+- Database Tables
+- Automatic Department Integrations
+- Every Individual Report
+- Each Report's Actual Columns
+- Report Filters
+- Report Calculations
+- Dashboard KPIs
+- User Permissions
+- Audit Trail
+- Print / PDF Layout
+
+### OUTPUT QUALITY RULE
+
+The final result must be a professional ERP functional specification, not a short department list.
+
+Each form must be different according to its actual operational purpose.
+
+Each report must be different according to its actual reporting purpose.
+
+Each industry must have its own specialized forms, fields, workflows and reports.
+
+Where two departments share a process, reuse the underlying master data and integration services, but do not duplicate or incorrectly reuse their user interfaces.
+
+### DEVELOPMENT PHASES
+
+- Phase 1: Complete 136-department catalogue and company category mapping.
+- Phase 2: Core master data and organization setup.
+- Phase 3: Accounts, Inventory, Procurement and Sales.
+- Phase 4: HR, Payroll, Administration and supporting departments.
+- Phase 5: Manufacturing, Production, Quality and Costing.
+- Phase 6: Industry-specific modules.
+- Phase 7: Approval and workflow engine.
+- Phase 8: Document connection and automatic posting engine.
+- Phase 9: Reports, Report Builder and Dashboards.
+- Phase 10: Security, Audit, Testing and Deployment.
+
+Develop in phases, but maintain one integrated architecture and one consistent database design.
+
+Before implementing any module, produce its complete functional specification and database schema. Then develop its forms, reports, workflows and integrations. Test the full transaction lifecycle before marking the module complete.

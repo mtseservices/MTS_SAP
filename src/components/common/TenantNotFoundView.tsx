@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Building2, AlertTriangle, ArrowLeft, ShieldAlert, ExternalLink, Globe } from 'lucide-react';
 
 interface TenantNotFoundViewProps {
@@ -10,7 +10,22 @@ export const TenantNotFoundView: React.FC<TenantNotFoundViewProps> = ({
   requestedSlug,
   onGoToMaster
 }) => {
-  const MASTER_PORTAL_URL = 'https://mts-sap.vercel.app/';
+  const MASTER_PORTAL_URL = 'https://mts-sap.vercel.app/?portal=master';
+  const [countdown, setCountdown] = useState(3);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          handleReturnToMaster();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleReturnToMaster = () => {
     if (onGoToMaster) {
@@ -31,7 +46,7 @@ export const TenantNotFoundView: React.FC<TenantNotFoundViewProps> = ({
           </div>
           <div>
             <span className="text-[10px] font-black uppercase text-rose-400 tracking-[0.2em] block font-mono">
-              404 • Organization Not Found
+              404 • Organization Not Found (Redirecting in {countdown}s)
             </span>
             <h2 className="text-xl font-black text-white">
               Tenant Portal Unavailable
@@ -56,7 +71,7 @@ export const TenantNotFoundView: React.FC<TenantNotFoundViewProps> = ({
           </div>
 
           <p className="text-slate-400 text-[11px]">
-            Please double-check the URL spelling or contact your system administrator to verify your enterprise login link.
+            Automatic redirect to the Official Master User Portal in {countdown} seconds...
           </p>
         </div>
 
@@ -67,7 +82,7 @@ export const TenantNotFoundView: React.FC<TenantNotFoundViewProps> = ({
             className="w-full sm:flex-1 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 transition cursor-pointer"
           >
             <ShieldAlert className="w-4 h-4" />
-            <span>Official Master User Portal</span>
+            <span>Official Master User Portal ({countdown}s)</span>
           </button>
 
           <a

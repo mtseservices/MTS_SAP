@@ -13,6 +13,7 @@ export const TenantRouteHandler: React.FC<TenantRouteHandlerProps> = ({ children
   }
 
   const pathname = window.location.pathname;
+  const hash = window.location.hash;
   const searchParams = new URLSearchParams(window.location.search);
 
   let extractedPathSlug: string | null = null;
@@ -24,8 +25,17 @@ export const TenantRouteHandler: React.FC<TenantRouteHandlerProps> = ({ children
     extractedPathSlug = pathname.replace('/tenant/', '').split('/')[0];
   }
 
+  let hashSlug: string | null = null;
+  if (hash.includes('/login/')) {
+    hashSlug = hash.split('/login/')[1]?.split('/')[0]?.split('?')[0];
+  } else if (hash.includes('/company/')) {
+    hashSlug = hash.split('/company/')[1]?.split('/')[0]?.split('?')[0];
+  } else if (hash.includes('/tenant/')) {
+    hashSlug = hash.split('/tenant/')[1]?.split('/')[0]?.split('?')[0];
+  }
+
   const querySlug = searchParams.get('company') || searchParams.get('tenant');
-  const targetSlug = extractedPathSlug || querySlug;
+  const targetSlug = extractedPathSlug || hashSlug || querySlug;
 
   if (targetSlug && targetSlug.trim() !== '') {
     const cleanSlug = targetSlug.trim().toLowerCase();

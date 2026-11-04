@@ -265,54 +265,62 @@ export const AuthTenantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         return;
       }
 
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Session recovery timeout')), 3000)
+      );
+
       try {
-        const sessionDoc = await getDoc(doc(db, 'sessions', sessionId));
-        if (sessionDoc.exists()) {
-          const sessionData = sessionDoc.data();
-          if (sessionData.status === 'ACTIVE') {
-            setIsAuthenticated(true);
-            setIsMasterPortal(sessionData.isMaster);
-            
-            // Reconstruct user profile
-            const user: UserProfile = {
-              id: sessionData.userId,
-              email: sessionData.email,
-              name: sessionData.name || (sessionData.isMaster ? 'Master Admin' : 'Client Admin'),
-              role: sessionData.role,
-              tenantId: sessionData.tenantId,
-              companyId: sessionData.companyId,
-              companyName: sessionData.companyName,
-              branchId: sessionData.branchId || 'main',
-              branchName: sessionData.branchName || 'Global HQ',
-              isMaster: sessionData.isMaster,
-              allowedCompanies: sessionData.allowedCompanies || []
-            };
-            setCurrentUser(user);
+        const sessionPromise = (async () => {
+          const sessionDoc = await getDoc(doc(db, 'sessions', sessionId));
+          if (sessionDoc.exists()) {
+            const sessionData = sessionDoc.data();
+            if (sessionData.status === 'ACTIVE') {
+              setIsAuthenticated(true);
+              setIsMasterPortal(sessionData.isMaster);
+              
+              // Reconstruct user profile
+              const user: UserProfile = {
+                id: sessionData.userId,
+                email: sessionData.email,
+                name: sessionData.name || (sessionData.isMaster ? 'Master Admin' : 'Client Admin'),
+                role: sessionData.role,
+                tenantId: sessionData.tenantId,
+                companyId: sessionData.companyId,
+                companyName: sessionData.companyName,
+                branchId: sessionData.branchId || 'main',
+                branchName: sessionData.branchName || 'Global HQ',
+                isMaster: sessionData.isMaster,
+                allowedCompanies: sessionData.allowedCompanies || []
+              };
+              setCurrentUser(user);
 
-            // Sync with session storage for legacy components
-            sessionStorage.setItem(STORAGE_AUTH_KEY, 'true');
-            sessionStorage.setItem(STORAGE_IS_MASTER_KEY, sessionData.isMaster ? 'true' : 'false');
-            sessionStorage.setItem(STORAGE_USER_KEY, JSON.stringify(user));
+              // Sync with session storage for legacy components
+              sessionStorage.setItem(STORAGE_AUTH_KEY, 'true');
+              sessionStorage.setItem(STORAGE_IS_MASTER_KEY, sessionData.isMaster ? 'true' : 'false');
+              sessionStorage.setItem(STORAGE_USER_KEY, JSON.stringify(user));
 
-            if (!sessionData.isMaster && sessionData.companyId) {
-              const matched = allCompanies.find(c => c.id === sessionData.companyId);
-              if (matched) {
-                setCurrentCompany(matched);
-                setTheme(matched.theme || 'royal-black-gold');
+              if (!sessionData.isMaster && sessionData.companyId) {
+                const matched = allCompanies.find(c => c.id === sessionData.companyId);
+                if (matched) {
+                  setCurrentCompany(matched);
+                  setTheme(matched.theme || 'royal-black-gold');
+                }
               }
+              
+              console.log('Restored ERP session from Firestore:', sessionId);
+            } else {
+              // Expired or locked session found in storage, clear it
+              localStorage.removeItem(STORAGE_SESSION_ID_KEY);
             }
-            
-            console.log('Restored ERP session from Firestore:', sessionId);
           } else {
-            // Expired or locked session found in storage, clear it
+            // Session ID exists in local but not in Firestore, clear it
             localStorage.removeItem(STORAGE_SESSION_ID_KEY);
           }
-        } else {
-          // Session ID exists in local but not in Firestore, clear it
-          localStorage.removeItem(STORAGE_SESSION_ID_KEY);
-        }
+        })();
+
+        await Promise.race([sessionPromise, timeoutPromise]);
       } catch (err) {
-        console.warn('Session recovery failed:', err);
+        console.warn('Session recovery timed out or failed:', err);
       } finally {
         setIsLoading(false);
       }

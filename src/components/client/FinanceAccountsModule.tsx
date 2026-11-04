@@ -33,6 +33,7 @@ import {
 import { BankReconciliationReport } from './BankReconciliationReport';
 import { AutomatedStatementParser } from './AutomatedStatementParser';
 import { SearchableSelect } from '../common/SearchableSelect';
+import { ChartOfAccountsModule } from './finance/ChartOfAccountsModule';
 
 type SubTab = 'vouchers' | 'coa' | 'gl' | 'subledger' | 'trialBalance' | 'pnl' | 'balanceSheet' | 'budget' | 'newVoucher' | 'bankReconciliation' | 'statementParser';
 
@@ -479,17 +480,7 @@ export const FinanceAccountsModule: React.FC = () => {
 
       {/* Tab 2: Chart of Accounts */}
       {activeSubTab === 'coa' && (
-        <DataTable
-          title={`Master Chart of Accounts (${filteredAccounts.length} Heads Shown)`}
-          data={filteredAccounts}
-          columns={[
-            { key: 'code', header: 'Account Code', accessor: (a) => <span className="font-mono font-bold text-cyan-400">{a.code}</span>, sortable: true },
-            { key: 'name', header: 'Account Head Name', accessor: (a) => <span className="font-bold text-slate-100">{a.name}</span>, sortable: true },
-            { key: 'type', header: 'Type', accessor: (a) => <span className="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-purple-300 font-semibold">{a.type}</span>, sortable: true },
-            { key: 'category', header: 'Category', accessor: (a) => a.category },
-            { key: 'balance', header: 'Auto Calculated Balance (PKR)', accessor: (a) => <span className="font-mono font-bold text-emerald-400">Rs. {a.balance.toLocaleString()}</span>, isNumeric: true, sortable: true }
-          ]}
-        />
+        <ChartOfAccountsModule />
       )}
 
       {/* Tab 3: General Ledger */}
