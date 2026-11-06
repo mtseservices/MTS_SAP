@@ -27,8 +27,10 @@ import { PurchaseOrder, InventoryItem } from '../../types/erp';
 import { DataTable } from '../common/DataTable';
 import { TTSButton } from '../common/TTSButton';
 import { QrScannerModal, ScannedItemPayload } from '../common/QrScannerModal';
-import { DocumentScannerModal } from '../common/DocumentScannerModal';
 import { StandardDocumentGridForm } from '../common/StandardDocumentGridForm';
+import { DocumentScannerModal } from '../common/DocumentScannerModal';
+import { BaseFormLayout } from '../common/BaseFormLayout';
+import { CreateNewActionButton } from '../common/CreateNewActionButton';
 
 interface PurchaseRequisition {
   id: string;
@@ -204,6 +206,165 @@ export const ProcurementModule: React.FC = () => {
 
   const procurementSpeech = `Procurement and Purchasing Department for ${currentCompany.name}. Active purchase orders: ${purchaseOrders.length}. Purchase requisitions pending: ${requisitions.length}. Material receipt GRN tracking active.`;
 
+  if (isGridModalOpen) {
+    const subtotal = poItems.reduce((acc, item) => acc + (item.qty * item.unitPrice), 0);
+    const taxAmount = subtotal * 0.18;
+    const totalAmount = subtotal + taxAmount;
+
+    return (
+      <BaseFormLayout
+        title="Issue New Purchase Order (PO)"
+        subtitle="Create verified procurement order with supplier tax compliance, terms, and auto-sync to accounts payable"
+        breadcrumbs={[
+          { label: 'Procurement & Supply Chain', onClick: () => setIsGridModalOpen(false) },
+          { label: 'Purchase Orders', onClick: () => setIsGridModalOpen(false) },
+          { label: newPoNumber, active: true }
+        ]}
+        documentRef={newPoNumber}
+        statusBadge="DRAFT PO"
+        variant="grid-ledger"
+        submitLabel="Issue Purchase Order"
+        onDiscard={() => setIsGridModalOpen(false)}
+        onSubmit={() => handleCreatePoSubmit({ preventDefault: () => {} } as React.FormEvent)}
+      >
+        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-6 font-sans">
+          <form onSubmit={handleCreatePoSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">PO Number</label>
+                <input
+                  type="text"
+                  value={newPoNumber}
+                  onChange={(e) => setNewPoNumber(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-100 focus:border-amber-500 outline-none"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Expected Delivery Date</label>
+                <input
+                  type="date"
+                  value={deliveryDate}
+                  onChange={(e) => setDeliveryDate(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:border-amber-500 outline-none"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Plant / Receiving Location</label>
+                <input
+                  type="text"
+                  readOnly
+                  value="Faisalabad Main Mill (Weaving & Spinning)"
+                  className="w-full bg-slate-950/60 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-400 outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Supplier Selection Combo Box */}
+            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+              <label className="block text-xs font-bold text-slate-300 flex items-center justify-between">
+                <span>Supplier / Vendor Selection</span>
+                <span className="text-[10px] text-amber-400 font-mono">NTN: {activeSupplier.ntn} | Rating: {activeSupplier.rating}</span>
+              </label>
+              <select
+                value={selectedSupplierId}
+                onChange={(e) => setSelectedSupplierId(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-100 focus:border-amber-500 outline-none"
+              >
+                {suppliers.map(sup => (
+                  <option key={sup.id} value={sup.id}>
+                    {sup.name} — ({sup.category}) [NTN: {sup.ntn}]
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Purchase Line Items */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">
+                  Purchase Order Line Items
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setPoItems([...poItems, { itemCode: 'RAW-NEW', itemName: '', qty: 1, unitPrice: 0 }])}
+                  className="px-3 py-1.5 rounded-xl bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/30 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Add Line Item
+                </button>
+              </div>
+
+              <div className="space-y-2">
+                {poItems.map((item, idx) => (
+                  <div key={idx} className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <div className="sm:col-span-5">
+                      <input
+                        type="text"
+                        value={item.itemName}
+                        onChange={(e) => {
+                          const updated = [...poItems];
+                          updated[idx].itemName = e.target.value;
+                          setPoItems(updated);
+                        }}
+                        placeholder="Item Name / Code"
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 outline-none"
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <input
+                        type="number"
+                        value={item.qty}
+                        onChange={(e) => {
+                          const updated = [...poItems];
+                          updated[idx].qty = Number(e.target.value);
+                          setPoItems(updated);
+                        }}
+                        placeholder="Qty"
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-100 outline-none"
+                      />
+                    </div>
+                    <div className="sm:col-span-3">
+                      <input
+                        type="number"
+                        value={item.unitPrice}
+                        onChange={(e) => {
+                          const updated = [...poItems];
+                          updated[idx].unitPrice = Number(e.target.value);
+                          setPoItems(updated);
+                        }}
+                        placeholder="Unit Price"
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-100 outline-none"
+                      />
+                    </div>
+                    <div className="sm:col-span-2 text-right">
+                      <span className="text-xs font-mono font-bold text-amber-400">Rs. {(item.qty * item.unitPrice).toLocaleString()}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Summary */}
+            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono">
+              <div className="text-xs text-slate-400 space-y-1">
+                <div>Subtotal: <span className="text-slate-200 font-bold">Rs. {subtotal.toLocaleString()}</span></div>
+                <div>Sales Tax (18% STRN): <span className="text-amber-400 font-bold">Rs. {taxAmount.toLocaleString()}</span></div>
+              </div>
+              <div className="text-right">
+                <span className="text-xs text-slate-400 block">Gross PO Payable:</span>
+                <span className="text-xl font-black text-amber-300">Rs. {totalAmount.toLocaleString()}</span>
+              </div>
+            </div>
+          </form>
+        </div>
+      </BaseFormLayout>
+    );
+  }
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -234,13 +395,12 @@ export const ProcurementModule: React.FC = () => {
             <QrCode className="w-4 h-4" />
             Scan Item QR
           </button>
-          <button
+          <CreateNewActionButton
+            label="Create Purchase Order"
+            variant="amber"
+            shortcutHint="Ctrl+N"
             onClick={() => setIsGridModalOpen(true)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shadow-lg shadow-amber-600/30 transition-all"
-          >
-            <Plus className="w-4 h-4" />
-            Create Purchase Order
-          </button>
+          />
         </div>
       </div>
 
@@ -510,137 +670,6 @@ export const ProcurementModule: React.FC = () => {
         </div>
       )}
 
-      {/* CREATE PURCHASE ORDER MODAL WITH SUPPLIER COMBO BOX */}
-      {isGridModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl">
-            <div className="flex items-center justify-between p-5 border-b border-slate-800">
-              <div className="flex items-center gap-2">
-                <ShoppingCart className="w-5 h-5 text-amber-400" />
-                <h3 className="text-base font-bold text-slate-100">Issue New Purchase Order (PO)</h3>
-              </div>
-              <button 
-                onClick={() => setIsGridModalOpen(false)}
-                className="text-slate-400 hover:text-slate-200 text-sm font-bold px-2 py-1 rounded-lg bg-slate-800"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleCreatePoSubmit} className="p-6 space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">PO Number</label>
-                  <input
-                    type="text"
-                    value={newPoNumber}
-                    onChange={(e) => setNewPoNumber(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-100 focus:border-amber-500 outline-none"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Expected Delivery Date</label>
-                  <input
-                    type="date"
-                    value={deliveryDate}
-                    onChange={(e) => setDeliveryDate(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:border-amber-500 outline-none"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Supplier Selection Combo Box */}
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1 flex items-center justify-between">
-                  <span>Supplier Selection Combo Box</span>
-                  <span className="text-[10px] text-amber-400 font-mono">NTN: {activeSupplier.ntn} | Rating: {activeSupplier.rating}</span>
-                </label>
-                <select
-                  value={selectedSupplierId}
-                  onChange={(e) => setSelectedSupplierId(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-100 focus:border-amber-500 outline-none"
-                >
-                  {suppliers.map(sup => (
-                    <option key={sup.id} value={sup.id}>
-                      {sup.name} — ({sup.category}) [NTN: {sup.ntn}]
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-300">Purchase Line Items</label>
-                {poItems.map((item, idx) => (
-                  <div key={idx} className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-                    <div className="sm:col-span-6">
-                      <input
-                        type="text"
-                        value={item.itemName}
-                        onChange={(e) => {
-                          const updated = [...poItems];
-                          updated[idx].itemName = e.target.value;
-                          setPoItems(updated);
-                        }}
-                        placeholder="Item Name / Code"
-                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 outline-none"
-                      />
-                    </div>
-                    <div className="sm:col-span-2">
-                      <input
-                        type="number"
-                        value={item.qty}
-                        onChange={(e) => {
-                          const updated = [...poItems];
-                          updated[idx].qty = Number(e.target.value);
-                          setPoItems(updated);
-                        }}
-                        placeholder="Qty"
-                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-100 outline-none"
-                      />
-                    </div>
-                    <div className="sm:col-span-3">
-                      <input
-                        type="number"
-                        value={item.unitPrice}
-                        onChange={(e) => {
-                          const updated = [...poItems];
-                          updated[idx].unitPrice = Number(e.target.value);
-                          setPoItems(updated);
-                        }}
-                        placeholder="Unit Price"
-                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-100 outline-none"
-                      />
-                    </div>
-                    <div className="sm:col-span-1 text-right">
-                      <span className="text-xs font-mono font-bold text-amber-400">Rs. {(item.qty * item.unitPrice).toLocaleString()}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setIsGridModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs hover:bg-slate-700 transition-all"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shadow-lg shadow-amber-600/30 transition-all"
-                >
-                  Save & Approve Purchase Order
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
       {/* QR Scanner Modal */}
       <QrScannerModal
         isOpen={isQrModalOpen}
@@ -652,7 +681,7 @@ export const ProcurementModule: React.FC = () => {
       <DocumentScannerModal
         isOpen={isDocScannerOpen}
         onClose={() => setIsDocScannerOpen(false)}
-        onScanComplete={(parsed) => {
+        onScanComplete={(parsed: any) => {
           setIsDocScannerOpen(false);
         }}
       />

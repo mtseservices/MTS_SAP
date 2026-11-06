@@ -8,14 +8,15 @@ const STORE_LOCAL_INVOICES = 'local_invoices';
 
 export class OfflineStoreManager {
   private db: IDBDatabase | null = null;
-  private isOnlineStatus: boolean = false;
+  private isOnlineStatus: boolean = typeof navigator !== 'undefined' ? navigator.onLine : true;
   private syncListeners: Array<(isOnline: boolean, pendingCount: number) => void> = [];
 
   constructor() {
     this.initDB();
     if (typeof window !== 'undefined') {
       subscribeFirestoreStatus((status) => {
-        this.handleNetworkChange(status === 'connected');
+        const isOnline = status === 'connected' || (status === 'checking' && navigator.onLine);
+        this.handleNetworkChange(isOnline);
       });
     }
   }

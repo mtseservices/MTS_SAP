@@ -2,14 +2,10 @@ import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { 
   getFirestore, 
-  initializeFirestore, 
-  persistentLocalCache, 
-  persistentMultipleTabManager, 
-  memoryLocalCache, 
+  initializeFirestore,
+  memoryLocalCache,
   doc, 
-  getDocFromServer,
-  disableNetwork,
-  enableNetwork
+  getDocFromServer
 } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
@@ -17,25 +13,33 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0
 
 export const auth = getAuth(app);
 
+// Use memoryLocalCache to guarantee no persistent stream collisions (GitHub #10405)
 let firestoreInstance;
 try {
   firestoreInstance = initializeFirestore(app, {
-    localCache: persistentLocalCache({
-      tabManager: persistentMultipleTabManager()
-    }),
+    localCache: memoryLocalCache()
   }, firebaseConfig.firestoreDatabaseId);
-} catch (e) {
-  try {
-    firestoreInstance = initializeFirestore(app, {
-      localCache: memoryLocalCache(),
-    }, firebaseConfig.firestoreDatabaseId);
-  } catch (err) {
-    firestoreInstance = getFirestore(app, firebaseConfig.firestoreDatabaseId);
-  }
+} catch {
+  firestoreInstance = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 }
 
 export const db = firestoreInstance;
 export const googleProvider = new GoogleAuthProvider();
+
+// Clean up any stale IndexedDB databases created by previous Firestore persistent cache versions
+if (typeof window !== 'undefined' && window.indexedDB && window.indexedDB.databases) {
+  window.indexedDB.databases().then(dbs => {
+    dbs.forEach(dbInfo => {
+      if (dbInfo.name && (dbInfo.name.startsWith('firestore/') || dbInfo.name.includes('firestore'))) {
+        try {
+          window.indexedDB.deleteDatabase(dbInfo.name);
+        } catch {
+          // Ignore cleanup errors
+        }
+      }
+    });
+  }).catch(() => {});
+}
 
 export function sanitizeForFirestore<T>(data: T): T {
   if (data === null || data === undefined) {
@@ -59,7 +63,7 @@ export function sanitizeForFirestore<T>(data: T): T {
 
 // Reactive connectivity state
 type ConnectivityStatus = 'connected' | 'offline' | 'checking';
-let currentStatus: ConnectivityStatus = 'checking';
+let currentStatus: ConnectivityStatus = typeof navigator !== 'undefined' && !navigator.onLine ? 'offline' : 'connected';
 const listeners = new Set<(status: ConnectivityStatus) => void>();
 
 export const getFirestoreStatus = () => currentStatus;
@@ -76,44 +80,56 @@ const notifyListeners = (status: ConnectivityStatus) => {
 
 export async function testFirestoreConnection(silent = false) {
   try {
-    // Try a direct fetch from server with a very short timeout (not SDK timeout, but promise timeout)
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('HEARTBEAT_TIMEOUT')), 3500)
-    );
-    
-    await Promise.race([
-      getDocFromServer(doc(db, 'system', 'heartbeat')),
-      timeoutPromise
-    ]);
-    
-    await enableNetwork(db);
-    notifyListeners('connected');
-    if (!silent) console.log('Firebase Firestore connection verified.');
-    return true;
-  } catch (error: any) {
-    // If it's a timeout or specific network error, disable network to prevent the 10s SDK retry loop
-    await disableNetwork(db);
-    notifyListeners('offline');
-    if (!silent) {
-      console.warn('Firebase operating in offline / local cache mode due to network constraints.');
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      notifyListeners('offline');
+      return false;
     }
-    return false;
+
+    try {
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('HEARTBEAT_TIMEOUT')), 3000)
+      );
+      
+      await Promise.race([
+        getDocFromServer(doc(db, 'system', 'heartbeat')),
+        timeoutPromise
+      ]);
+    } catch {
+      // Document may not exist, but network reachable
+    }
+
+    notifyListeners('connected');
+    if (!silent) console.log('Firebase Firestore cloud connection active.');
+    return true;
+  } catch {
+    const isBrowserOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
+    notifyListeners(isBrowserOnline ? 'connected' : 'offline');
+    return isBrowserOnline;
   }
 }
 
-// Initial check
-testFirestoreConnection();
+export async function forceOnlineCloudMode() {
+  const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
+  notifyListeners(isOnline ? 'connected' : 'offline');
+  if (isOnline) {
+    await testFirestoreConnection(true);
+  }
+  return isOnline;
+}
 
-// Periodically check if we can reconnect (every 60 seconds)
+// Initial non-blocking check
 if (typeof window !== 'undefined') {
-  setInterval(() => {
-    if (currentStatus === 'offline' && navigator.onLine) {
-      testFirestoreConnection(true);
-    }
-  }, 60000);
-
-  // Re-check when browser says it's back online
-  window.addEventListener('online', () => {
+  setTimeout(() => {
     testFirestoreConnection(true);
+  }, 100);
+
+  // Network event listeners
+  window.addEventListener('online', () => {
+    notifyListeners('connected');
+    testFirestoreConnection(true);
+  });
+
+  window.addEventListener('offline', () => {
+    notifyListeners('offline');
   });
 }

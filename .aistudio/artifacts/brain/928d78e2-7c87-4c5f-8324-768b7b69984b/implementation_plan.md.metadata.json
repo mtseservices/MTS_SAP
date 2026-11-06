@@ -1,6 +1,6 @@
 {
-  "summary": "Comprehensive implementation plan for integrating an instant QR code generator into the Receipt Voucher form of the Finance module, including real-time JSON payload encoding, security hash computation, live form preview, receipt slip popup modal, printable layout, PNG export, and clipboard copy actions.",
-  "updatedAt": "2026-11-05T10:52:16.612250044Z",
+  "summary": "Architecture and refactoring plan for a unified BaseFormLayout across Finance, Procurement, and HR modules, featuring a sticky header with standard actions (Save draft, Post/Submit, Print preview, Discard), breadcrumb navigation, adaptive max-width containers (5xl standard, 7xl grid ledgers), and standardized 'Create New' triggers at the list view level.",
+  "updatedAt": "2026-11-06T10:09:44.887676254Z",
   "requestFeedback": true,
   "userFacing": true
 }

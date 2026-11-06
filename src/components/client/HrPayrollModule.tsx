@@ -19,6 +19,8 @@ import { INITIAL_EMPLOYEES } from '../../services/mockData';
 import { Employee } from '../../types/erp';
 import { DataTable } from '../common/DataTable';
 import { TTSButton } from '../common/TTSButton';
+import { BaseFormLayout } from '../common/BaseFormLayout';
+import { CreateNewActionButton } from '../common/CreateNewActionButton';
 
 interface AttendanceLog {
   id: string;
@@ -113,6 +115,121 @@ export const HrPayrollModule: React.FC = () => {
 
   const hrSpeech = `Human Resources and Payroll for ${currentCompany.name}. Total staff headcount: ${employees.length} employees. Monthly payroll disbursement: Rs. ${totalPayroll.toLocaleString()}. FBR income tax slabs and department allocations active.`;
 
+  if (isAddEmployeeOpen) {
+    return (
+      <BaseFormLayout
+        title="Register New Employee Record"
+        subtitle="Pakistani corporate payroll profile, FBR tax slab deduction, and department assignment"
+        breadcrumbs={[
+          { label: 'HR & Pakistani Payroll', onClick: () => setIsAddEmployeeOpen(false) },
+          { label: 'Employee Master Records', onClick: () => setIsAddEmployeeOpen(false) },
+          { label: newFullName || newCode || 'New Employee', active: true }
+        ]}
+        documentRef={newCode}
+        statusBadge="ACTIVE MASTER"
+        variant="standard"
+        submitLabel="Save Employee Record"
+        onDiscard={() => setIsAddEmployeeOpen(false)}
+        onSubmit={() => handleAddEmployee({ preventDefault: () => {} } as React.FormEvent)}
+      >
+        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 font-sans">
+          <form onSubmit={handleAddEmployee} className="space-y-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5">Employee Code / Roll No</label>
+                <input
+                  type="text"
+                  value={newCode}
+                  onChange={(e) => setNewCode(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-slate-100 focus:border-cyan-500 outline-none"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5">Full Legal Name</label>
+                <input
+                  type="text"
+                  value={newFullName}
+                  onChange={(e) => setNewFullName(e.target.value)}
+                  placeholder="e.g. Muhammad Tariq"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:border-cyan-500 outline-none"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5">Designation / Official Title</label>
+                <input
+                  type="text"
+                  value={newDesignation}
+                  onChange={(e) => setNewDesignation(e.target.value)}
+                  placeholder="e.g. Senior Shift Supervisor"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:border-cyan-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5">Department Assignment</label>
+                <select
+                  value={newDepartment}
+                  onChange={(e) => setNewDepartment(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:border-cyan-500 outline-none"
+                >
+                  <option value="Textile Production & Spinning">Textile Production &amp; Spinning</option>
+                  <option value="Finance & Accounts">Finance &amp; Accounts</option>
+                  <option value="Sales & Export">Sales &amp; Export</option>
+                  <option value="Procurement & Warehouse">Procurement &amp; Warehouse</option>
+                  <option value="Maintenance & Utility">Maintenance &amp; Utility</option>
+                  <option value="IT & Enterprise Systems">IT &amp; Enterprise Systems</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5">CNIC Number (NADRA Format)</label>
+                <input
+                  type="text"
+                  value={newCnic}
+                  onChange={(e) => setNewCnic(e.target.value)}
+                  placeholder="35201-1234567-1"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-slate-100 focus:border-cyan-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5">Monthly Basic Pay (PKR)</label>
+                <input
+                  type="number"
+                  value={newSalary}
+                  onChange={(e) => setNewSalary(Number(e.target.value))}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-slate-100 focus:border-cyan-500 outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+              <label className="block text-xs font-bold text-slate-300 flex items-center justify-between">
+                <span>FBR Income Tax Slab Selection (Finance Act 2026)</span>
+                <span className="text-[10px] text-cyan-400 font-mono">Tax Deducted at Source (TDS)</span>
+              </label>
+              <select
+                value={selectedTaxSlab}
+                onChange={(e) => setSelectedTaxSlab(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-bold text-amber-300 focus:border-cyan-500 outline-none"
+              >
+                <option value="FBR Slab A (0% up to 600k)">FBR Slab A (0% up to 600,000 PKR)</option>
+                <option value="FBR Slab B (5% > 600k)">FBR Slab B (5% on taxable amount &gt; 600k)</option>
+                <option value="FBR Slab C (15% > 1.2M)">FBR Slab C (15% on taxable amount &gt; 1,200k)</option>
+                <option value="FBR Slab D (25% > 2.4M)">FBR Slab D (25% on taxable amount &gt; 2,400k)</option>
+              </select>
+            </div>
+          </form>
+        </div>
+      </BaseFormLayout>
+    );
+  }
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -129,13 +246,12 @@ export const HrPayrollModule: React.FC = () => {
 
         <div className="flex items-center gap-3">
           <TTSButton text={hrSpeech} label="HR Voice Briefing" />
-          <button
+          <CreateNewActionButton
+            label="Add Employee Record"
+            variant="cyan"
+            shortcutHint="Ctrl+N"
             onClick={() => setIsAddEmployeeOpen(true)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-lg shadow-cyan-600/30 transition-all"
-          >
-            <Plus className="w-4 h-4" />
-            Add Employee Record
-          </button>
+          />
         </div>
       </div>
 
@@ -320,120 +436,7 @@ export const HrPayrollModule: React.FC = () => {
         </div>
       )}
 
-      {/* ADD EMPLOYEE MODAL */}
-      {isAddEmployeeOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl">
-            <div className="flex items-center justify-between p-5 border-b border-slate-800">
-              <h3 className="text-base font-bold text-slate-100">Add New Employee Record</h3>
-              <button onClick={() => setIsAddEmployeeOpen(false)} className="text-slate-400 hover:text-white font-bold">✕</button>
-            </div>
 
-            <form onSubmit={handleAddEmployee} className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Employee Code</label>
-                  <input
-                    type="text"
-                    value={newCode}
-                    onChange={(e) => setNewCode(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-100"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Full Name</label>
-                  <input
-                    type="text"
-                    value={newFullName}
-                    onChange={(e) => setNewFullName(e.target.value)}
-                    placeholder="e.g. Muhammad Ali"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Designation</label>
-                  <input
-                    type="text"
-                    value={newDesignation}
-                    onChange={(e) => setNewDesignation(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Department</label>
-                  <select
-                    value={newDepartment}
-                    onChange={(e) => setNewDepartment(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100"
-                  >
-                    <option value="Textile Production & Spinning">Textile Production & Spinning</option>
-                    <option value="Finance & Accounts">Finance & Accounts</option>
-                    <option value="Sales & Export">Sales & Export</option>
-                    <option value="Procurement & Warehouse">Procurement & Warehouse</option>
-                    <option value="Maintenance & Utility">Maintenance & Utility</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">CNIC Number</label>
-                  <input
-                    type="text"
-                    value={newCnic}
-                    onChange={(e) => setNewCnic(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-100"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Basic Salary (PKR)</label>
-                  <input
-                    type="number"
-                    value={newSalary}
-                    onChange={(e) => setNewSalary(Number(e.target.value))}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-100"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">FBR Income Tax Slab Selection</label>
-                <select
-                  value={selectedTaxSlab}
-                  onChange={(e) => setSelectedTaxSlab(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs font-bold text-amber-300"
-                >
-                  <option value="FBR Slab A (0% up to 600k)">FBR Slab A (0% up to 600,000 PKR)</option>
-                  <option value="FBR Slab B (5% > 600k)">FBR Slab B (5% on taxable amount &gt; 600k)</option>
-                  <option value="FBR Slab C (15% > 1.2M)">FBR Slab C (15% on taxable amount &gt; 1,200k)</option>
-                  <option value="FBR Slab D (25% > 2.4M)">FBR Slab D (25% on taxable amount &gt; 2,400k)</option>
-                </select>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setIsAddEmployeeOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-lg shadow-cyan-600/30"
-                >
-                  Save Employee Record
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Wifi, WifiOff, RefreshCw, CheckCircle2, AlertTriangle, ShieldAlert } from 'lucide-react';
-import { subscribeFirestoreStatus, testFirestoreConnection } from '../../services/firebaseConfig';
+import { subscribeFirestoreStatus, testFirestoreConnection, forceOnlineCloudMode } from '../../services/firebaseConfig';
 
 export const OnlineStatusIndicator: React.FC = () => {
-  const [status, setStatus] = useState<'connected' | 'offline' | 'checking'>('checking');
+  const [status, setStatus] = useState<'connected' | 'offline' | 'checking'>('connected');
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [showTooltip, setShowTooltip] = useState<boolean>(false);
 
@@ -12,7 +12,7 @@ export const OnlineStatusIndicator: React.FC = () => {
       setStatus(newStatus);
       if (newStatus === 'connected') {
         setIsSyncing(true);
-        setTimeout(() => setIsSyncing(false), 2000);
+        setTimeout(() => setIsSyncing(false), 1500);
       }
     });
 
@@ -23,6 +23,7 @@ export const OnlineStatusIndicator: React.FC = () => {
 
   const handleManualSync = async () => {
     setIsSyncing(true);
+    await forceOnlineCloudMode();
     await testFirestoreConnection();
     setIsSyncing(false);
   };

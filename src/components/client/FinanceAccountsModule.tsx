@@ -35,6 +35,8 @@ import { AutomatedStatementParser } from './AutomatedStatementParser';
 import { SearchableSelect } from '../common/SearchableSelect';
 import { ChartOfAccountsModule } from './finance/ChartOfAccountsModule';
 import { JournalVoucherForm } from './finance/JournalVoucherForm';
+import { FinanceAuditInsightsWidget } from './finance/FinanceAuditInsightsWidget';
+import { CreateNewActionButton } from '../common/CreateNewActionButton';
 
 type SubTab = 'vouchers' | 'coa' | 'gl' | 'subledger' | 'trialBalance' | 'pnl' | 'balanceSheet' | 'budget' | 'newVoucher' | 'bankReconciliation' | 'statementParser' | 'suppliers' | 'cost_center';
 
@@ -292,13 +294,12 @@ export const FinanceAccountsModule: React.FC = () => {
             <Share2 className="w-3.5 h-3.5" />
             Open in New Tab
           </button>
-          <button
+          <CreateNewActionButton
+            label="Post New Voucher"
+            variant="emerald"
+            shortcutHint="Ctrl+N"
             onClick={() => switchSubTab('newVoucher')}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/30 transition-all"
-          >
-            <Plus className="w-4 h-4" />
-            Post New Voucher
-          </button>
+          />
         </div>
       </div>
 
@@ -437,7 +438,10 @@ export const FinanceAccountsModule: React.FC = () => {
 
       {/* Tab 1: Vouchers Table (Oracle APEX / Enterprise ERP Style) */}
       {activeSubTab === 'vouchers' && (
-        <div className="space-y-4">
+        <div className="space-y-6">
+          {/* Audit Insights & Receipt Performance Trends Widget */}
+          <FinanceAuditInsightsWidget vouchers={vouchers} />
+
           {/* APEX Toolbar */}
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-xl">
             <div className="flex flex-wrap items-center gap-2 flex-1 max-w-xl">
@@ -478,13 +482,11 @@ export const FinanceAccountsModule: React.FC = () => {
               >
                 Cancel
               </button>
-              <button
-                type="button"
+              <CreateNewActionButton
+                label="New Voucher"
+                variant="emerald"
                 onClick={() => switchSubTab('newVoucher')}
-                className="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-600/30"
-              >
-                Create
-              </button>
+              />
             </div>
           </div>
 

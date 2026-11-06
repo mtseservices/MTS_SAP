@@ -15,9 +15,9 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    // System collections
+    // System collections (reachable for network reachability & heartbeat probes)
     match /system/{docId} {
-      allow read: if isSignedIn();
+      allow read: if true;
       allow write: if false;
     }
 

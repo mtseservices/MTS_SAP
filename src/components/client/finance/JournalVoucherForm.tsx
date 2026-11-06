@@ -26,6 +26,7 @@ import { AccountHead, JournalVoucher, VoucherItem } from '../../../types/erp';
 import { subscribeCompanyAccounts, postVoucherToFirebase } from '../../../services/firebaseAccounting';
 import { auditLogger } from '../../../services/auditLogger';
 import { ReceiptVoucherSlipModal, ReceiptVoucherPayload } from './ReceiptVoucherSlipModal';
+import { BaseFormLayout } from '../../common/BaseFormLayout';
 
 interface JournalVoucherFormProps {
   initialType?: 'JOURNAL' | 'RECEIPT' | 'PAYMENT';
@@ -95,6 +96,58 @@ export const JournalVoucherForm: React.FC<JournalVoucherFormProps> = ({
 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [draftSavedAt, setDraftSavedAt] = useState<string | null>(null);
+
+  // Restore draft from local storage on initial mount
+  useEffect(() => {
+    try {
+      const draftKey = `mts_voucher_draft_${currentCompany.id}`;
+      const saved = localStorage.getItem(draftKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.voucherType) setVoucherType(parsed.voucherType);
+        if (parsed.date) setDate(parsed.date);
+        if (parsed.refNo) setRefNo(parsed.refNo);
+        if (parsed.narration) setNarration(parsed.narration);
+        if (parsed.currency) setCurrency(parsed.currency);
+        if (parsed.costCenter) setCostCenter(parsed.costCenter);
+        if (Array.isArray(parsed.rows) && parsed.rows.length >= 2) setRows(parsed.rows);
+        if (parsed.savedAt) setDraftSavedAt(parsed.savedAt);
+      }
+    } catch (e) {
+      console.warn('Failed to restore voucher draft', e);
+    }
+  }, [currentCompany.id]);
+
+  // Auto-save draft inputs to local state while editing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        const draftKey = `mts_voucher_draft_${currentCompany.id}`;
+        // Only save if there's actual data entered
+        const hasContent = narration.trim().length > 0 || refNo.trim().length > 0 || rows.some(r => r.accountId || r.debit > 0 || r.credit > 0);
+        if (hasContent) {
+          const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          const draftPayload = {
+            voucherType,
+            date,
+            refNo,
+            narration,
+            currency,
+            costCenter,
+            rows,
+            savedAt: nowStr
+          };
+          localStorage.setItem(draftKey, JSON.stringify(draftPayload));
+          setDraftSavedAt(nowStr);
+        }
+      } catch (e) {
+        // storage quota exceeded or private mode
+      }
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [currentCompany.id, voucherType, date, refNo, narration, currency, costCenter, rows]);
 
   // Auto-generate document number on type change
   useEffect(() => {
@@ -288,6 +341,11 @@ export const JournalVoucherForm: React.FC<JournalVoucherFormProps> = ({
         details: `Posted ${voucherType} voucher #${voucherNo} for ${currency} ${totalDebit.toLocaleString()} (PKR ${totalDebitPKR.toLocaleString()}) with QR Checksum ${securityHash.substring(0, 12)}`
       });
 
+      try {
+        localStorage.removeItem(`mts_voucher_draft_${currentCompany.id}`);
+        setDraftSavedAt(null);
+      } catch {}
+
       setSuccessMsg(`Voucher #${voucherNo} successfully posted with QR Code Verification!`);
       setTimeout(() => {
         if (onSuccess) onSuccess();
@@ -305,31 +363,58 @@ export const JournalVoucherForm: React.FC<JournalVoucherFormProps> = ({
     return a.code.toLowerCase().includes(q) || a.name.toLowerCase().includes(q) || a.category.toLowerCase().includes(q);
   });
 
-  return (
-    <div className="max-w-5xl mx-auto p-6 bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl font-sans space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-slate-800 pb-5">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-            <Receipt className="w-6 h-6" />
-          </div>
-          <div>
-            <span className="text-[10px] font-black uppercase text-emerald-400 tracking-widest font-mono">FINANCE &amp; ACCOUNTS MODULE</span>
-            <h1 className="text-xl font-black text-white">Financial Transaction Voucher (JV, RV, PV)</h1>
-          </div>
-        </div>
+  const handleManualSaveDraft = () => {
+    try {
+      const draftKey = `mts_voucher_draft_${currentCompany.id}`;
+      const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const draftPayload = {
+        voucherType,
+        date,
+        refNo,
+        narration,
+        currency,
+        costCenter,
+        rows,
+        savedAt: nowStr
+      };
+      localStorage.setItem(draftKey, JSON.stringify(draftPayload));
+      setDraftSavedAt(nowStr);
+      setSuccessMsg('Voucher draft saved to local storage.');
+      setTimeout(() => setSuccessMsg(null), 2500);
+    } catch {}
+  };
 
-        {onCancel && (
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs flex items-center gap-2 transition cursor-pointer"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to Register</span>
-          </button>
-        )}
-      </div>
+  return (
+    <BaseFormLayout
+      title={
+        voucherType === 'RECEIPT'
+          ? 'Receipt Voucher (RV)'
+          : voucherType === 'PAYMENT'
+          ? 'Payment Voucher (PV)'
+          : 'Journal Voucher (JV)'
+      }
+      subtitle="Double-entry general ledger voucher posting with real-time audit verification and verifiable QR code"
+      breadcrumbs={[
+        { label: 'Finance & Accounts', onClick: onCancel },
+        { label: 'Vouchers Register', onClick: onCancel },
+        { label: voucherNo || 'New Transaction', active: true }
+      ]}
+      documentRef={voucherNo}
+      statusBadge={isBalanced ? 'BALANCED' : 'UNBALANCED'}
+      draftSavedAt={draftSavedAt}
+      variant="grid-ledger"
+      isSubmitting={isLoading}
+      submitLabel={isLoading ? 'Posting...' : `Post ${voucherType} Voucher`}
+      isDirty={narration.trim().length > 0 || refNo.trim().length > 0 || rows.some(r => r.accountId || r.debit > 0 || r.credit > 0)}
+      onSaveDraft={handleManualSaveDraft}
+      onSubmit={() => {
+        const dummyEvent = { preventDefault: () => {} } as React.FormEvent;
+        handleSubmit(dummyEvent);
+      }}
+      onPrintPreview={voucherType === 'RECEIPT' ? () => setIsSlipModalOpen(true) : undefined}
+      onDiscard={onCancel || (() => {})}
+    >
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-6">
 
       {errorMsg && (
         <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-3">
@@ -724,6 +809,7 @@ export const JournalVoucherForm: React.FC<JournalVoucherFormProps> = ({
         securityHash={securityHash}
         rows={rows}
       />
-    </div>
+      </div>
+    </BaseFormLayout>
   );
 };
