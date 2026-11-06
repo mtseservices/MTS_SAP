@@ -110,19 +110,32 @@ export const SubscriptionTrialModal: React.FC<SubscriptionTrialModalProps> = ({
   // Plan Details
   const plans = [
     {
-      id: 'plan_trial',
-      name: '14-Day Full Enterprise Trial',
+      id: 'plan_trial_7',
+      name: '7-Day Full Enterprise Trial',
       priceMonthly: 0,
       priceYearly: 0,
-      description: 'Zero commitment test drive for high-growth enterprises.',
+      description: 'Quick 7-day test drive for Google sign-in clients.',
       features: [
-        'Complete FBR NTN & Sales Tax modules',
-        'Unlimited Invoices & Financial Vouchers',
-        'Camera QR Barcode & Batch Expiry Heatmap',
-        'Single company multi-branch access',
-        'Standard Email & Community Support'
+        'Full ERP module access for 7 days',
+        'Chart of accounts & voucher postings',
+        'Standard support'
       ],
-      isTrial: true
+      isTrial: true,
+      days: 7
+    },
+    {
+      id: 'plan_trial_15',
+      name: '15-Day Full Enterprise Trial',
+      priceMonthly: 0,
+      priceYearly: 0,
+      description: 'Extended 15-day trial period for comprehensive evaluation.',
+      features: [
+        'Full ERP module access for 15 days',
+        'Advanced financial reporting & inventory',
+        'Priority support'
+      ],
+      isTrial: true,
+      days: 15
     },
     {
       id: 'plan_growth',
@@ -229,19 +242,19 @@ export const SubscriptionTrialModal: React.FC<SubscriptionTrialModalProps> = ({
 
   const handleActivateTrial = async () => {
     setIsProcessingPayment(true);
-    setProcessingStage('Provisioning complimentary 14-day enterprise trial...');
-    const daysToAdd = 14;
-    const expiresAt = new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000).toISOString();
+    const trialDays = (currentSelectedPlan as any).days || 15;
+    setProcessingStage(`Provisioning complimentary ${trialDays}-day enterprise trial...`);
+    const expiresAt = new Date(Date.now() + trialDays * 24 * 60 * 60 * 1000).toISOString();
     const finalTxnId = `TRIAL-${Date.now().toString().slice(-6)}`;
 
     try {
       await updateCompanySubscription(currentCompany.id, {
-        plan: '14-Day Full Enterprise Trial',
+        plan: `${trialDays}-Day Full Enterprise Trial`,
         cycle: 'Monthly',
         status: 'ACTIVE',
         expiresAt,
-        daysRemaining: daysToAdd,
-        paymentMethod: 'Complimentary Enterprise Trial',
+        daysRemaining: trialDays,
+        paymentMethod: `Complimentary Enterprise Trial (${trialDays} Days)`,
         amount: 0,
         txnId: finalTxnId
       });
@@ -250,13 +263,13 @@ export const SubscriptionTrialModal: React.FC<SubscriptionTrialModalProps> = ({
     }
 
     setIsTrialActive(true);
-    setTrialDaysLeft(14);
+    setTrialDaysLeft(trialDays);
     setReceiptData({
       txnId: finalTxnId,
-      planName: '14-Day Full Enterprise Trial',
+      planName: `${trialDays}-Day Full Enterprise Trial`,
       amount: 0,
       date: new Date().toISOString().split('T')[0],
-      method: 'Complimentary Enterprise Trial (14 Days)'
+      method: `Complimentary Enterprise Trial (${trialDays} Days)`
     });
     setIsProcessingPayment(false);
     setActiveStep('SUCCESS');

@@ -34,6 +34,7 @@ import { BankReconciliationReport } from './BankReconciliationReport';
 import { AutomatedStatementParser } from './AutomatedStatementParser';
 import { SearchableSelect } from '../common/SearchableSelect';
 import { ChartOfAccountsModule } from './finance/ChartOfAccountsModule';
+import { JournalVoucherForm } from './finance/JournalVoucherForm';
 
 type SubTab = 'vouchers' | 'coa' | 'gl' | 'subledger' | 'trialBalance' | 'pnl' | 'balanceSheet' | 'budget' | 'newVoucher' | 'bankReconciliation' | 'statementParser' | 'suppliers' | 'cost_center';
 
@@ -728,189 +729,13 @@ export const FinanceAccountsModule: React.FC = () => {
         </div>
       )}
 
-      {/* Tab 8: New Voucher Posting Form */}
       {activeSubTab === 'newVoucher' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6 max-w-3xl mx-auto">
-          <div className="border-b border-slate-800 pb-3 flex justify-between items-center">
-            <div>
-              <h2 className="text-sm font-bold text-slate-100 uppercase tracking-wider text-emerald-400">
-                Double-Entry Financial Voucher Entry
-              </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Automatically posts debit/credit amounts to Firebase and recalculates COA, GL, Trial Balance, P&L, and Balance Sheet.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={openFormInNewTab}
-              className="px-2.5 py-1 rounded-lg bg-slate-800 text-cyan-300 border border-slate-700 text-xs font-semibold flex items-center gap-1"
-            >
-              <ExternalLink className="w-3.5 h-3.5" /> Open Form in New Tab
-            </button>
-          </div>
-
-          <form onSubmit={handlePostVoucher} className="space-y-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Voucher Type</label>
-                <select
-                  value={voucherType}
-                  onChange={(e) => setVoucherType(e.target.value as any)}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-emerald-500"
-                >
-                  <option value="JOURNAL">Journal Voucher (JV)</option>
-                  <option value="PAYMENT">Bank/Cash Payment Voucher (BPV/CPV)</option>
-                  <option value="RECEIPT">Bank/Cash Receipt Voucher (BRV/CRV)</option>
-                  <option value="CONTRA">Contra Voucher</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Instrument / Cheque / Ref No</label>
-                <input
-                  type="text"
-                  value={refNo}
-                  onChange={(e) => setRefNo(e.target.value)}
-                  placeholder="e.g. CHQ-99120"
-                  className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-emerald-500 font-mono"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Narration / Memo</label>
-              <input
-                type="text"
-                value={narration}
-                onChange={(e) => setNarration(e.target.value)}
-                placeholder="Enter transaction narrative..."
-                required
-                className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-emerald-500"
-              />
-            </div>
-
-            {/* Line Items Table */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
-                  Journal Line Items (Debit / Credit PKR)
-                </label>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const defaultAcc = accounts[0];
-                    setItems([
-                      ...items,
-                      {
-                        accountId: defaultAcc ? defaultAcc.id : 'acc_1020',
-                        accountCode: defaultAcc ? defaultAcc.code : '1020',
-                        accountName: defaultAcc ? defaultAcc.name : 'Meezan Bank Operations Account',
-                        description: 'Voucher Adjustment',
-                        debit: 0,
-                        credit: 0
-                      }
-                    ]);
-                  }}
-                  className="flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-300 font-bold"
-                >
-                  <Plus className="w-3.5 h-3.5" /> Add Line Item
-                </button>
-              </div>
-
-              {items.map((item, idx) => (
-                <div key={idx} className="grid grid-cols-12 gap-2 items-center bg-slate-800/60 p-3 rounded-xl border border-slate-700">
-                  <div className="col-span-4">
-                    <SearchableSelect
-                      options={accounts.map((acc) => ({
-                        value: acc.id,
-                        label: `${acc.code} - ${acc.name}`,
-                        sublabel: `Category: ${acc.category} | Type: ${acc.type}`,
-                        category: acc.type
-                      }))}
-                      value={item.accountId}
-                      onChange={(selectedId) => {
-                        const acc = accounts.find((a) => a.id === selectedId);
-                        if (acc) {
-                          const updated = [...items];
-                          updated[idx] = { ...updated[idx], accountId: acc.id, accountCode: acc.code, accountName: acc.name };
-                          setItems(updated);
-                        }
-                      }}
-                      placeholder="Select COA Account Head..."
-                      searchPlaceholder="Search account name or code..."
-                    />
-                  </div>
-
-                  <div className="col-span-3">
-                    <input
-                      type="number"
-                      value={item.debit}
-                      onChange={(e) => {
-                        const updated = [...items];
-                        updated[idx].debit = Number(e.target.value) || 0;
-                        setItems(updated);
-                      }}
-                      placeholder="Debit PKR"
-                      className="w-full px-2 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-emerald-400 font-mono text-right font-bold"
-                    />
-                  </div>
-
-                  <div className="col-span-3">
-                    <input
-                      type="number"
-                      value={item.credit}
-                      onChange={(e) => {
-                        const updated = [...items];
-                        updated[idx].credit = Number(e.target.value) || 0;
-                        setItems(updated);
-                      }}
-                      placeholder="Credit PKR"
-                      className="w-full px-2 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-cyan-400 font-mono text-right font-bold"
-                    />
-                  </div>
-
-                  <div className="col-span-2 flex justify-end">
-                    {items.length > 2 && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setItems(items.filter((_, i) => i !== idx));
-                        }}
-                        className="px-2 py-1 rounded bg-rose-500/20 text-rose-300 hover:bg-rose-500/40 text-xs font-bold transition-all"
-                        title="Remove row"
-                      >
-                        Remove
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Totals & Balance indicator */}
-            <div className="flex justify-end gap-3 pt-3">
-              <button
-                type="button"
-                onClick={() => switchSubTab('vouchers')}
-                className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={!isBalanced}
-                className={`px-6 py-2 rounded-xl font-bold text-xs text-white transition-all ${
-                  isBalanced
-                    ? 'bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-600/30'
-                    : 'bg-slate-700 opacity-50 cursor-not-allowed'
-                }`}
-              >
-                Post Voucher & Sync Firebase
-              </button>
-            </div>
-          </form>
-        </div>
+        <JournalVoucherForm 
+          onSuccess={() => switchSubTab('vouchers')} 
+          onCancel={() => switchSubTab('vouchers')} 
+        />
       )}
+
 
       {/* Tab 8: Budget Planning & Variance Dashboard */}
       {activeSubTab === 'budget' && (

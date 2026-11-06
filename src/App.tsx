@@ -25,6 +25,8 @@ import { IndustryCoreManager } from './components/master/IndustryCoreManager';
 import { ConflictResolutionManager } from './components/master/ConflictResolutionManager';
 import { MasterBankAccountManager } from './components/master/MasterBankAccountManager';
 
+import { getModuleComponent } from './services/ModuleRegistry';
+
 // Client Tenant ERP Views
 import { ClientDashboard } from './components/client/ClientDashboard';
 import { FinanceAccountsModule } from './components/client/FinanceAccountsModule';
@@ -205,22 +207,16 @@ function MainLayout() {
             <ClientDashboard onNavigateTab={(tab) => setActiveTab(tab)} />
           )}
 
-          {!isMasterPortal && activeTab === 'departments' && <DepartmentMasterModule />}
-          {!isMasterPortal && activeTab === 'finance' && <FinanceAccountsModule />}
-          {!isMasterPortal && activeTab === 'procurement' && <ProcurementModule />}
-          {!isMasterPortal && activeTab === 'inventory' && <InventoryModule />}
-          {!isMasterPortal && activeTab === 'sales' && <SalesPosModule />}
-          {!isMasterPortal && activeTab === 'production' && <ProductionModule />}
-          {!isMasterPortal && activeTab === 'hr' && <HrPayrollModule />}
-          {!isMasterPortal && activeTab === 'formBuilder' && <FormBuilderModule />}
-          {!isMasterPortal && activeTab === 'reports' && <ReportingEngineModule />}
-          {!isMasterPortal && activeTab === 'approvals' && <ApprovalWorkflowModule />}
-          {!isMasterPortal && activeTab === 'aiAssistant' && <AiAssistantModule />}
-          {!isMasterPortal && activeTab === 'auditLogs' && <AuditLogViewer />}
-          {!isMasterPortal && activeTab === 'companySettings' && <CompanySettingsModule />}
-          {!isMasterPortal && activeTab === 'crm' && <CrmModule />}
-          {!isMasterPortal && activeTab === 'performanceMetrics' && <PerformanceMetricsDashboard />}
-          {activeTab === 'partnerships' && <PartnershipManagementModule />}
+          {!isMasterPortal && activeTab !== 'dashboard' && (() => {
+            const Component = getModuleComponent(activeTab);
+            if (Component) {
+              return <Component />;
+            }
+            if (activeTab === 'partnerships') {
+              return <PartnershipManagementModule />;
+            }
+            return <div className="p-8 text-slate-400">Module view for '{activeTab}' is loading...</div>;
+          })()}
         </main>
       </div>
 
