@@ -8,8 +8,10 @@ import {
   AlertCircle, 
   X, 
   Loader2,
-  FileText
+  FileText,
+  ShieldAlert
 } from 'lucide-react';
+import { useAuthTenant } from '../../context/AuthTenantContext';
 
 export interface BreadcrumbItem {
   label: string;
@@ -25,6 +27,7 @@ export interface BaseFormLayoutProps {
   statusBadge?: string;
   draftSavedAt?: string | null;
   variant?: 'standard' | 'grid-ledger';
+  requiredPermission?: 'canCreate' | 'canApprove' | 'canPost' | 'canManagePayroll' | 'isAdmin';
   isSubmitting?: boolean;
   submitLabel?: string;
   isDirty?: boolean;
@@ -44,6 +47,7 @@ export const BaseFormLayout: React.FC<BaseFormLayoutProps> = ({
   statusBadge = 'DRAFT',
   draftSavedAt,
   variant = 'grid-ledger',
+  requiredPermission,
   isSubmitting = false,
   submitLabel = 'Post & Commit',
   isDirty = false,
@@ -54,7 +58,32 @@ export const BaseFormLayout: React.FC<BaseFormLayoutProps> = ({
   extraActions,
   children
 }) => {
+  const { currentUser } = useAuthTenant();
   const [showDiscardConfirm, setShowDiscardConfirm] = useState<boolean>(false);
+
+  // RBAC Permission Evaluation
+  const role = currentUser.role || 'VIEWER';
+  const isMasterOrAdmin = currentUser.isMaster || role === 'MASTER_ADMIN' || role === 'CLIENT_ADMIN' || role === 'COMPANY_DIRECTOR' || role === 'CEO';
+
+  // Check required permission based on role and custom flags
+  const hasPermission = (() => {
+    if (isMasterOrAdmin) return true;
+    if (!requiredPermission) return true;
+
+    switch (requiredPermission) {
+      case 'canCreate':
+        return ['DEPARTMENT_MANAGER', 'SUPERVISOR', 'ACCOUNTANT', 'PROCUREMENT_OFFICER', 'HR_OFFICER', 'SALES_OFFICER', 'PRODUCTION_OFFICER'].includes(role);
+      case 'canApprove':
+      case 'canPost':
+        return ['DEPARTMENT_MANAGER', 'ACCOUNTANT', 'AUDITOR'].includes(role);
+      case 'canManagePayroll':
+        return ['DEPARTMENT_MANAGER', 'HR_OFFICER'].includes(role);
+      case 'isAdmin':
+        return isMasterOrAdmin;
+      default:
+        return true;
+    }
+  })();
 
   const handleDiscardClick = () => {
     if (isDirty) {
@@ -64,8 +93,8 @@ export const BaseFormLayout: React.FC<BaseFormLayoutProps> = ({
     }
   };
 
-  // Keyboard shortcut listener: Ctrl+S (Save draft), Ctrl+Enter (Submit), Esc (Discard)
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (!hasPermission) return;
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
       e.preventDefault();
       if (onSaveDraft) onSaveDraft();
@@ -79,7 +108,7 @@ export const BaseFormLayout: React.FC<BaseFormLayoutProps> = ({
         handleDiscardClick();
       }
     }
-  }, [onSaveDraft, onSubmit, isSubmitting, isDirty, showDiscardConfirm]);
+  }, [onSaveDraft, onSubmit, isSubmitting, isDirty, showDiscardConfirm, hasPermission]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -138,13 +167,19 @@ export const BaseFormLayout: React.FC<BaseFormLayoutProps> = ({
                 <span className="text-[10px] font-mono uppercase tracking-wider font-bold px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400">
                   {statusBadge}
                 </span>
+                {!hasPermission && (
+                  <span className="text-[10px] font-mono uppercase tracking-wider font-bold px-2 py-0.5 rounded bg-rose-950/80 border border-rose-800 text-rose-300 flex items-center gap-1">
+                    <ShieldAlert className="w-3 h-3" />
+                    Read-Only (RBAC Restricted)
+                  </span>
+                )}
               </div>
             </div>
 
             {/* Right: Actions Cluster */}
             <div className="flex items-center flex-wrap gap-2.5 shrink-0">
               {/* Draft Indicator */}
-              {draftSavedAt && (
+              {draftSavedAt && hasPermission && (
                 <div className="hidden lg:flex items-center gap-1.5 text-xs text-emerald-400 font-mono bg-emerald-950/40 border border-emerald-900/60 px-2.5 py-1 rounded-xl">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>Saved {draftSavedAt}</span>
@@ -168,7 +203,7 @@ export const BaseFormLayout: React.FC<BaseFormLayoutProps> = ({
               )}
 
               {/* Save Draft Button */}
-              {onSaveDraft && (
+              {onSaveDraft && hasPermission && (
                 <button
                   type="button"
                   onClick={onSaveDraft}
@@ -188,11 +223,11 @@ export const BaseFormLayout: React.FC<BaseFormLayoutProps> = ({
                 title="Discard transaction (Esc)"
               >
                 <X className="w-4 h-4" />
-                <span className="hidden sm:inline">Discard</span>
+                <span className="hidden sm:inline">{hasPermission ? 'Discard' : 'Close'}</span>
               </button>
 
               {/* Submit / Post Button (Primary Action) */}
-              {onSubmit && (
+              {onSubmit && hasPermission && (
                 <button
                   type="button"
                   disabled={isSubmitting}
@@ -224,10 +259,21 @@ export const BaseFormLayout: React.FC<BaseFormLayoutProps> = ({
         </div>
       </header>
 
-      {/* Main Responsive Form Canvas */}
+      {/* Main Responsive Form Canvas with RBAC Read-Only Overlay / Wrapper */}
       <main className="flex-1 w-full py-6 sm:py-8 px-4 sm:px-6 lg:px-8">
         <div className={`${containerMaxWidth} mx-auto transition-all`}>
-          {children}
+          {!hasPermission && (
+            <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-center gap-3 font-sans shadow-lg">
+              <ShieldAlert className="w-5 h-5 shrink-0 text-amber-400" />
+              <div>
+                <span className="font-bold">Role-Based Access Control (RBAC) Restricted:</span> Your current tenant role (<span className="font-mono underline">{currentUser.role}</span>) has view-only permissions for this document. Editing and cloud posting actions are disabled.
+              </div>
+            </div>
+          )}
+
+          <div className={!hasPermission ? 'opacity-90 pointer-events-none select-none' : ''}>
+            {children}
+          </div>
         </div>
       </main>
 
